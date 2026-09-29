@@ -1,0 +1,77 @@
+import { Injectable, signal } from '@angular/core';
+
+export type AppScreen = 
+  | 'portal' 
+  | 'hub' 
+  | 'rebus' 
+  | 'shape_sorter' 
+  | 'sound_matcher' 
+  | 'memory_flip' 
+  | 'balloon_pop' 
+  | 'piece_puzzle'
+  | 'alphabet_safari'
+  | 'number_counting'
+  | 'hindi_varnamala';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AppNavService {
+  /**
+   * Current active screen. Default starts on 'portal' (Animated Start Screen).
+   */
+  readonly currentScreen = signal<AppScreen>('portal');
+  readonly parentGateOpen = signal<boolean>(false);
+
+  goToPortal(): void {
+    this.currentScreen.set('portal');
+  }
+
+  goToHub(): void {
+    this.currentScreen.set('hub');
+  }
+
+  goToRebus(): void {
+    this.currentScreen.set('rebus');
+  }
+
+  goToShapeSorter(): void {
+    this.currentScreen.set('shape_sorter');
+  }
+
+  goToSoundMatcher(): void {
+    this.currentScreen.set('sound_matcher');
+  }
+
+  goToMemoryFlip(): void {
+    this.currentScreen.set('memory_flip');
+  }
+
+  goToBalloonPop(): void {
+    this.currentScreen.set('balloon_pop');
+  }
+
+  goToPiecePuzzle(): void {
+    this.currentScreen.set('piece_puzzle');
+  }
+
+  goToAlphabet(): void {
+    this.currentScreen.set('alphabet_safari');
+  }
+
+  goToNumbers(): void {
+    this.currentScreen.set('number_counting');
+  }
+
+  goToHindi(): void {
+    this.currentScreen.set('hindi_varnamala');
+  }
+
+  openParentGate(): void {
+    this.parentGateOpen.set(true);
+  }
+
+  closeParentGate(): void {
+    this.parentGateOpen.set(false);
+  }
+}

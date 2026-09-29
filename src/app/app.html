@@ -1,0 +1,203 @@
+@if (nav.currentScreen() === 'portal') {
+  <app-start-portal></app-start-portal>
+} @else if (nav.currentScreen() === 'hub') {
+  <app-toddler-hub></app-toddler-hub>
+} @else if (nav.currentScreen() === 'shape_sorter') {
+  <app-shape-sorter></app-shape-sorter>
+} @else if (nav.currentScreen() === 'sound_matcher') {
+  <app-sound-matcher></app-sound-matcher>
+} @else if (nav.currentScreen() === 'memory_flip') {
+  <app-memory-flip></app-memory-flip>
+} @else if (nav.currentScreen() === 'balloon_pop') {
+  <app-balloon-pop></app-balloon-pop>
+} @else if (nav.currentScreen() === 'piece_puzzle') {
+  <app-piece-puzzle></app-piece-puzzle>
+} @else if (nav.currentScreen() === 'alphabet_safari') {
+  <app-alphabet-safari></app-alphabet-safari>
+} @else if (nav.currentScreen() === 'number_counting') {
+  <app-number-counting></app-number-counting>
+} @else if (nav.currentScreen() === 'hindi_varnamala') {
+  <app-hindi-varnamala></app-hindi-varnamala>
+} @else {
+  <main class="app-viewport">
+    <!-- Glowing Background Orbs -->
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+
+  <!-- Main Top Header -->
+  <app-header></app-header>
+
+  <!-- ⚡ Friend Challenge Active Banner -->
+  @if (game.isFriendChallenge()) {
+    <div class="challenge-alert-bar">
+      <div class="challenge-alert-inner">
+        <span class="alert-icon">⚡</span>
+        <div class="alert-text">
+          <span class="alert-title">Friend's Challenge Active!</span>
+          <span class="alert-sub">Can you solve this puzzle faster than your friend?</span>
+        </div>
+        <button 
+          type="button" 
+          (click)="game.setDifficulty('easy')" 
+          class="exit-challenge-btn" 
+          title="Exit to regular levels">
+          ✕ Exit
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- 📅 Daily Mystery Challenge Banner -->
+  @if (game.isDailyChallenge()) {
+    <div class="daily-alert-bar">
+      <div class="daily-alert-inner">
+        <span class="alert-icon">🌟</span>
+        <div class="alert-text">
+          <span class="alert-title">Today's Daily Mystery Rebus</span>
+          <span class="alert-sub">Solve today's puzzle for +100 bonus coins!</span>
+        </div>
+        <button 
+          type="button" 
+          (click)="game.setDifficulty('easy')" 
+          class="exit-challenge-btn" 
+          title="Exit to regular levels">
+          ✕ Exit
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- ⏱️ Speed Run Blitz Countdown Bar -->
+  @if (game.isTimerMode()) {
+    <div class="timer-hud-container">
+      <div class="timer-hud-box" [class.timer-urgent]="game.timerSeconds() <= 10">
+        <div class="timer-info-row">
+          <span class="timer-title">
+            <span>⏱️ SPEED RUN</span>
+            @if (game.timerSeconds() >= 30) {
+              <span class="multiplier-badge mult-3x">3x LIGHTNING</span>
+            } @else if (game.timerSeconds() >= 15) {
+              <span class="multiplier-badge mult-2x">2x FAST</span>
+            } @else {
+              <span class="multiplier-badge">1x STANDARD</span>
+            }
+          </span>
+          <span class="timer-countdown font-display font-black">{{ game.timerSeconds() }}s</span>
+        </div>
+        <div class="timer-track">
+          <div 
+            class="timer-fill" 
+            [style.width.%]="(game.timerSeconds() / game.maxTimerSeconds) * 100">
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Quick Mode Tabs Bar (Hidden in Friend Challenge Mode) -->
+  @if (!game.isFriendChallenge()) {
+    <nav class="mode-tab-bar">
+      <div class="mode-tabs-container">
+        <button 
+          type="button"
+          (click)="game.setDifficulty('easy')"
+          class="tab-btn"
+          [ngClass]="{
+            'tab-active-easy': game.currentDifficulty() === 'easy',
+            'tab-inactive': game.currentDifficulty() !== 'easy'
+          }">
+          <span class="tab-dot dot-easy"></span>
+          <span>Easy</span>
+        </button>
+
+        <button 
+          type="button"
+          (click)="game.setDifficulty('medium')"
+          class="tab-btn"
+          [ngClass]="{
+            'tab-active-medium': game.currentDifficulty() === 'medium',
+            'tab-inactive': game.currentDifficulty() !== 'medium'
+          }">
+          <span class="tab-dot dot-medium"></span>
+          <span>Medium</span>
+        </button>
+
+        <button 
+          type="button"
+          (click)="game.setDifficulty('hard')"
+          class="tab-btn"
+          [ngClass]="{
+            'tab-active-hard': game.currentDifficulty() === 'hard',
+            'tab-inactive': game.currentDifficulty() !== 'hard'
+          }">
+          <span class="tab-dot dot-hard"></span>
+          <span>Hard</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Stage Progress Micro-Bar -->
+    <div class="level-progress-wrapper">
+      <div class="level-progress-meta">
+        <span class="level-meta-text">Mode Progress</span>
+        <span class="level-meta-pct">Level {{ game.currentLevelIndex() + 1 }} of {{ game.totalLevelsInMode() }}</span>
+      </div>
+      <div class="level-progress-track">
+        <div 
+          class="level-progress-fill" 
+          [style.width.%]="((game.currentLevelIndex() + 1) / game.totalLevelsInMode()) * 100"
+          [ngClass]="'fill-' + game.currentDifficulty()">
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Interactive Puzzle Visual Stage & Inputs -->
+  <section class="game-stage-section">
+    <app-puzzle-stage></app-puzzle-stage>
+    <app-answer-slots></app-answer-slots>
+    <app-letter-bank></app-letter-bank>
+    <app-hint-dock></app-hint-dock>
+  </section>
+
+  <!-- ⏰ Time's Up Overlay (if Timer expired) -->
+  @if (game.isTimeUp()) {
+    <div class="time-up-overlay animate-pop">
+      <div class="time-up-card glass-panel">
+        <span class="time-up-emoji">⏰</span>
+        <h3 class="time-up-title font-display">Time's Up!</h3>
+        <p class="time-up-sub">You ran out of time in Speed Run mode.</p>
+        <div class="time-up-actions">
+          <button 
+            type="button" 
+            (click)="game.retryTimerPuzzle()" 
+            class="btn-retry">
+            🔄 Retry Puzzle
+          </button>
+          <button 
+            type="button" 
+            (click)="game.nextLevel()" 
+            class="btn-skip-timer">
+            ⏩ Next Puzzle
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Footer Help Tag -->
+  <footer class="app-footer">
+    <p>💡 Tip: Tap letters or type on keyboard <kbd class="kbd-key">A-Z</kbd> & <kbd class="kbd-key">⌫</kbd></p>
+  </footer>
+
+  <!-- Modals -->
+  <app-how-to-play-modal></app-how-to-play-modal>
+  <app-game-menu-modal></app-game-menu-modal>
+  <app-mode-modal></app-mode-modal>
+  <app-win-modal></app-win-modal>
+  <app-stats-modal></app-stats-modal>
+  <app-puzzle-builder-modal></app-puzzle-builder-modal>
+  <app-theme-modal></app-theme-modal>
+  <app-share-modal></app-share-modal>
+  </main>
+}
