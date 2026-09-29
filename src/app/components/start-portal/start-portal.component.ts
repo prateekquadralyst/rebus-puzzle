@@ -1296,6 +1296,22 @@ export class StartPortalComponent implements OnInit {
   // Quick Game Shortcuts
   readonly quickGames: QuickGame[] = [
     {
+      id: 'magic_coloring',
+      title: 'Magic Coloring',
+      emoji: '🎨',
+      tag: 'Art & Slate',
+      bgGradient: 'linear-gradient(135deg, rgba(236, 72, 153, 0.35), rgba(139, 92, 246, 0.28))',
+      borderColor: 'rgba(244, 114, 182, 0.6)'
+    },
+    {
+      id: 'animal_piano',
+      title: 'Rainbow Piano',
+      emoji: '🎹',
+      tag: 'Music & Sounds',
+      bgGradient: 'linear-gradient(135deg, rgba(245, 158, 11, 0.35), rgba(239, 68, 68, 0.28))',
+      borderColor: 'rgba(253, 224, 71, 0.6)'
+    },
+    {
       id: 'alphabet_safari',
       title: 'ABCD Safari',
       emoji: '🔤',
@@ -1457,6 +1473,12 @@ export class StartPortalComponent implements OnInit {
   launchGame(screen: AppScreen): void {
     this.sound.playTap();
     switch (screen) {
+      case 'magic_coloring':
+        this.appNav.goToColoring();
+        break;
+      case 'animal_piano':
+        this.appNav.goToPiano();
+        break;
       case 'alphabet_safari':
         this.appNav.goToAlphabet();
         break;

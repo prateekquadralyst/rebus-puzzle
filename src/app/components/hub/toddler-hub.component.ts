@@ -89,7 +89,7 @@ interface GameItem {
             [class.cat-active]="activeCategory === 'new'"
             (click)="setCategory('new')">
             <span class="new-dot"></span>
-            <span>✨ New ABC & 123 (3)</span>
+            <span>✨ New Top Hits (5)</span>
           </button>
           <button 
             type="button"
@@ -587,7 +587,35 @@ interface GameItem {
 export class ToddlerHubComponent implements OnInit {
   // ⭐ Newly Added Games Placed First at the Top with Rich Saturated Vibrant Colors!
   readonly games: GameItem[] = [
-    // 1. 🔤 ABCD Alphabet Safari (New!)
+    // 1. 🎨 Magic Finger Coloring & Glow Slate (New!)
+    {
+      id: 'coloring',
+      title: 'Magic Coloring',
+      subtitle: 'Color cute animals & draw glowing neon art!',
+      emoji: '🎨',
+      badge: '✨ New!',
+      category: 'new',
+      tag: 'Art & Slate',
+      bgGradient: 'linear-gradient(145deg, #ec4899 0%, #8b5cf6 100%)',
+      borderColor: '#f472b6',
+      shadowColor: 'rgba(236, 72, 153, 0.5)',
+      isNew: true
+    },
+    // 2. 🎹 Rainbow Animal Piano & Xylophone (New!)
+    {
+      id: 'piano',
+      title: 'Rainbow Piano',
+      subtitle: 'Play tunes with cat, dog & duck voices!',
+      emoji: '🎹',
+      badge: '✨ New!',
+      category: 'new',
+      tag: 'Music & Songs',
+      bgGradient: 'linear-gradient(145deg, #f59e0b 0%, #ef4444 100%)',
+      borderColor: '#fde047',
+      shadowColor: 'rgba(245, 158, 11, 0.5)',
+      isNew: true
+    },
+    // 3. 🔤 ABCD Alphabet Safari (New!)
     {
       id: 'alphabet',
       title: 'ABCD Safari',
@@ -743,6 +771,12 @@ export class ToddlerHubComponent implements OnInit {
     this.speech.speakClue(`Playing ${game.title}!`);
 
     switch (game.id) {
+      case 'coloring':
+        this.appNav.goToColoring();
+        break;
+      case 'piano':
+        this.appNav.goToPiano();
+        break;
       case 'alphabet':
         this.appNav.goToAlphabet();
         break;

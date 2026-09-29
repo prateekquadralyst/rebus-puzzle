@@ -11,7 +11,9 @@ export type AppScreen =
   | 'piece_puzzle'
   | 'alphabet_safari'
   | 'number_counting'
-  | 'hindi_varnamala';
+  | 'hindi_varnamala'
+  | 'magic_coloring'
+  | 'animal_piano';
 
 @Injectable({
   providedIn: 'root'
@@ -65,6 +67,14 @@ export class AppNavService {
 
   goToHindi(): void {
     this.currentScreen.set('hindi_varnamala');
+  }
+
+  goToColoring(): void {
+    this.currentScreen.set('magic_coloring');
+  }
+
+  goToPiano(): void {
+    this.currentScreen.set('animal_piano');
   }
 
   openParentGate(): void {

@@ -23,6 +23,8 @@ import { PiecePuzzleComponent } from './components/games/piece-puzzle.component'
 import { AlphabetSafariComponent } from './components/games/alphabet-safari.component';
 import { NumberCountingComponent } from './components/games/number-counting.component';
 import { HindiVarnamalaComponent } from './components/games/hindi-varnamala.component';
+import { MagicColoringComponent } from './components/games/magic-coloring.component';
+import { AnimalPianoComponent } from './components/games/animal-piano.component';
 import { GameStateService } from './core/services/game-state.service';
 import { SoundService } from './core/services/sound.service';
 import { AppNavService } from './core/services/app-nav.service';
@@ -42,6 +44,8 @@ import { AppNavService } from './core/services/app-nav.service';
     AlphabetSafariComponent,
     NumberCountingComponent,
     HindiVarnamalaComponent,
+    MagicColoringComponent,
+    AnimalPianoComponent,
     HeaderComponent,
     PuzzleStageComponent,
     AnswerSlotsComponent,
