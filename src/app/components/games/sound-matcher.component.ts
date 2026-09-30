@@ -85,6 +85,14 @@ export interface SoundQuiz {
         <main class="matcher-stage">
           <div class="score-stars-bar">
             <span class="score-tag">Score: {{ score() }} ⭐</span>
+            <button 
+              type="button" 
+              class="next-quiz-btn"
+              [class.btn-glow-pulse]="selectedCorrect() !== null"
+              (click)="nextQuizQuestion()"
+              title="Next sound question">
+              <span>{{ selectedCorrect() !== null ? 'Next 🌟 ➡️' : 'Next Sound ⏭️' }}</span>
+            </button>
           </div>
 
           <!-- Giant Interactive Speaker Card -->
@@ -322,12 +330,42 @@ export interface SoundQuiz {
 
     .score-stars-bar {
       margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
     }
     .score-tag {
       font-size: 0.85rem;
       font-weight: 900;
       color: #facc15;
       text-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
+    }
+    .next-quiz-btn {
+      padding: 6px 16px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border: 1.5px solid #6ee7b7;
+      color: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+    .next-quiz-btn:hover {
+      transform: scale(1.06);
+      background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+    }
+    .btn-glow-pulse {
+      animation: soundNextPulse 0.9s infinite alternate;
+      border-color: #fde047 !important;
+      box-shadow: 0 0 18px rgba(253, 224, 71, 0.85) !important;
+    }
+    @keyframes soundNextPulse {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.08); }
     }
 
     /* Giant Sound Speaker */
@@ -755,6 +793,7 @@ readonly soundLibrary: SoundItem[] = [
   };
 
   private quizIndex = 0;
+  private quizAdvanceTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     public appNav: AppNavService,
@@ -767,7 +806,21 @@ readonly soundLibrary: SoundItem[] = [
     this.generateNewQuiz();
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+    if (this.quizAdvanceTimer) {
+      clearTimeout(this.quizAdvanceTimer);
+      this.quizAdvanceTimer = null;
+    }
+  }
+
+  nextQuizQuestion(): void {
+    if (this.quizAdvanceTimer) {
+      clearTimeout(this.quizAdvanceTimer);
+      this.quizAdvanceTimer = null;
+    }
+    this.sound.playTap();
+    this.generateNewQuiz();
+  }
 
   setMode(mode: 'quiz' | 'explore'): void {
     this.sound.playTap();
@@ -796,6 +849,10 @@ readonly soundLibrary: SoundItem[] = [
   }
 
   generateNewQuiz(): void {
+    if (this.quizAdvanceTimer) {
+      clearTimeout(this.quizAdvanceTimer);
+      this.quizAdvanceTimer = null;
+    }
     this.selectedCorrect.set(null);
     this.selectedWrong.set(null);
 
@@ -848,9 +905,13 @@ readonly soundLibrary: SoundItem[] = [
 
       this.speech.speak(`Awesome! That is a ${opt.name}! ${opt.soundText}`);
 
-      setTimeout(() => {
+      if (this.quizAdvanceTimer) {
+        clearTimeout(this.quizAdvanceTimer);
+      }
+      this.quizAdvanceTimer = setTimeout(() => {
         this.generateNewQuiz();
-      }, 1600);
+        this.quizAdvanceTimer = null;
+      }, 1800);
     } else {
       // ❌ Friendly wrong wobble
       this.selectedWrong.set(opt.id);

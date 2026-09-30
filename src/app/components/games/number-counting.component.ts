@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AppNavService } from '../../core/services/app-nav.service';
 import { SoundService } from '../../core/services/sound.service';
@@ -159,9 +159,27 @@ interface CountItem {
             <div class="quiz-question-box">
               <span class="quiz-mascot">🧸</span>
               <h3 class="quiz-prompt">
-                How many <span class="highlight-item">{{ quizStage.itemPlural }}</span> do you see?
+                How many <span class="highlight-item">{{ quizStage.itemPlural }}</span>&nbsp;do you see?
               </h3>
               <p class="quiz-hint">Count them and tap the right number below!</p>
+              
+              <div class="quiz-controls-row">
+                <button 
+                  type="button" 
+                  class="quiz-replay-btn" 
+                  (click)="speakQuizQuestion()">
+                  🔊 Hear Question
+                </button>
+
+                <button 
+                  type="button" 
+                  class="quiz-next-btn"
+                  [class.btn-glow-pulse]="quizFeedback === 'correct'"
+                  (click)="nextQuizQuestion()"
+                  title="Next question">
+                  <span>{{ quizFeedback === 'correct' ? 'Next 🌟 ➡️' : 'Next Question ⏭️' }}</span>
+                </button>
+              </div>
             </div>
 
             <!-- Random Objects Display -->
@@ -557,6 +575,8 @@ interface CountItem {
 
     .highlight-item {
       color: #fde047;
+      display: inline-block;
+      margin: 0 4px;
     }
 
     .quiz-hint {
@@ -579,6 +599,60 @@ interface CountItem {
     .quiz-item-emoji {
       font-size: clamp(2.4rem, 7vw, 3.2rem);
       filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.35));
+    }
+
+    .quiz-controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .quiz-replay-btn {
+      padding: 7px 16px;
+      border-radius: 16px;
+      background: rgba(99, 102, 241, 0.25);
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      color: #c7d2fe;
+      font-size: 0.78rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .quiz-replay-btn:hover {
+      background: #6366f1;
+      color: #ffffff;
+      transform: scale(1.05);
+    }
+
+    .quiz-next-btn {
+      padding: 7px 18px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border: 1.5px solid #6ee7b7;
+      color: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+    }
+    .quiz-next-btn:hover {
+      transform: scale(1.06);
+      background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+    }
+
+    .btn-glow-pulse {
+      animation: countNextPulse 0.9s infinite alternate;
+      border-color: #fde047 !important;
+      box-shadow: 0 0 18px rgba(253, 224, 71, 0.85) !important;
+    }
+
+    @keyframes countNextPulse {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.08); }
     }
 
     .quiz-options-grid {
@@ -725,6 +799,8 @@ export class NumberCountingComponent implements OnInit {
   quizFeedback: 'idle' | 'correct' | 'wrong' = 'idle';
   wrongSelectedNum: number | null = null;
 
+  private quizTimer: ReturnType<typeof setTimeout> | null = null;
+
   constructor(
     public appNav: AppNavService,
     public sound: SoundService,
@@ -737,14 +813,22 @@ export class NumberCountingComponent implements OnInit {
     this.initQuizRound();
   }
 
+  ngOnDestroy(): void {
+    this.clearQuizTimer();
+  }
+
   setMode(mode: 'tap_count' | 'quiz'): void {
     this.sound.playTap();
+    this.clearQuizTimer();
     this.currentMode = mode;
     if (mode === 'quiz') {
       this.initQuizRound();
       this.speakQuizQuestion();
     } else {
-      this.speech.speak(`Let's count ${this.activeStage.num} ${this.activeStage.itemPlural}!`);
+      this.sound.playCountNumber(this.activeStage.num);
+      setTimeout(() => {
+        this.speech.speak(`Let's count ${this.activeStage.num} ${this.activeStage.itemPlural}!`);
+      }, 500);
     }
   }
 
@@ -752,7 +836,11 @@ export class NumberCountingComponent implements OnInit {
     this.sound.playTap();
     this.activeStage = stage;
     this.resetActiveStage();
-    this.speech.speak(`Number ${stage.num}! Let's count ${stage.num} ${stage.num === 1 ? stage.itemSingular : stage.itemPlural}!`);
+    // 🔢 Real voice for number
+    this.sound.playCountNumber(stage.num);
+    setTimeout(() => {
+      this.speech.speak(`Number ${stage.num}! Count ${stage.num} ${stage.num === 1 ? stage.itemSingular : stage.itemPlural}!`);
+    }, 600);
   }
 
   resetActiveStage(): void {
@@ -771,7 +859,8 @@ export class NumberCountingComponent implements OnInit {
     item.countOrder = this.countedCount;
 
     this.sound.playPop(1 + (this.countedCount * 0.1));
-    this.speech.speak(`${this.countedCount}!`);
+    // 🔢 Real voice counting!
+    this.sound.playCountNumber(this.countedCount);
 
     // If all counted!
     if (this.countedCount === this.activeStage.num) {
@@ -779,7 +868,7 @@ export class NumberCountingComponent implements OnInit {
         this.sound.playFanfare();
         this.confetti.fire();
         this.speech.speak(`Great job! You counted all ${this.activeStage.num} ${this.activeStage.num === 1 ? this.activeStage.itemSingular : this.activeStage.itemPlural}!`);
-      }, 500);
+      }, 600);
     }
   }
 
@@ -827,24 +916,46 @@ export class NumberCountingComponent implements OnInit {
       this.confetti.fire();
       this.quizFeedback = 'correct';
       this.quizStars++;
-      this.speech.speak(`Yes! There are ${this.quizStage.num} ${this.quizStage.itemPlural}! You are so smart!`);
-
+      this.sound.playCountNumber(selectedNum);
       setTimeout(() => {
+        this.speech.speak(`Yes! There are ${this.quizStage.num} ${this.quizStage.itemPlural}!`);
+      }, 600);
+
+      this.clearQuizTimer();
+      this.quizTimer = setTimeout(() => {
         this.initQuizRound();
         this.speakQuizQuestion();
-      }, 1800);
+      }, 2400);
     } else {
       this.sound.playBoing();
       this.wrongSelectedNum = selectedNum;
-      this.speech.speak(`That is ${selectedNum}! Let's count again!`);
+      this.sound.playCountNumber(selectedNum);
+      setTimeout(() => {
+        this.speech.speak(`That is ${selectedNum}! Let's count again!`);
+      }, 600);
       setTimeout(() => {
         this.wrongSelectedNum = null;
       }, 900);
     }
   }
 
+  nextQuizQuestion(): void {
+    this.sound.playTap();
+    this.clearQuizTimer();
+    this.initQuizRound();
+    this.speakQuizQuestion();
+  }
+
+  private clearQuizTimer(): void {
+    if (this.quizTimer) {
+      clearTimeout(this.quizTimer);
+      this.quizTimer = null;
+    }
+  }
+
   goBack(): void {
     this.sound.playTap();
+    this.clearQuizTimer();
     this.appNav.goToHub();
   }
 }

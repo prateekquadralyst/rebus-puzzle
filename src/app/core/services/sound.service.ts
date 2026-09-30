@@ -7,11 +7,106 @@ export class SoundService {
   private audioCtx: AudioContext | null = null;
   readonly isMuted = signal<boolean>(false);
 
+  private bufferCache = new Map<string, AudioBuffer>();
+  private loadingPromises = new Map<string, Promise<AudioBuffer | null>>();
+
   constructor() {
     const savedMute = localStorage.getItem('rebus_sound_muted');
     if (savedMute !== null) {
       this.isMuted.set(savedMute === 'true');
     }
+
+    // Preload top core sounds when browser is idle or active
+    if (typeof window !== 'undefined') {
+      setTimeout(() => this.preloadCoreSounds(), 300);
+    }
+  }
+
+  private preloadCoreSounds(): void {
+    const coreUrls = [
+      '/audio/piano/C4.mp3', '/audio/piano/D4.mp3', '/audio/piano/E4.mp3', '/audio/piano/F4.mp3',
+      '/audio/piano/G4.mp3', '/audio/piano/A4.mp3', '/audio/piano/B4.mp3', '/audio/piano/C5.mp3',
+      '/audio/animals/dog.wav', '/audio/animals/cat.wav', '/audio/animals/cow.wav', '/audio/animals/duck.wav',
+      '/audio/animals/horse.wav', '/audio/animals/rooster.wav', '/audio/animals/frog.wav', '/audio/animals/bird.wav',
+      '/audio/vehicles/car-horn.wav', '/audio/vehicles/train.wav',
+      '/audio/fx/pop.wav', '/audio/fx/cheer.wav', '/audio/fx/win.wav'
+    ];
+    for (const url of coreUrls) {
+      this.loadBuffer(url).catch(() => {});
+    }
+  }
+
+  async loadBuffer(url: string): Promise<AudioBuffer | null> {
+    if (this.bufferCache.has(url)) return this.bufferCache.get(url)!;
+    if (this.loadingPromises.has(url)) return this.loadingPromises.get(url)!;
+
+    const p = (async () => {
+      try {
+        const ctx = this.getRawContext();
+        if (!ctx) return null;
+        const resp = await fetch(url);
+        if (!resp.ok) return null;
+        const arrayBuf = await resp.arrayBuffer();
+        const audioBuf = await ctx.decodeAudioData(arrayBuf);
+        this.bufferCache.set(url, audioBuf);
+        return audioBuf;
+      } catch (err) {
+        return null;
+      }
+    })();
+
+    this.loadingPromises.set(url, p);
+    return p;
+  }
+
+  playAudioBuffer(url: string, volume = 1.0, fallbackFn?: () => void): void {
+    if (this.isMuted()) return;
+    const ctx = this.getContext();
+    if (!ctx) {
+      if (fallbackFn) fallbackFn();
+      return;
+    }
+
+    const cached = this.bufferCache.get(url);
+    if (cached) {
+      this.triggerBufferSource(ctx, cached, volume);
+      return;
+    }
+
+    this.loadBuffer(url).then(buf => {
+      if (buf && !this.isMuted()) {
+        const currentCtx = this.getContext();
+        if (currentCtx) this.triggerBufferSource(currentCtx, buf, volume);
+      } else if (fallbackFn) {
+        fallbackFn();
+      }
+    }).catch(() => {
+      if (fallbackFn) fallbackFn();
+    });
+  }
+
+  private triggerBufferSource(ctx: AudioContext, buffer: AudioBuffer, volume = 1.0): void {
+    try {
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(volume, ctx.currentTime);
+      source.connect(gain);
+      gain.connect(ctx.destination);
+      source.start(0);
+    } catch (err) {
+      console.warn('Error playing buffer:', err);
+    }
+  }
+
+  private getRawContext(): AudioContext | null {
+    if (!this.audioCtx) {
+      const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (AudioContextClass) {
+        this.audioCtx = new AudioContextClass();
+      }
+    }
+    return this.audioCtx;
   }
 
   toggleMute(): boolean {
@@ -26,16 +121,11 @@ export class SoundService {
 
   private getContext(): AudioContext | null {
     if (this.isMuted()) return null;
-    if (!this.audioCtx) {
-      const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      if (AudioContextClass) {
-        this.audioCtx = new AudioContextClass();
-      }
+    const ctx = this.getRawContext();
+    if (ctx && ctx.state === 'suspended') {
+      ctx.resume();
     }
-    if (this.audioCtx && this.audioCtx.state === 'suspended') {
-      this.audioCtx.resume();
-    }
-    return this.audioCtx;
+    return ctx;
   }
 
   /**
@@ -91,6 +181,10 @@ export class SoundService {
    * Realistic punchy balloon burst sound (snap + pop)
    */
   playBalloonBurst(): void {
+    this.playAudioBuffer('/audio/fx/pop.wav', 1.0, () => this.playSyntheticBalloonBurst());
+  }
+
+  private playSyntheticBalloonBurst(): void {
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -167,6 +261,10 @@ export class SoundService {
    * Correct word victory chime
    */
   playSuccess(): void {
+    this.playAudioBuffer('/audio/fx/win.wav', 1.0, () => this.playSyntheticSuccess());
+  }
+
+  private playSyntheticSuccess(): void {
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -308,6 +406,10 @@ export class SoundService {
    * Triumphant launch fanfare for Play button
    */
   playFanfare(): void {
+    this.playAudioBuffer('/audio/fx/cheer.wav', 1.0, () => this.playSyntheticFanfare());
+  }
+
+  private playSyntheticFanfare(): void {
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -395,9 +497,13 @@ export class SoundService {
    * ======================================================== */
 
   /**
-   * 🐶 Dog Bark: Two punchy, raspy woofs (Woof! Woof!)
+   * 🐶 Dog Bark: Real authentic bark with synthetic fallback
    */
   playDogBark(): void {
+    this.playAudioBuffer('/audio/animals/dog.wav', 1.0, () => this.playSyntheticDogBark());
+  }
+
+  private playSyntheticDogBark(): void {
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -428,9 +534,13 @@ export class SoundService {
   }
 
   /**
-   * 🐱 Cat Meow: High-to-mid sweeping sine wave with cute vibrato (Me-owww!)
+   * 🐱 Cat Meow: Real authentic meow with synthetic fallback
    */
   playCatMeow(): void {
+    this.playAudioBuffer('/audio/animals/cat.wav', 1.0, () => this.playSyntheticCatMeow());
+  }
+
+  private playSyntheticCatMeow(): void {
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -455,9 +565,13 @@ export class SoundService {
   }
 
   /**
-   * 🐮 Cow Moo: Deep, rich resonant bovine low-pass sweep (Moooooo!)
+   * 🐮 Cow Moo: Real authentic moo with synthetic fallback
    */
   playCowMoo(): void {
+    this.playAudioBuffer('/audio/animals/cow.wav', 1.0, () => this.playSyntheticCowMoo());
+  }
+
+  private playSyntheticCowMoo(): void {
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -487,9 +601,13 @@ export class SoundService {
   }
 
   /**
-   * 🦆 Duck Quack: Nasal formant double-buzz (Quack! Quack!)
+   * 🦆 Duck Quack: Real authentic quack with synthetic fallback
    */
   playDuckQuack(): void {
+    this.playAudioBuffer('/audio/animals/duck.wav', 1.0, () => this.playSyntheticDuckQuack());
+  }
+
+  private playSyntheticDuckQuack(): void {
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -520,9 +638,13 @@ export class SoundService {
   }
 
   /**
-   * 🦁 Lion Roar: Deep roaring rumbling growl
+   * 🦁 Lion Roar: Real authentic roar with synthetic fallback
    */
   playLionRoar(): void {
+    this.playAudioBuffer('/audio/animals/lion.wav', 1.0, () => this.playSyntheticLionRoar());
+  }
+
+  private playSyntheticLionRoar(): void {
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -554,9 +676,13 @@ export class SoundService {
   }
 
   /**
-   * 🐸 Frog Croak: Deep rhythmic ribbit (Ribbit! Ribbit!)
+   * 🐸 Frog Croak: Real authentic croak with synthetic fallback
    */
   playFrogCroak(): void {
+    this.playAudioBuffer('/audio/animals/frog.wav', 1.0, () => this.playSyntheticFrogCroak());
+  }
+
+  private playSyntheticFrogCroak(): void {
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -587,9 +713,13 @@ export class SoundService {
   }
 
   /**
-   * 🐦 Bird Chirp: Sweet high-pitched trill
+   * 🐦 Bird Chirp: Real authentic chirp with synthetic fallback
    */
   playBirdChirp(): void {
+    this.playAudioBuffer('/audio/animals/bird.wav', 1.0, () => this.playSyntheticBirdChirp());
+  }
+
+  private playSyntheticBirdChirp(): void {
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -618,9 +748,13 @@ export class SoundService {
    * ======================================================== */
 
   /**
-   * 🚗 Car Horn: Realistic dual harmonic automotive horn (Beep Beep!)
+   * 🚗 Car Horn: Real automotive horn with synthetic fallback
    */
   playCarHorn(): void {
+    this.playAudioBuffer('/audio/vehicles/car-horn.wav', 1.0, () => this.playSyntheticCarHorn());
+  }
+
+  private playSyntheticCarHorn(): void {
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -653,9 +787,13 @@ export class SoundService {
   }
 
   /**
-   * 🚂 Train Whistle: Atmospheric dual-tone steam whistle (Choo Choo!)
+   * 🚂 Train Whistle: Real atmospheric steam train whistle with synthetic fallback
    */
   playTrainWhistle(): void {
+    this.playAudioBuffer('/audio/vehicles/train.wav', 1.0, () => this.playSyntheticTrainWhistle());
+  }
+
+  private playSyntheticTrainWhistle(): void {
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -684,9 +822,13 @@ export class SoundService {
   }
 
   /**
-   * 🚓 Police / Ambulance Siren: Up and down cycling emergency wail
+   * 🚓 Police / Ambulance Siren: Real emergency siren with synthetic fallback
    */
   playSiren(): void {
+    this.playAudioBuffer('/audio/vehicles/siren.wav', 1.0, () => this.playSyntheticSiren());
+  }
+
+  private playSyntheticSiren(): void {
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -719,9 +861,13 @@ export class SoundService {
   }
 
   /**
-   * 🚲 Bicycle Bell: Classic twin metallic ping (Tring Tring!)
+   * 🚲 Bicycle Bell: Real metallic ping with synthetic fallback
    */
   playBicycleBell(): void {
+    this.playAudioBuffer('/audio/vehicles/bicycle.wav', 1.0, () => this.playSyntheticBicycleBell());
+  }
+
+  private playSyntheticBicycleBell(): void {
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -805,9 +951,13 @@ export class SoundService {
   }
 
   /**
-   * 🐴 Horse Neigh: High-pitched whinny with vibrato tremolo
+   * 🐴 Horse Neigh: Real authentic whinny with synthetic fallback
    */
   playHorseNeigh(): void {
+    this.playAudioBuffer('/audio/animals/horse.wav', 1.0, () => this.playSyntheticHorseNeigh());
+  }
+
+  private playSyntheticHorseNeigh(): void {
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -879,9 +1029,13 @@ export class SoundService {
   }
 
   /**
-   * 🐑 Sheep / Goat Baaa: Vibrato bleat
+   * 🐑 Sheep / Goat Baaa: Real authentic bleat with synthetic fallback
    */
   playSheepBaa(): void {
+    this.playAudioBuffer('/audio/animals/sheep.wav', 1.0, () => this.playSyntheticSheepBaa());
+  }
+
+  private playSyntheticSheepBaa(): void {
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -921,9 +1075,13 @@ export class SoundService {
   }
 
   /**
-   * 🐓 Rooster Crow: Cock-a-doodle-doo 4-note ascending fanfare
+   * 🐓 Rooster Crow: Real authentic crow with synthetic fallback
    */
   playRoosterCrow(): void {
+    this.playAudioBuffer('/audio/animals/rooster.wav', 1.0, () => this.playSyntheticRoosterCrow());
+  }
+
+  private playSyntheticRoosterCrow(): void {
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -1149,9 +1307,13 @@ export class SoundService {
   }
 
   /**
-   * 🔔 Doorbell / Bell: Two chime tones (Ding-Dong!)
+   * 🔔 Doorbell / Bell: Real chime with synthetic fallback
    */
   playDoorbell(): void {
+    this.playAudioBuffer('/audio/fx/doorbell.wav', 1.0, () => this.playSyntheticDoorbell());
+  }
+
+  private playSyntheticDoorbell(): void {
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -1245,9 +1407,40 @@ export class SoundService {
   }
 
   /**
-   * 🎸 Musical Instrument: Plucked string sound
+   * 🎹 Play authentic Grand Piano sampled note (C4, D4, E4, F4, G4, A4, B4, C5)
+   */
+  playPianoNote(note: string): void {
+    const upper = note.toUpperCase();
+    this.playAudioBuffer(`/audio/piano/${upper}.mp3`, 1.0, () => {
+      const freqs: Record<string, number> = {
+        C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23,
+        G4: 392.00, A4: 440.00, B4: 493.88, C5: 523.25
+      };
+      this.playSyntheticMusicalNote(freqs[upper] || 440);
+    });
+  }
+
+  /**
+   * 🎸 Musical Instrument: Maps to closest real acoustic Grand Piano note
    */
   playMusicalNote(freq = 440): void {
+    const scale: [string, number][] = [
+      ['C4', 261.63], ['D4', 293.66], ['E4', 329.63], ['F4', 349.23],
+      ['G4', 392.00], ['A4', 440.00], ['B4', 493.88], ['C5', 523.25]
+    ];
+    let closest = 'A4';
+    let minDiff = 99999;
+    for (const [name, f] of scale) {
+      const diff = Math.abs(f - freq);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closest = name;
+      }
+    }
+    this.playPianoNote(closest);
+  }
+
+  private playSyntheticMusicalNote(freq = 440): void {
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -1269,9 +1462,13 @@ export class SoundService {
   }
 
   /**
-   * 📣 Referee Whistle: High screeching whistle with rapid tremolo
+   * 📣 Referee Whistle: Real whistle with synthetic fallback
    */
   playWhistle(): void {
+    this.playAudioBuffer('/audio/fx/whistle.wav', 1.0, () => this.playSyntheticWhistle());
+  }
+
+  private playSyntheticWhistle(): void {
     const ctx = this.getContext();
     if (!ctx) return;
 
@@ -1299,6 +1496,41 @@ export class SoundService {
 
     osc.start(t);
     osc.stop(t + 0.45);
+  }
+
+  /**
+   * 🔢 Clear voice counting for numbers 1 to 10
+   */
+  playCountNumber(num: number): void {
+    if (num >= 1 && num <= 10) {
+      this.playAudioBuffer(`/audio/numbers/${num}.mp3`, 1.0);
+    }
+  }
+
+  /**
+   * 🔤 Crystal-clear voice for English Alphabet A to Z
+   */
+  playLetterVoice(letter: string): void {
+    if (letter) {
+      this.playAudioBuffer(`/audio/alphabet/${letter.toUpperCase()}.mp3`, 1.0);
+    }
+  }
+
+  /**
+   * 🕉️ Authentic Hindi voice pronunciation for Swar and Vyanjan
+   */
+  playHindiPhrase(type: 'swar' | 'vyanjan', index: number): void {
+    this.playAudioBuffer(`/audio/hindi/${type}_${index}.mp3`, 1.0);
+  }
+
+  /**
+   * 🕉️ Play exact Hindi audio clip by key (e.g. 'vyanjan_33' for क्ष, 'vyanjan_34' for त्र, 'vyanjan_35' for ज्ञ)
+   */
+  playHindiAudio(audioKey: string): void {
+    if (audioKey) {
+      const filename = audioKey.endsWith('.mp3') ? audioKey : `${audioKey}.mp3`;
+      this.playAudioBuffer(`/audio/hindi/${filename}`, 1.0);
+    }
   }
 
   /**

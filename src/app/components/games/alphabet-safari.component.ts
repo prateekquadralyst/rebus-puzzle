@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AppNavService } from '../../core/services/app-nav.service';
 import { SoundService } from '../../core/services/sound.service';
@@ -157,12 +157,23 @@ interface LetterItem {
               </h3>
               <p class="quiz-sub">Find {{ quizTarget.upper }} for {{ quizTarget.word }} {{ quizTarget.emoji }}</p>
               
-              <button 
-                type="button" 
-                class="quiz-replay-btn" 
-                (click)="speakQuizQuestion()">
-                🔊 Hear Again
-              </button>
+              <div class="quiz-controls-row">
+                <button 
+                  type="button" 
+                  class="quiz-replay-btn" 
+                  (click)="speakQuizQuestion()">
+                  🔊 Hear Again
+                </button>
+
+                <button 
+                  type="button" 
+                  class="quiz-next-btn"
+                  [class.btn-glow-pulse]="quizFeedback === 'correct'"
+                  (click)="nextQuizQuestion()"
+                  title="Next question">
+                  <span>{{ quizFeedback === 'correct' ? 'Next 🌟 ➡️' : 'Next Question ⏭️' }}</span>
+                </button>
+              </div>
             </div>
 
             <!-- Quiz Options Cards -->
@@ -601,6 +612,14 @@ interface LetterItem {
       margin-bottom: 10px;
     }
 
+    .quiz-controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
     .quiz-replay-btn {
       padding: 7px 16px;
       border-radius: 16px;
@@ -616,6 +635,34 @@ interface LetterItem {
       background: #6366f1;
       color: #ffffff;
       transform: scale(1.05);
+    }
+
+    .quiz-next-btn {
+      padding: 7px 18px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border: 1.5px solid #6ee7b7;
+      color: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+    }
+    .quiz-next-btn:hover {
+      transform: scale(1.06);
+      background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+    }
+
+    .btn-glow-pulse {
+      animation: nextPulse 0.9s infinite alternate;
+      border-color: #fde047 !important;
+      box-shadow: 0 0 18px rgba(253, 224, 71, 0.85) !important;
+    }
+
+    @keyframes nextPulse {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.08); }
     }
 
     .quiz-options-grid {
@@ -878,6 +925,7 @@ export class AlphabetSafariComponent implements OnInit {
   quizScore = 0;
   quizFeedback: 'idle' | 'correct' | 'wrong' = 'idle';
   wrongSelectedUpper = '';
+  private quizTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     public appNav: AppNavService,
@@ -891,8 +939,13 @@ export class AlphabetSafariComponent implements OnInit {
     this.initQuizRound();
   }
 
+  ngOnDestroy(): void {
+    this.clearQuizTimer();
+  }
+
   setMode(mode: 'explore' | 'quiz'): void {
     this.sound.playTap();
+    this.clearQuizTimer();
     this.currentMode = mode;
     if (mode === 'quiz') {
       this.initQuizRound();
@@ -909,7 +962,11 @@ export class AlphabetSafariComponent implements OnInit {
   }
 
   playLetterSpeech(letter: LetterItem): void {
-    this.speech.speak(`${letter.upper}, ${letter.lower}. ${letter.phonics}. ${letter.upper} is for ${letter.word}!`);
+    // 🔤 Real crystal-clear letter pronunciation
+    this.sound.playLetterVoice(letter.upper);
+    setTimeout(() => {
+      this.speech.speak(`${letter.upper} is for ${letter.word}!`);
+    }, 600);
   }
 
   prevLetter(): void {
@@ -952,25 +1009,47 @@ export class AlphabetSafariComponent implements OnInit {
       this.confetti.fire();
       this.quizFeedback = 'correct';
       this.quizScore++;
-      this.speech.speak(`Super job! ${option.upper} is for ${option.word}!`);
-
+      this.sound.playLetterVoice(option.upper);
       setTimeout(() => {
+        this.speech.speak(`Super job! ${option.upper} is for ${option.word}!`);
+      }, 600);
+
+      this.clearQuizTimer();
+      this.quizTimer = setTimeout(() => {
         this.initQuizRound();
         this.speakQuizQuestion();
-      }, 1800);
+      }, 2400);
     } else {
       // Wrong
       this.sound.playBoing();
       this.wrongSelectedUpper = option.upper;
-      this.speech.speak(`That is letter ${option.upper}! Let's find letter ${this.quizTarget.upper}!`);
+      this.sound.playLetterVoice(option.upper);
+      setTimeout(() => {
+        this.speech.speak(`That is letter ${option.upper}! Let's find letter ${this.quizTarget.upper}!`);
+      }, 600);
       setTimeout(() => {
         this.wrongSelectedUpper = '';
       }, 900);
     }
   }
 
+  nextQuizQuestion(): void {
+    this.sound.playTap();
+    this.clearQuizTimer();
+    this.initQuizRound();
+    this.speakQuizQuestion();
+  }
+
+  private clearQuizTimer(): void {
+    if (this.quizTimer) {
+      clearTimeout(this.quizTimer);
+      this.quizTimer = null;
+    }
+  }
+
   goBack(): void {
     this.sound.playTap();
+    this.clearQuizTimer();
     this.appNav.goToHub();
   }
 }

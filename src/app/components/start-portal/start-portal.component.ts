@@ -1,6 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AppNavService, AppScreen } from '../../core/services/app-nav.service';
+import { AppNavService } from '../../core/services/app-nav.service';
 import { SoundService } from '../../core/services/sound.service';
 import { SpeechService } from '../../core/services/speech.service';
 import { ConfettiService } from '../../core/services/confetti.service';
@@ -18,13 +18,26 @@ interface FloatingBalloon {
   popY?: number;
 }
 
-interface QuickGame {
-  id: AppScreen;
-  title: string;
+interface RainbowStar {
+  id: string;
+  note: string;
+  noteLabel: string;
+  solfege: string;
   emoji: string;
-  tag: string;
-  bgGradient: string;
-  borderColor: string;
+  color: string;
+  glow: string;
+}
+
+interface MascotBuddy {
+  id: string;
+  name: string;
+  hindiName: string;
+  emoji: string;
+  paw: string;
+  soundKey: string;
+  color: string;
+  greeting: string;
+  hindiGreeting: string;
 }
 
 @Component({
@@ -147,9 +160,32 @@ interface QuickGame {
         </div>
       </header>
 
-      <!-- 🎪 Center Stage: Animated Living Mascot & Title -->
+      <!-- 🎪 Center Stage: Animated Living Mascot, Musical Rainbow, & Mega Play Button -->
       <main class="portal-content">
-        <!-- Living Mascot Companion -->
+        <!-- 🌈 Musical Piano Rainbow Arch (Tap stars to play real piano notes!) -->
+        <div class="rainbow-arch-banner">
+          <div class="rainbow-arch-track">
+            <span class="rainbow-curve-line"></span>
+            <div class="rainbow-stars-cluster">
+              @for (star of rainbowStars; track star.id) {
+                <button 
+                  type="button" 
+                  class="rainbow-star-item"
+                  [style.--star-color]="star.color"
+                  [style.--star-glow]="star.glow"
+                  [class.star-tapped]="tappedStarId === star.id"
+                  (click)="onRainbowStarClick(star, $event)"
+                  [title]="'Play musical note ' + star.noteLabel + ' (' + star.solfege + ')'">
+                  <span class="star-glyph">{{ star.emoji }}</span>
+                  <span class="star-note-tag">{{ star.solfege }}</span>
+                </button>
+              }
+            </div>
+          </div>
+          <span class="rainbow-hint-text">🎵 Tap stars to play music! 🎹</span>
+        </div>
+
+        <!-- 🧸 Living Mascot Companion Stage -->
         <div 
           class="mascot-stage" 
           (click)="onMascotClick()"
@@ -163,14 +199,33 @@ interface QuickGame {
 
           <!-- Cute Mascot Avatar with Swapping Moods -->
           <div class="mascot-avatar">
-            <span class="mascot-emoji">{{ currentMood.emoji }}</span>
-            <div class="waving-paw">{{ currentMood.paw }}</div>
+            <span class="mascot-emoji">{{ currentBuddy.emoji }}</span>
+            <div class="waving-paw">{{ currentBuddy.paw }}</div>
           </div>
 
           <!-- Interactive Speech Bubble -->
           <div class="speech-bubble animate-pop">
-            <span class="speech-text">{{ currentMood.msg }}</span>
+            <span class="speech-text">{{ currentSpeechText }}</span>
             <span class="speech-tap-hint">👆 Tap me!</span>
+          </div>
+        </div>
+
+        <!-- 🐾 Mascot Buddy Picker Pills (Choose favorite friend!) -->
+        <div class="buddies-picker-row">
+          <span class="buddies-label">Choose Friend:</span>
+          <div class="buddies-pills">
+            @for (buddy of buddies; track buddy.id) {
+              <button 
+                type="button" 
+                class="buddy-pill-btn"
+                [class.buddy-active]="currentBuddy.id === buddy.id"
+                [style.--buddy-color]="buddy.color"
+                (click)="selectBuddy(buddy)"
+                [title]="'Play with ' + buddy.name + ' (' + buddy.hindiName + ')'">
+                <span class="buddy-pill-emoji">{{ buddy.emoji }}</span>
+                <span class="buddy-pill-name">{{ buddy.hindiName }}</span>
+              </button>
+            }
           </div>
         </div>
 
@@ -180,57 +235,70 @@ interface QuickGame {
           <h1 class="portal-title">
             TODDLER<span class="title-accent">MIND</span>
           </h1>
-          <p class="portal-sub">Magical world of fun learning games for smart kids!</p>
+          <p class="portal-sub">जादुई दुनिया • खेल-खेल में सीखो और मुस्कुराओ!</p>
         </div>
 
-        <!-- 🚀 Grand Jelly "TAP TO PLAY!" Mega Button -->
-        <div class="action-dock">
+        <!-- 🚀 Grand Jelly "TAP TO PLAY! • चलो खेलें!" Mega 3D Button -->
+        <div class="grand-play-dock">
           <button 
             type="button" 
             (click)="onPlayClick()"
-            class="jelly-play-btn"
+            class="grand-candy-play-btn animate-pop"
             id="btn-toddler-play"
             title="Start your learning adventure!">
-            <div class="play-pulse-ring"></div>
-            <span class="play-icon-box">▶</span>
-            <span class="play-text">TAP TO PLAY!</span>
-            <span class="sparkle-tail">✨</span>
+            <div class="play-pulse-ring ring-1"></div>
+            <div class="play-pulse-ring ring-2"></div>
+            
+            <div class="btn-inner-content">
+              <div class="play-icon-glow">
+                <span class="play-triangle">▶</span>
+              </div>
+              <div class="play-text-col">
+                <span class="grand-play-title">TAP TO PLAY! 🌟</span>
+                <span class="grand-play-hindi">चलो खेलें! • Let's Play!</span>
+              </div>
+              <span class="grand-sparkle-star">✨</span>
+            </div>
           </button>
-        </div>
-
-        <!-- ⚡ Quick Play Mini-Game Dock (Jump straight into favorite games) -->
-        <div class="quick-dock-wrapper">
-          <div class="dock-header">
-            <span class="dock-line"></span>
-            <span class="dock-title">⚡ QUICK PLAY FAVORITES</span>
-            <span class="dock-line"></span>
-          </div>
-
-          <div class="quick-games-grid">
-            @for (game of quickGames; track game.id) {
-              <button 
-                type="button" 
-                class="quick-game-card"
-                [style.background]="game.bgGradient"
-                [style.border-color]="game.borderColor"
-                (click)="launchGame(game.id)"
-                [title]="'Jump into ' + game.title">
-                <span class="quick-game-emoji">{{ game.emoji }}</span>
-                <span class="quick-game-name">{{ game.title }}</span>
-                <span class="quick-game-tag">{{ game.tag }}</span>
-              </button>
-            }
-          </div>
+          <span class="sub-play-tip">👆 Touch to enter the fun game hub! 🏰</span>
         </div>
       </main>
 
-      <!-- 🌸 Bottom Garden Meadow -->
+      <!-- 🚂 Rolling Meadow Track & Interactive Critters -->
       <footer class="portal-ground">
+        <!-- Interactive Choo Choo Train on the Hill -->
+        <div class="train-track-hill">
+          <button 
+            type="button" 
+            class="choo-train" 
+            [class.train-racing]="isTrainRacing"
+            (click)="onTrainClick()"
+            title="Tap the Choo Choo Train!">
+            <span class="train-smoke">💨☁️</span>
+            <span class="train-engine">🚂</span>
+            <span class="train-car">🚃</span>
+            <span class="train-car">🚃</span>
+            <span class="train-car">🎈</span>
+            @if (trainBubble) {
+              <span class="train-speech-pop animate-pop">Choo Choo! 🚂💨</span>
+            }
+          </button>
+        </div>
+
+        <!-- Bottom Garden Meadow Critters & Flowers -->
         <div class="garden-decor">
+          <button type="button" class="critter-btn frog-btn" [class.frog-jumping]="isFrogJumping" (click)="onFrogClick()" title="Tap Froggy!">
+            🐸
+          </button>
           <span class="flower-item" (click)="onFlowerClick('🌸')">🌸</span>
           <span class="flower-item" (click)="onFlowerClick('🍄')">🍄</span>
+          <button type="button" class="critter-btn butterfly-item" (click)="onButterflyClick()" title="Tap Butterfly!">
+            🦋
+          </button>
           <span class="flower-item" (click)="onFlowerClick('🌻')">🌻</span>
-          <span class="flower-item butterfly-item" (click)="onButterflyClick()">🦋</span>
+          <button type="button" class="critter-btn bee-btn" (click)="onBeeClick()" title="Tap Busy Bee!">
+            🐝
+          </button>
           <span class="flower-item" (click)="onFlowerClick('🌼')">🌼</span>
           <span class="flower-item" (click)="onFlowerClick('🌷')">🌷</span>
           <span class="flower-item" (click)="onFlowerClick('🍀')">🍀</span>
@@ -736,164 +804,341 @@ interface QuickGame {
       max-width: 440px;
     }
 
-    /* 🚀 Action Dock: Mega Play Button */
-    .action-dock {
+    /* 🌈 Musical Rainbow Arch */
+    .rainbow-arch-banner {
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto 10px auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .rainbow-arch-track {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 26px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 2px solid rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .rainbow-curve-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #ef4444, #f97316, #eab308, #10b981, #06b6d4, #6366f1, #ec4899);
+      box-shadow: 0 0 12px rgba(236, 72, 153, 0.8);
+      animation: rainbowShift 3s linear infinite;
+    }
+    @keyframes rainbowShift {
+      0% { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(360deg); }
+    }
+
+    .rainbow-stars-cluster {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      gap: 6px;
+      width: 100%;
+    }
+
+    .rainbow-star-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 4px 6px;
+      border-radius: 14px;
+      border: 1.5px solid var(--star-color);
+      background: rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+      outline: none;
+      transition: all 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 4px 12px var(--star-glow);
+    }
+    .rainbow-star-item:hover {
+      transform: translateY(-4px) scale(1.15);
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 6px 18px var(--star-glow);
+    }
+    .rainbow-star-item:active, .rainbow-star-item.star-tapped {
+      transform: scale(1.25) rotate(10deg);
+      background: var(--star-color);
+    }
+
+    .star-glyph {
+      font-size: clamp(1.2rem, 3.5vw, 1.5rem);
+      line-height: 1;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+    }
+
+    .star-note-tag {
+      font-size: 0.64rem;
+      font-weight: 900;
+      color: #ffffff;
+      margin-top: 2px;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+    }
+
+    .rainbow-hint-text {
+      font-size: 0.68rem;
+      font-weight: 800;
+      color: #a7f3d0;
+      margin-top: 4px;
+      letter-spacing: 0.04em;
+    }
+
+    /* 🐾 Mascot Buddies Switcher */
+    .buddies-picker-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .buddies-label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #cbd5e1;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .buddies-pills {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .buddy-pill-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 11px;
+      border-radius: 18px;
+      border: 1.5px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.08);
+      color: #e2e8f0;
+      font-size: 0.76rem;
+      font-weight: 800;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .buddy-pill-btn:hover {
+      transform: translateY(-2px) scale(1.06);
+      background: rgba(255, 255, 255, 0.18);
+    }
+    .buddy-pill-btn.buddy-active {
+      border-color: #fde047 !important;
+      background: rgba(253, 224, 71, 0.22) !important;
+      box-shadow: 0 0 16px rgba(253, 224, 71, 0.65);
+      color: #ffffff;
+      transform: scale(1.08);
+    }
+
+    .buddy-pill-emoji {
+      font-size: 1.15rem;
+    }
+    .buddy-pill-name {
+      line-height: 1;
+    }
+
+    /* 🚀 Grand Jelly Play Mega Button */
+    .grand-play-dock {
       display: flex;
       flex-direction: column;
       align-items: center;
       width: 100%;
-      max-width: 360px;
-      margin-bottom: 22px;
+      max-width: 420px;
+      margin: 6px auto 14px auto;
       position: relative;
     }
 
-    .jelly-play-btn {
+    .grand-candy-play-btn {
       width: 100%;
-      height: 74px;
-      border-radius: 28px;
-      border: 3.5px solid #fde047;
-      background: linear-gradient(135deg, #f59e0b 0%, #ef4444 60%, #ec4899 100%);
+      height: 84px;
+      border-radius: 32px;
+      border: 3.5px solid #6ee7b7;
+      background: linear-gradient(135deg, #10b981 0%, #059669 45%, #047857 100%);
       color: #ffffff;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
       cursor: pointer;
       outline: none;
       position: relative;
       box-shadow: 
-        0 14px 40px -5px rgba(239, 68, 68, 0.65),
-        0 0 30px rgba(245, 158, 11, 0.55),
-        inset 0 3px 4px rgba(255, 255, 255, 0.7),
-        inset 0 -4px 0 rgba(0, 0, 0, 0.3);
-      animation: jellyPulse 2.4s infinite;
+        0 18px 42px -4px rgba(16, 185, 129, 0.7),
+        0 0 32px rgba(52, 211, 153, 0.5),
+        inset 0 3px 5px rgba(255, 255, 255, 0.8),
+        inset 0 -5px 0 rgba(0, 0, 0, 0.25);
+      animation: grandPulse 2.2s infinite;
       transition: all 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    .jelly-play-btn:hover {
+    .grand-candy-play-btn:hover {
       transform: translateY(-4px) scale(1.03);
       box-shadow: 
-        0 20px 50px -5px rgba(239, 68, 68, 0.8),
-        0 0 40px rgba(245, 158, 11, 0.7);
+        0 24px 50px -4px rgba(16, 185, 129, 0.85),
+        0 0 45px rgba(52, 211, 153, 0.7);
     }
-    .jelly-play-btn:active {
+    .grand-candy-play-btn:active {
       transform: translateY(2px) scale(0.97);
     }
 
-    .play-icon-box {
-      width: 42px;
-      height: 42px;
+    .play-pulse-ring {
+      position: absolute;
+      inset: -8px;
+      border-radius: 38px;
+      border: 2.5px solid #34d399;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .ring-1 {
+      animation: ringWave 2.2s ease-out infinite;
+    }
+    .ring-2 {
+      animation: ringWave 2.2s ease-out infinite 0.7s;
+    }
+    @keyframes ringWave {
+      0% { transform: scale(0.96); opacity: 0.8; }
+      100% { transform: scale(1.22); opacity: 0; }
+    }
+
+    .btn-inner-content {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      z-index: 2;
+    }
+
+    .play-icon-glow {
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
       background: #ffffff;
-      color: #ef4444;
+      color: #059669;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 19px;
+      font-size: 22px;
       font-weight: 900;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
     }
 
-    .play-text {
-      font-family: var(--font-display);
-      font-size: clamp(1.25rem, 4.2vw, 1.55rem);
+    .play-text-col {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      line-height: 1.15;
+    }
+
+    .grand-play-title {
+      font-family: var(--font-display, sans-serif);
+      font-size: clamp(1.3rem, 4.4vw, 1.65rem);
       font-weight: 900;
       letter-spacing: 0.04em;
-      text-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
+      color: #ffffff;
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
     }
 
-    .sparkle-tail {
-      font-size: 1.5rem;
+    .grand-play-hindi {
+      font-size: clamp(0.78rem, 2.5vw, 0.92rem);
+      font-weight: 800;
+      color: #fef08a;
+      letter-spacing: 0.02em;
+    }
+
+    .grand-sparkle-star {
+      font-size: 1.6rem;
       animation: twinkle 1.5s infinite;
     }
 
-    /* ⚡ Quick Games Dock */
-    .quick-dock-wrapper {
-      width: 100%;
-      max-width: 580px;
-      margin-top: 4px;
-    }
-
-    .dock-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
-      opacity: 0.85;
-    }
-
-    .dock-line {
-      flex: 1;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    }
-
-    .dock-title {
-      font-size: 0.72rem;
-      font-weight: 800;
-      color: #cbd5e1;
-      letter-spacing: 0.08em;
-    }
-
-    .quick-games-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-    }
-
-    @media (max-width: 500px) {
-      .quick-games-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    .quick-game-card {
-      padding: 10px 8px;
-      border-radius: 18px;
-      border: 1.5px solid;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 3px;
-      cursor: pointer;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
-      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    .quick-game-card:hover {
-      transform: translateY(-3px) scale(1.04);
-      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
-    }
-    .quick-game-card:active {
-      transform: scale(0.96);
-    }
-
-    .quick-game-emoji {
-      font-size: clamp(1.4rem, 4vw, 1.8rem);
-      line-height: 1;
-      filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
-    }
-
-    .quick-game-name {
-      font-size: 0.76rem;
-      font-weight: 800;
-      color: #ffffff;
-      letter-spacing: 0.02em;
-      white-space: nowrap;
-    }
-
-    .quick-game-tag {
-      font-size: 0.62rem;
+    .sub-play-tip {
+      font-size: 0.74rem;
       font-weight: 700;
-      color: rgba(255, 255, 255, 0.8);
+      color: #94a3b8;
+      margin-top: 8px;
+    }
+
+    @keyframes grandPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.025); }
+    }
+
+    /* 🚂 Interactive Choo Choo Train Track */
+    .train-track-hill {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 4px;
+      position: relative;
+    }
+
+    .choo-train {
+      background: none;
+      border: none;
+      cursor: pointer;
+      outline: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      font-size: 1.5rem;
+      animation: trainPuff 4s ease-in-out infinite alternate;
+      position: relative;
+      transition: transform 0.3s;
+    }
+    .choo-train:hover {
+      transform: scale(1.15);
+    }
+    .choo-train.train-racing {
+      animation: trainZoom 1.8s ease-in-out;
+    }
+    @keyframes trainPuff {
+      0% { transform: translateX(-15px); }
+      100% { transform: translateX(15px); }
+    }
+    @keyframes trainZoom {
+      0% { transform: translateX(-40px) scale(1.1); }
+      50% { transform: translateX(60px) scale(1.25); }
+      100% { transform: translateX(0) scale(1); }
+    }
+
+    .train-speech-pop {
+      position: absolute;
+      top: -26px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 3px 10px;
+      border-radius: 12px;
+      background: #fde047;
+      color: #713f12;
+      font-size: 0.72rem;
+      font-weight: 900;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     }
 
     /* 🌸 Bottom Meadow */
     .portal-ground {
       width: 100%;
-      padding: 14px 20px 20px 20px;
+      padding: 6px 16px 16px 16px;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
       position: relative;
       z-index: 5;
     }
@@ -901,9 +1146,39 @@ interface QuickGame {
     .garden-decor {
       display: flex;
       align-items: center;
-      gap: clamp(12px, 3.5vw, 24px);
+      justify-content: center;
+      gap: clamp(10px, 3.2vw, 20px);
       font-size: clamp(1.3rem, 3.8vw, 1.7rem);
       filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
+    }
+
+    .critter-btn {
+      background: none;
+      border: none;
+      font-size: clamp(1.4rem, 4vw, 1.85rem);
+      cursor: pointer;
+      outline: none;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      padding: 0;
+    }
+    .critter-btn:hover {
+      transform: scale(1.3);
+    }
+    .frog-jumping {
+      animation: frogHop 0.5s ease;
+    }
+    @keyframes frogHop {
+      0%, 100% { transform: translateY(0) scale(1); }
+      40% { transform: translateY(-30px) scale(1.3) rotate(-12deg); }
+      70% { transform: translateY(-10px) scale(1.1) rotate(6deg); }
+    }
+    .bee-btn {
+      animation: beeHover 2.5s ease-in-out infinite alternate;
+    }
+    @keyframes beeHover {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      50% { transform: translate(5px, -7px) rotate(12deg); }
+      100% { transform: translate(-4px, 4px) rotate(-8deg); }
     }
 
     .flower-item {
@@ -1270,18 +1545,96 @@ export class StartPortalComponent implements OnInit {
   rainingClouds = new Set<number>();
   totalStars = 28;
 
-  // Mascot Moods
-  readonly mascotMoods = [
-    { emoji: '🧸', paw: '👋', msg: 'Hi friend! Ready to play?', voice: 'Hi friend! Welcome to Toddler Mind! Tap me again!' },
-    { emoji: '😎', paw: '✌️', msg: 'You are super smart!', voice: 'You are super smart! Let us play together!' },
-    { emoji: '🥳', paw: '🎉', msg: 'Yay! Party time!', voice: 'Yay! It is party time! Let us have fun!' },
-    { emoji: '🥰', paw: '💖', msg: 'Big warm teddy hugs!', voice: 'Big warm teddy hugs for you! You are wonderful!' },
-    { emoji: '🚀', paw: '🌟', msg: 'Ready for space adventure?', voice: 'Ready for a fun adventure! Blast off!' }
+  // 🌈 Musical Rainbow Piano Stars (7 notes for toddlers)
+  readonly rainbowStars: RainbowStar[] = [
+    { id: 'rs-1', note: 'C4', noteLabel: 'Do', solfege: 'सा', emoji: '⭐', color: '#ef4444', glow: 'rgba(239, 68, 68, 0.85)' },
+    { id: 'rs-2', note: 'D4', noteLabel: 'Re', solfege: 'रे', emoji: '🌟', color: '#f97316', glow: 'rgba(249, 115, 22, 0.85)' },
+    { id: 'rs-3', note: 'E4', noteLabel: 'Mi', solfege: 'ग', emoji: '✨', color: '#eab308', glow: 'rgba(234, 179, 8, 0.85)' },
+    { id: 'rs-4', note: 'F4', noteLabel: 'Fa', solfege: 'म', emoji: '💫', color: '#10b981', glow: 'rgba(16, 185, 129, 0.85)' },
+    { id: 'rs-5', note: 'G4', noteLabel: 'Sol', solfege: 'प', emoji: '🎵', color: '#06b6d4', glow: 'rgba(6, 182, 212, 0.85)' },
+    { id: 'rs-6', note: 'A4', noteLabel: 'La', solfege: 'ध', emoji: '🎶', color: '#6366f1', glow: 'rgba(99, 102, 241, 0.85)' },
+    { id: 'rs-7', note: 'C5', noteLabel: 'High Do', solfege: 'सां', emoji: '🌈', color: '#ec4899', glow: 'rgba(236, 72, 153, 0.85)' }
   ];
-  moodIndex = 0;
+  tappedStarId: string | null = null;
 
-  get currentMood() {
-    return this.mascotMoods[this.moodIndex];
+  // 🐾 Interactive Mascot Buddies
+  readonly buddies: MascotBuddy[] = [
+    {
+      id: 'teddy',
+      name: 'Teddy',
+      hindiName: 'टेडी 🧸',
+      emoji: '🧸',
+      paw: '👋',
+      soundKey: 'giggle',
+      color: '#f59e0b',
+      greeting: 'Hi friend! Ready to play? नमस्ते!',
+      hindiGreeting: 'नमस्ते दोस्त! मैं टेडी हूँ, चलो मिलकर खेलें!'
+    },
+    {
+      id: 'puppy',
+      name: 'Puppy',
+      hindiName: 'पिल्ला 🐶',
+      emoji: '🐶',
+      paw: '🐾',
+      soundKey: 'dog',
+      color: '#3b82f6',
+      greeting: 'Woof Woof! I am puppy! भो-भो!',
+      hindiGreeting: 'भो-भो! मैं प्यारा पिल्ला हूँ, बहुत मज़ा आएगा!'
+    },
+    {
+      id: 'kitty',
+      name: 'Kitty',
+      hindiName: 'किट्टी 🐱',
+      emoji: '🐱',
+      paw: '🐾',
+      soundKey: 'cat',
+      color: '#ec4899',
+      greeting: 'Meow Meow! Sweet kitty! म्याऊँ!',
+      hindiGreeting: 'म्याऊँ-म्याऊँ! मैं मीठी बिल्ली किट्टी हूँ!'
+    },
+    {
+      id: 'bunny',
+      name: 'Bunny',
+      hindiName: 'बनी 🐰',
+      emoji: '🐰',
+      paw: '🥕',
+      soundKey: 'boing',
+      color: '#10b981',
+      greeting: 'Hop Hop! Crunchy carrots! हॉप-हॉप!',
+      hindiGreeting: 'हॉप-हॉप! मैं नटखट खरगोश बनी हूँ!'
+    },
+    {
+      id: 'lion',
+      name: 'Lion',
+      hindiName: 'शेर 🦁',
+      emoji: '🦁',
+      paw: '👑',
+      soundKey: 'lion',
+      color: '#f97316',
+      greeting: 'Roaaar! Brave little king! दहाड़!',
+      hindiGreeting: 'दहाड़! मैं जंगल का राजा शेर हूँ, तुम बहुत बहादुर हो!'
+    },
+    {
+      id: 'elephant',
+      name: 'Elephant',
+      hindiName: 'हाथी 🐘',
+      emoji: '🐘',
+      paw: '🎪',
+      soundKey: 'elephant',
+      color: '#8b5cf6',
+      greeting: 'Pawooo! Big hugs! चिंघाड़!',
+      hindiGreeting: 'चिंघाड़! मैं गोलू हाथी हूँ, ढेर सारा प्यार!'
+    }
+  ];
+
+  selectedBuddyId = 'teddy';
+
+  get currentBuddy(): MascotBuddy {
+    return this.buddies.find(b => b.id === this.selectedBuddyId) || this.buddies[0];
+  }
+
+  get currentSpeechText(): string {
+    return this.currentBuddy.greeting;
   }
 
   // Floating Balloons on Home Screen
@@ -1293,73 +1646,10 @@ export class StartPortalComponent implements OnInit {
     { id: 5, colorName: 'Green', emoji: '🟢', leftPct: 50, bottomPct: -30, durationSec: 17, delaySec: 4, isPopped: false }
   ];
 
-  // Quick Game Shortcuts
-  readonly quickGames: QuickGame[] = [
-    {
-      id: 'magic_coloring',
-      title: 'Magic Coloring',
-      emoji: '🎨',
-      tag: 'Art & Slate',
-      bgGradient: 'linear-gradient(135deg, rgba(236, 72, 153, 0.35), rgba(139, 92, 246, 0.28))',
-      borderColor: 'rgba(244, 114, 182, 0.6)'
-    },
-    {
-      id: 'animal_piano',
-      title: 'Rainbow Piano',
-      emoji: '🎹',
-      tag: 'Music & Sounds',
-      bgGradient: 'linear-gradient(135deg, rgba(245, 158, 11, 0.35), rgba(239, 68, 68, 0.28))',
-      borderColor: 'rgba(253, 224, 71, 0.6)'
-    },
-    {
-      id: 'alphabet_safari',
-      title: 'ABCD Safari',
-      emoji: '🔤',
-      tag: 'Phonics & A-Z',
-      bgGradient: 'linear-gradient(135deg, rgba(99, 102, 241, 0.28), rgba(168, 85, 247, 0.22))',
-      borderColor: 'rgba(167, 139, 250, 0.5)'
-    },
-    {
-      id: 'number_counting',
-      title: '123 Numbers',
-      emoji: '🔢',
-      tag: 'Tap & Count',
-      bgGradient: 'linear-gradient(135deg, rgba(16, 185, 129, 0.28), rgba(6, 182, 212, 0.22))',
-      borderColor: 'rgba(52, 211, 153, 0.5)'
-    },
-    {
-      id: 'hindi_varnamala',
-      title: 'क ख ग घ',
-      emoji: '🕉️',
-      tag: 'हिंदी वर्णमाला',
-      bgGradient: 'linear-gradient(135deg, rgba(245, 158, 11, 0.28), rgba(239, 68, 68, 0.22))',
-      borderColor: 'rgba(251, 191, 36, 0.5)'
-    },
-    {
-      id: 'balloon_pop',
-      title: 'Balloon Pop',
-      emoji: '🎈',
-      tag: 'Colors & Fun',
-      bgGradient: 'linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(245, 158, 11, 0.2))',
-      borderColor: 'rgba(239, 68, 68, 0.45)'
-    },
-    {
-      id: 'piece_puzzle',
-      title: 'Puzzle Snap',
-      emoji: '🧩',
-      tag: 'Jigsaw Puzzles',
-      bgGradient: 'linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(147, 51, 234, 0.2))',
-      borderColor: 'rgba(59, 130, 246, 0.45)'
-    },
-    {
-      id: 'sound_matcher',
-      title: 'Animal Sounds',
-      emoji: '🐮',
-      tag: 'Real Sounds',
-      bgGradient: 'linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(245, 158, 11, 0.2))',
-      borderColor: 'rgba(16, 185, 129, 0.45)'
-    }
-  ];
+  // Animation states
+  isTrainRacing = false;
+  trainBubble = false;
+  isFrogJumping = false;
 
   // Parent Gate Modal State
   isParentGateOpen = false;
@@ -1392,22 +1682,7 @@ export class StartPortalComponent implements OnInit {
   }
 
   onMascotClick(): void {
-    this.sound.playGiggle();
-    this.isMascotJumping = true;
-    
-    // Cycle mascot mood
-    this.moodIndex = (this.moodIndex + 1) % this.mascotMoods.length;
-    
-    if (this.voiceEnabled) {
-      this.speech.speakClue(this.currentMood.voice);
-    }
-    
-    // Confetti pop
-    this.confetti.fire();
-
-    setTimeout(() => {
-      this.isMascotJumping = false;
-    }, 650);
+    this.selectBuddy(this.currentBuddy);
   }
 
   onSunClick(event: MouseEvent): void {
@@ -1470,44 +1745,80 @@ export class StartPortalComponent implements OnInit {
     }, 280);
   }
 
-  launchGame(screen: AppScreen): void {
-    this.sound.playTap();
-    switch (screen) {
-      case 'magic_coloring':
-        this.appNav.goToColoring();
-        break;
-      case 'animal_piano':
-        this.appNav.goToPiano();
-        break;
-      case 'alphabet_safari':
-        this.appNav.goToAlphabet();
-        break;
-      case 'number_counting':
-        this.appNav.goToNumbers();
-        break;
-      case 'hindi_varnamala':
-        this.appNav.goToHindi();
-        break;
-      case 'balloon_pop':
-        this.appNav.goToBalloonPop();
-        break;
-      case 'piece_puzzle':
-        this.appNav.goToPiecePuzzle();
-        break;
-      case 'sound_matcher':
-        this.appNav.goToSoundMatcher();
-        break;
-      case 'shape_sorter':
-        this.appNav.goToShapeSorter();
-        break;
-      case 'memory_flip':
-        this.appNav.goToMemoryFlip();
-        break;
-      case 'rebus':
-        this.appNav.goToRebus();
-        break;
-      default:
-        this.appNav.goToHub();
+  onRainbowStarClick(star: RainbowStar, event: MouseEvent): void {
+    event.stopPropagation();
+    this.tappedStarId = star.id;
+    this.sound.playPianoNote(star.note);
+    this.confetti.fire();
+    if (this.voiceEnabled) {
+      this.speech.speakWord(star.noteLabel);
+    }
+    setTimeout(() => {
+      this.tappedStarId = null;
+    }, 500);
+  }
+
+  selectBuddy(buddy: MascotBuddy): void {
+    this.selectedBuddyId = buddy.id;
+    this.isMascotJumping = true;
+    this.confetti.fire();
+
+    // Play authentic animal sound
+    if (buddy.soundKey === 'dog') {
+      this.sound.playDogBark();
+    } else if (buddy.soundKey === 'cat') {
+      this.sound.playCatMeow();
+    } else if (buddy.soundKey === 'lion') {
+      this.sound.playLionRoar();
+    } else if (buddy.soundKey === 'elephant') {
+      this.sound.playElephantTrumpet();
+    } else if (buddy.soundKey === 'boing') {
+      this.sound.playBoing();
+    } else {
+      this.sound.playGiggle();
+    }
+
+    if (this.voiceEnabled) {
+      this.speech.speakHindi(buddy.hindiGreeting);
+    }
+
+    setTimeout(() => {
+      this.isMascotJumping = false;
+    }, 700);
+  }
+
+  onTrainClick(): void {
+    this.sound.playTrainWhistle();
+    this.isTrainRacing = true;
+    this.trainBubble = true;
+    this.confetti.fire();
+    if (this.voiceEnabled) {
+      this.speech.speakWord('Choo Choo! All aboard the fun train!');
+    }
+    setTimeout(() => {
+      this.trainBubble = false;
+    }, 1800);
+    setTimeout(() => {
+      this.isTrainRacing = false;
+    }, 2200);
+  }
+
+  onFrogClick(): void {
+    this.sound.playBoing();
+    this.sound.playItemSound('frog');
+    this.isFrogJumping = true;
+    if (this.voiceEnabled) {
+      this.speech.speakWord('Ribbit! Hop little froggy!');
+    }
+    setTimeout(() => {
+      this.isFrogJumping = false;
+    }, 600);
+  }
+
+  onBeeClick(): void {
+    this.sound.playItemSound('bee');
+    if (this.voiceEnabled) {
+      this.speech.speakWord('Bzzz! Busy little honey bee!');
     }
   }
 

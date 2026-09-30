@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AppNavService } from '../../core/services/app-nav.service';
 import { SoundService } from '../../core/services/sound.service';
@@ -9,7 +9,8 @@ interface HindiAkshar {
   letter: string;
   word: string;
   emoji: string;
-  type: 'swar' | 'vyanjan';
+  type: 'swar' | 'vyanjan' | 'samyukt';
+  audioKey?: string;
   speechPhrase: string;
   bgGradient: string;
   borderColor: string;
@@ -94,6 +95,13 @@ interface HindiAkshar {
               (click)="filterCategory('vyanjan')">
               🕊️ व्यंजन (क, ख, ग...)
             </button>
+            <button 
+              type="button"
+              class="cat-pill"
+              [class.active-cat]="selectedCategory === 'samyukt'"
+              (click)="filterCategory('samyukt')">
+              ⚔️ संयुक्त (क्ष, त्र, ज्ञ)
+            </button>
           </div>
         }
       </div>
@@ -177,16 +185,27 @@ interface HindiAkshar {
             <div class="quiz-prompt-card">
               <span class="mascot-avatar">🧸</span>
               <h3 class="quiz-prompt-title">
-                <span class="highlight-akshar">{{ quizTarget.speechPhrase }}</span> कहाँ है?
+                <span class="highlight-akshar">{{ quizTarget.speechPhrase }}</span>&nbsp;कहाँ है?
               </h3>
               <p class="quiz-sub">नीचे दिए गए अक्षरों में से सही अक्षर चुनो!</p>
 
-              <button 
-                type="button" 
-                class="quiz-replay-btn" 
-                (click)="speakQuizQuestion()">
-                🔊 आवाज़ फिर से सुनो
-              </button>
+              <div class="quiz-controls-row">
+                <button 
+                  type="button" 
+                  class="quiz-replay-btn" 
+                  (click)="speakQuizQuestion()">
+                  🔊 आवाज़ फिर से सुनो
+                </button>
+
+                <button 
+                  type="button" 
+                  class="quiz-next-btn"
+                  [class.btn-glow-pulse]="quizFeedback === 'correct'"
+                  (click)="nextQuizQuestion()"
+                  title="अगला सवाल">
+                  <span>{{ quizFeedback === 'correct' ? 'अगला 🌟 ➡️' : 'अगला सवाल ⏭️' }}</span>
+                </button>
+              </div>
             </div>
 
             <!-- Quiz Options Cards -->
@@ -606,17 +625,28 @@ interface HindiAkshar {
       font-weight: 900;
       color: #ffffff;
       margin: 6px 0 2px 0;
+      word-spacing: 0.18em;
     }
 
     .highlight-akshar {
       color: #fde047;
       text-shadow: 0 0 16px rgba(253, 224, 71, 0.6);
+      display: inline-block;
+      margin-right: 8px;
     }
 
     .quiz-sub {
       font-size: 0.82rem;
       color: #cbd5e1;
       margin-bottom: 10px;
+    }
+
+    .quiz-controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
     .quiz-replay-btn {
@@ -634,6 +664,34 @@ interface HindiAkshar {
       background: #f59e0b;
       color: #ffffff;
       transform: scale(1.05);
+    }
+
+    .quiz-next-btn {
+      padding: 7px 18px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border: 1.5px solid #6ee7b7;
+      color: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+    }
+    .quiz-next-btn:hover {
+      transform: scale(1.06);
+      background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+    }
+
+    .btn-glow-pulse {
+      animation: hindiNextPulse 0.9s infinite alternate;
+      border-color: #fde047 !important;
+      box-shadow: 0 0 18px rgba(253, 224, 71, 0.85) !important;
+    }
+
+    @keyframes hindiNextPulse {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.08); }
     }
 
     .quiz-options-grid {
@@ -736,54 +794,59 @@ interface HindiAkshar {
 export class HindiVarnamalaComponent implements OnInit {
   readonly akshars: HindiAkshar[] = [
     // स्वर (Swar)
-    { letter: 'अ', word: 'अनार', emoji: '🍎', type: 'swar', speechPhrase: 'अ से अनार', bgGradient: 'linear-gradient(145deg, #ef4444 0%, #dc2626 100%)', borderColor: '#fca5a5', shadowColor: 'rgba(239, 68, 68, 0.5)' },
-    { letter: 'आ', word: 'आम', emoji: '🥭', type: 'swar', speechPhrase: 'आ से आम', bgGradient: 'linear-gradient(145deg, #f59e0b 0%, #d97706 100%)', borderColor: '#fde047', shadowColor: 'rgba(245, 158, 11, 0.5)' },
-    { letter: 'इ', word: 'इमली', emoji: '🌿', type: 'swar', speechPhrase: 'इ से इमली', bgGradient: 'linear-gradient(145deg, #10b981 0%, #059669 100%)', borderColor: '#6ee7b7', shadowColor: 'rgba(16, 185, 129, 0.5)' },
-    { letter: 'ई', word: 'ईख', emoji: '🎋', type: 'swar', speechPhrase: 'ई से ईख', bgGradient: 'linear-gradient(145deg, #84cc16 0%, #65a30d 100%)', borderColor: '#bef264', shadowColor: 'rgba(132, 204, 22, 0.5)' },
-    { letter: 'उ', word: 'उल्लू', emoji: '🦉', type: 'swar', speechPhrase: 'उ से उल्लू', bgGradient: 'linear-gradient(145deg, #6366f1 0%, #4f46e5 100%)', borderColor: '#c7d2fe', shadowColor: 'rgba(99, 102, 241, 0.5)' },
-    { letter: 'ऊ', word: 'ऊन', emoji: '🧶', type: 'swar', speechPhrase: 'ऊ से ऊन', bgGradient: 'linear-gradient(145deg, #ec4899 0%, #db2777 100%)', borderColor: '#fbcfe8', shadowColor: 'rgba(236, 72, 153, 0.5)' },
-    { letter: 'ए', word: 'एड़ी', emoji: '🦶', type: 'swar', speechPhrase: 'ए से एड़ी', bgGradient: 'linear-gradient(145deg, #f97316 0%, #ea580c 100%)', borderColor: '#fed7aa', shadowColor: 'rgba(249, 115, 22, 0.5)' },
-    { letter: 'ऐ', word: 'ऐनक', emoji: '👓', type: 'swar', speechPhrase: 'ऐ से ऐनक', bgGradient: 'linear-gradient(145deg, #06b6d4 0%, #0284c7 100%)', borderColor: '#a5f3fc', shadowColor: 'rgba(6, 182, 212, 0.5)' },
-    { letter: 'ओ', word: 'ओखली', emoji: '🥣', type: 'swar', speechPhrase: 'ओ से ओखली', bgGradient: 'linear-gradient(145deg, #8b5cf6 0%, #7c3aed 100%)', borderColor: '#ddd6fe', shadowColor: 'rgba(139, 92, 246, 0.5)' },
-    { letter: 'औ', word: 'औरत', emoji: '👩', type: 'swar', speechPhrase: 'औ से औरत', bgGradient: 'linear-gradient(145deg, #d946ef 0%, #c026d3 100%)', borderColor: '#f5d0fe', shadowColor: 'rgba(217, 70, 239, 0.5)' },
-    { letter: 'अं', word: 'अंगूर', emoji: '🍇', type: 'swar', speechPhrase: 'अं से अंगूर', bgGradient: 'linear-gradient(145deg, #9333ea 0%, #7e22ce 100%)', borderColor: '#e9d5ff', shadowColor: 'rgba(147, 51, 234, 0.5)' },
+    { letter: 'अ', word: 'अनार', emoji: '🍎', type: 'swar', audioKey: 'swar_0', speechPhrase: 'अ से अनार', bgGradient: 'linear-gradient(145deg, #ef4444 0%, #dc2626 100%)', borderColor: '#fca5a5', shadowColor: 'rgba(239, 68, 68, 0.5)' },
+    { letter: 'आ', word: 'आम', emoji: '🥭', type: 'swar', audioKey: 'swar_1', speechPhrase: 'आ से आम', bgGradient: 'linear-gradient(145deg, #f59e0b 0%, #d97706 100%)', borderColor: '#fde047', shadowColor: 'rgba(245, 158, 11, 0.5)' },
+    { letter: 'इ', word: 'इमली', emoji: '🌿', type: 'swar', audioKey: 'swar_2', speechPhrase: 'इ से इमली', bgGradient: 'linear-gradient(145deg, #10b981 0%, #059669 100%)', borderColor: '#6ee7b7', shadowColor: 'rgba(16, 185, 129, 0.5)' },
+    { letter: 'ई', word: 'ईख', emoji: '🎋', type: 'swar', audioKey: 'swar_3', speechPhrase: 'ई से ईख', bgGradient: 'linear-gradient(145deg, #84cc16 0%, #65a30d 100%)', borderColor: '#bef264', shadowColor: 'rgba(132, 204, 22, 0.5)' },
+    { letter: 'उ', word: 'उल्लू', emoji: '🦉', type: 'swar', audioKey: 'swar_4', speechPhrase: 'उ से उल्लू', bgGradient: 'linear-gradient(145deg, #6366f1 0%, #4f46e5 100%)', borderColor: '#c7d2fe', shadowColor: 'rgba(99, 102, 241, 0.5)' },
+    { letter: 'ऊ', word: 'ऊन', emoji: '🧶', type: 'swar', audioKey: 'swar_5', speechPhrase: 'ऊ से ऊन', bgGradient: 'linear-gradient(145deg, #ec4899 0%, #db2777 100%)', borderColor: '#fbcfe8', shadowColor: 'rgba(236, 72, 153, 0.5)' },
+    { letter: 'ए', word: 'एड़ी', emoji: '🦶', type: 'swar', audioKey: 'swar_7', speechPhrase: 'ए से एड़ी', bgGradient: 'linear-gradient(145deg, #f97316 0%, #ea580c 100%)', borderColor: '#fed7aa', shadowColor: 'rgba(249, 115, 22, 0.5)' },
+    { letter: 'ऐ', word: 'ऐनक', emoji: '👓', type: 'swar', audioKey: 'swar_8', speechPhrase: 'ऐ से ऐनक', bgGradient: 'linear-gradient(145deg, #06b6d4 0%, #0284c7 100%)', borderColor: '#a5f3fc', shadowColor: 'rgba(6, 182, 212, 0.5)' },
+    { letter: 'ओ', word: 'ओखली', emoji: '🥣', type: 'swar', audioKey: 'swar_9', speechPhrase: 'ओ से ओखली', bgGradient: 'linear-gradient(145deg, #8b5cf6 0%, #7c3aed 100%)', borderColor: '#ddd6fe', shadowColor: 'rgba(139, 92, 246, 0.5)' },
+    { letter: 'औ', word: 'औरत', emoji: '👩', type: 'swar', audioKey: 'swar_10', speechPhrase: 'औ से औरत', bgGradient: 'linear-gradient(145deg, #d946ef 0%, #c026d3 100%)', borderColor: '#f5d0fe', shadowColor: 'rgba(217, 70, 239, 0.5)' },
+    { letter: 'अं', word: 'अंगूर', emoji: '🍇', type: 'swar', audioKey: 'swar_11', speechPhrase: 'अं से अंगूर', bgGradient: 'linear-gradient(145deg, #9333ea 0%, #7e22ce 100%)', borderColor: '#e9d5ff', shadowColor: 'rgba(147, 51, 234, 0.5)' },
 
     // व्यंजन (Vyanjan)
-    { letter: 'क', word: 'कबूतर', emoji: '🕊️', type: 'vyanjan', speechPhrase: 'क से कबूतर', bgGradient: 'linear-gradient(145deg, #3b82f6 0%, #1d4ed8 100%)', borderColor: '#93c5fd', shadowColor: 'rgba(59, 130, 246, 0.5)' },
-    { letter: 'ख', word: 'खरगोश', emoji: '🐇', type: 'vyanjan', speechPhrase: 'ख से खरगोश', bgGradient: 'linear-gradient(145deg, #10b981 0%, #059669 100%)', borderColor: '#6ee7b7', shadowColor: 'rgba(16, 185, 129, 0.5)' },
-    { letter: 'ग', word: 'गमला', emoji: '🪴', type: 'vyanjan', speechPhrase: 'ग से गमला', bgGradient: 'linear-gradient(145deg, #f59e0b 0%, #d97706 100%)', borderColor: '#fde047', shadowColor: 'rgba(245, 158, 11, 0.5)' },
-    { letter: 'घ', word: 'घड़ी', emoji: '⏰', type: 'vyanjan', speechPhrase: 'घ से घड़ी', bgGradient: 'linear-gradient(145deg, #ef4444 0%, #dc2626 100%)', borderColor: '#fca5a5', shadowColor: 'rgba(239, 68, 68, 0.5)' },
-    { letter: 'च', word: 'चम्मच', emoji: '🥄', type: 'vyanjan', speechPhrase: 'च से चम्मच', bgGradient: 'linear-gradient(145deg, #06b6d4 0%, #0891b2 100%)', borderColor: '#67e8f9', shadowColor: 'rgba(6, 182, 212, 0.5)' },
-    { letter: 'छ', word: 'छतरी', emoji: '☂️', type: 'vyanjan', speechPhrase: 'छ से छतरी', bgGradient: 'linear-gradient(145deg, #8b5cf6 0%, #6d28d9 100%)', borderColor: '#c4b5fd', shadowColor: 'rgba(139, 92, 246, 0.5)' },
-    { letter: 'ज', word: 'जहाज', emoji: '🚢', type: 'vyanjan', speechPhrase: 'ज से जहाज', bgGradient: 'linear-gradient(145deg, #3b82f6 0%, #2563eb 100%)', borderColor: '#60a5fa', shadowColor: 'rgba(59, 130, 246, 0.5)' },
-    { letter: 'झ', word: 'झंडा', emoji: '🇮🇳', type: 'vyanjan', speechPhrase: 'झ से झंडा', bgGradient: 'linear-gradient(145deg, #f97316 0%, #ea580c 100%)', borderColor: '#fed7aa', shadowColor: 'rgba(249, 115, 22, 0.5)' },
-    { letter: 'ट', word: 'टमाटर', emoji: '🍅', type: 'vyanjan', speechPhrase: 'ट से टमाटर', bgGradient: 'linear-gradient(145deg, #ef4444 0%, #b91c1c 100%)', borderColor: '#fca5a5', shadowColor: 'rgba(239, 68, 68, 0.5)' },
-    { letter: 'ठ', word: 'ठठेरा', emoji: '🔨', type: 'vyanjan', speechPhrase: 'ठ से ठठेरा', bgGradient: 'linear-gradient(145deg, #64748b 0%, #475569 100%)', borderColor: '#cbd5e1', shadowColor: 'rgba(100, 116, 139, 0.5)' },
-    { letter: 'ड', word: 'डमरू', emoji: '🪘', type: 'vyanjan', speechPhrase: 'ड से डमरू', bgGradient: 'linear-gradient(145deg, #d97706 0%, #b45309 100%)', borderColor: '#fcd34d', shadowColor: 'rgba(217, 119, 6, 0.5)' },
-    { letter: 'ढ', word: 'ढोलक', emoji: '🥁', type: 'vyanjan', speechPhrase: 'ढ से ढोलक', bgGradient: 'linear-gradient(145deg, #eab308 0%, #ca8a04 100%)', borderColor: '#fef08a', shadowColor: 'rgba(234, 179, 8, 0.5)' },
-    { letter: 'त', word: 'तितली', emoji: '🦋', type: 'vyanjan', speechPhrase: 'त से तितली', bgGradient: 'linear-gradient(145deg, #ec4899 0%, #be185d 100%)', borderColor: '#fbcfe8', shadowColor: 'rgba(236, 72, 153, 0.5)' },
-    { letter: 'थ', word: 'थर्मस', emoji: '🫖', type: 'vyanjan', speechPhrase: 'थ से थर्मस', bgGradient: 'linear-gradient(145deg, #14b8a6 0%, #0f766e 100%)', borderColor: '#99f6e4', shadowColor: 'rgba(20, 184, 166, 0.5)' },
-    { letter: 'द', word: 'दवात', emoji: '🖋️', type: 'vyanjan', speechPhrase: 'द से दवात', bgGradient: 'linear-gradient(145deg, #6366f1 0%, #4338ca 100%)', borderColor: '#a5b4fc', shadowColor: 'rgba(99, 102, 241, 0.5)' },
-    { letter: 'ध', word: 'धनुष', emoji: '🏹', type: 'vyanjan', speechPhrase: 'ध से धनुष', bgGradient: 'linear-gradient(145deg, #84cc16 0%, #4d7c0f 100%)', borderColor: '#bef264', shadowColor: 'rgba(132, 204, 22, 0.5)' },
-    { letter: 'न', word: 'नल', emoji: '🚰', type: 'vyanjan', speechPhrase: 'न से नल', bgGradient: 'linear-gradient(145deg, #0284c7 0%, #0369a1 100%)', borderColor: '#7dd3fc', shadowColor: 'rgba(2, 132, 199, 0.5)' },
-    { letter: 'प', word: 'पतंग', emoji: '🪁', type: 'vyanjan', speechPhrase: 'प से पतंग', bgGradient: 'linear-gradient(145deg, #f59e0b 0%, #b45309 100%)', borderColor: '#fde047', shadowColor: 'rgba(245, 158, 11, 0.5)' },
-    { letter: 'फ', word: 'फल', emoji: '🍉', type: 'vyanjan', speechPhrase: 'फ से फल', bgGradient: 'linear-gradient(145deg, #10b981 0%, #047857 100%)', borderColor: '#6ee7b7', shadowColor: 'rgba(16, 185, 129, 0.5)' },
-    { letter: 'ब', word: 'बतख', emoji: '🦆', type: 'vyanjan', speechPhrase: 'ब से बतख', bgGradient: 'linear-gradient(145deg, #eab308 0%, #a16207 100%)', borderColor: '#fef08a', shadowColor: 'rgba(234, 179, 8, 0.5)' },
-    { letter: 'भ', word: 'भालू', emoji: '🐻', type: 'vyanjan', speechPhrase: 'भ से भालू', bgGradient: 'linear-gradient(145deg, #d97706 0%, #92400e 100%)', borderColor: '#fed7aa', shadowColor: 'rgba(217, 119, 6, 0.5)' },
-    { letter: 'म', word: 'मछली', emoji: '🐟', type: 'vyanjan', speechPhrase: 'म से मछली', bgGradient: 'linear-gradient(145deg, #06b6d4 0%, #0e7490 100%)', borderColor: '#67e8f9', shadowColor: 'rgba(6, 182, 212, 0.5)' },
-    { letter: 'य', word: 'यज्ञ', emoji: '🪔', type: 'vyanjan', speechPhrase: 'य से यज्ञ', bgGradient: 'linear-gradient(145deg, #f97316 0%, #c2410c 100%)', borderColor: '#fed7aa', shadowColor: 'rgba(249, 115, 22, 0.5)' },
-    { letter: 'र', word: 'रथ', emoji: '🛞', type: 'vyanjan', speechPhrase: 'र से रथ', bgGradient: 'linear-gradient(145deg, #8b5cf6 0%, #5b21b6 100%)', borderColor: '#c4b5fd', shadowColor: 'rgba(139, 92, 246, 0.5)' },
-    { letter: 'ल', word: 'लट्टू', emoji: '🪀', type: 'vyanjan', speechPhrase: 'ल से लट्टू', bgGradient: 'linear-gradient(145deg, #ec4899 0%, #9d174d 100%)', borderColor: '#fbcfe8', shadowColor: 'rgba(236, 72, 153, 0.5)' },
-    { letter: 'व', word: 'वक', emoji: '🦩', type: 'vyanjan', speechPhrase: 'व से वक', bgGradient: 'linear-gradient(145deg, #f43f5e 0%, #be123c 100%)', borderColor: '#fecdd3', shadowColor: 'rgba(244, 63, 94, 0.5)' },
-    { letter: 'श', word: 'शलजम', emoji: '🧅', type: 'vyanjan', speechPhrase: 'श से शलजम', bgGradient: 'linear-gradient(145deg, #a855f7 0%, #7e22ce 100%)', borderColor: '#e9d5ff', shadowColor: 'rgba(168, 85, 247, 0.5)' },
-    { letter: 'ष', word: 'षट्कोण', emoji: '⬡', type: 'vyanjan', speechPhrase: 'ष से षट्कोण', bgGradient: 'linear-gradient(145deg, #3b82f6 0%, #1e40af 100%)', borderColor: '#bfdbfe', shadowColor: 'rgba(59, 130, 246, 0.5)' },
-    { letter: 'स', word: 'सेब', emoji: '🍏', type: 'vyanjan', speechPhrase: 'स से सेब', bgGradient: 'linear-gradient(145deg, #84cc16 0%, #3f6212 100%)', borderColor: '#bef264', shadowColor: 'rgba(132, 204, 22, 0.5)' },
-    { letter: 'ह', word: 'हाथी', emoji: '🐘', type: 'vyanjan', speechPhrase: 'ह से हाथी', bgGradient: 'linear-gradient(145deg, #64748b 0%, #334155 100%)', borderColor: '#cbd5e1', shadowColor: 'rgba(100, 116, 139, 0.5)' }
+    { letter: 'क', word: 'कबूतर', emoji: '🕊️', type: 'vyanjan', audioKey: 'vyanjan_0', speechPhrase: 'क से कबूतर', bgGradient: 'linear-gradient(145deg, #3b82f6 0%, #1d4ed8 100%)', borderColor: '#93c5fd', shadowColor: 'rgba(59, 130, 246, 0.5)' },
+    { letter: 'ख', word: 'खरगोश', emoji: '🐇', type: 'vyanjan', audioKey: 'vyanjan_1', speechPhrase: 'ख से खरगोश', bgGradient: 'linear-gradient(145deg, #10b981 0%, #059669 100%)', borderColor: '#6ee7b7', shadowColor: 'rgba(16, 185, 129, 0.5)' },
+    { letter: 'ग', word: 'गमला', emoji: '🪴', type: 'vyanjan', audioKey: 'vyanjan_2', speechPhrase: 'ग से गमला', bgGradient: 'linear-gradient(145deg, #f59e0b 0%, #d97706 100%)', borderColor: '#fde047', shadowColor: 'rgba(245, 158, 11, 0.5)' },
+    { letter: 'घ', word: 'घड़ी', emoji: '⏰', type: 'vyanjan', audioKey: 'vyanjan_3', speechPhrase: 'घ से घड़ी', bgGradient: 'linear-gradient(145deg, #ef4444 0%, #dc2626 100%)', borderColor: '#fca5a5', shadowColor: 'rgba(239, 68, 68, 0.5)' },
+    { letter: 'च', word: 'चम्मच', emoji: '🥄', type: 'vyanjan', audioKey: 'vyanjan_5', speechPhrase: 'च से चम्मच', bgGradient: 'linear-gradient(145deg, #06b6d4 0%, #0891b2 100%)', borderColor: '#67e8f9', shadowColor: 'rgba(6, 182, 212, 0.5)' },
+    { letter: 'छ', word: 'छतरी', emoji: '☂️', type: 'vyanjan', audioKey: 'vyanjan_6', speechPhrase: 'छ से छतरी', bgGradient: 'linear-gradient(145deg, #8b5cf6 0%, #6d28d9 100%)', borderColor: '#c4b5fd', shadowColor: 'rgba(139, 92, 246, 0.5)' },
+    { letter: 'ज', word: 'जहाज', emoji: '🚢', type: 'vyanjan', audioKey: 'vyanjan_7', speechPhrase: 'ज से जहाज', bgGradient: 'linear-gradient(145deg, #3b82f6 0%, #2563eb 100%)', borderColor: '#60a5fa', shadowColor: 'rgba(59, 130, 246, 0.5)' },
+    { letter: 'झ', word: 'झंडा', emoji: '🇮🇳', type: 'vyanjan', audioKey: 'vyanjan_8', speechPhrase: 'झ से झंडा', bgGradient: 'linear-gradient(145deg, #f97316 0%, #ea580c 100%)', borderColor: '#fed7aa', shadowColor: 'rgba(249, 115, 22, 0.5)' },
+    { letter: 'ट', word: 'टमाटर', emoji: '🍅', type: 'vyanjan', audioKey: 'vyanjan_10', speechPhrase: 'ट से टमाटर', bgGradient: 'linear-gradient(145deg, #ef4444 0%, #b91c1c 100%)', borderColor: '#fca5a5', shadowColor: 'rgba(239, 68, 68, 0.5)' },
+    { letter: 'ठ', word: 'ठठेरा', emoji: '🔨', type: 'vyanjan', audioKey: 'vyanjan_11', speechPhrase: 'ठ से ठठेरा', bgGradient: 'linear-gradient(145deg, #64748b 0%, #475569 100%)', borderColor: '#cbd5e1', shadowColor: 'rgba(100, 116, 139, 0.5)' },
+    { letter: 'ड', word: 'डमरू', emoji: '🪘', type: 'vyanjan', audioKey: 'vyanjan_12', speechPhrase: 'ड से डमरू', bgGradient: 'linear-gradient(145deg, #d97706 0%, #b45309 100%)', borderColor: '#fcd34d', shadowColor: 'rgba(217, 119, 6, 0.5)' },
+    { letter: 'ढ', word: 'ढोलक', emoji: '🥁', type: 'vyanjan', audioKey: 'vyanjan_13', speechPhrase: 'ढ से ढोलक', bgGradient: 'linear-gradient(145deg, #eab308 0%, #ca8a04 100%)', borderColor: '#fef08a', shadowColor: 'rgba(234, 179, 8, 0.5)' },
+    { letter: 'त', word: 'तितली', emoji: '🦋', type: 'vyanjan', audioKey: 'vyanjan_15', speechPhrase: 'त से तितली', bgGradient: 'linear-gradient(145deg, #ec4899 0%, #be185d 100%)', borderColor: '#fbcfe8', shadowColor: 'rgba(236, 72, 153, 0.5)' },
+    { letter: 'थ', word: 'थर्मस', emoji: '🫖', type: 'vyanjan', audioKey: 'vyanjan_16', speechPhrase: 'थ से थर्मस', bgGradient: 'linear-gradient(145deg, #14b8a6 0%, #0f766e 100%)', borderColor: '#99f6e4', shadowColor: 'rgba(20, 184, 166, 0.5)' },
+    { letter: 'द', word: 'दवात', emoji: '🖋️', type: 'vyanjan', audioKey: 'vyanjan_17', speechPhrase: 'द से दवात', bgGradient: 'linear-gradient(145deg, #6366f1 0%, #4338ca 100%)', borderColor: '#a5b4fc', shadowColor: 'rgba(99, 102, 241, 0.5)' },
+    { letter: 'ध', word: 'धनुष', emoji: '🏹', type: 'vyanjan', audioKey: 'vyanjan_18', speechPhrase: 'ध से धनुष', bgGradient: 'linear-gradient(145deg, #84cc16 0%, #4d7c0f 100%)', borderColor: '#bef264', shadowColor: 'rgba(132, 204, 22, 0.5)' },
+    { letter: 'न', word: 'नल', emoji: '🚰', type: 'vyanjan', audioKey: 'vyanjan_19', speechPhrase: 'न से नल', bgGradient: 'linear-gradient(145deg, #0284c7 0%, #0369a1 100%)', borderColor: '#7dd3fc', shadowColor: 'rgba(2, 132, 199, 0.5)' },
+    { letter: 'प', word: 'पतंग', emoji: '🪁', type: 'vyanjan', audioKey: 'vyanjan_20', speechPhrase: 'प से पतंग', bgGradient: 'linear-gradient(145deg, #f59e0b 0%, #b45309 100%)', borderColor: '#fde047', shadowColor: 'rgba(245, 158, 11, 0.5)' },
+    { letter: 'फ', word: 'फल', emoji: '🍉', type: 'vyanjan', audioKey: 'vyanjan_21', speechPhrase: 'फ से फल', bgGradient: 'linear-gradient(145deg, #10b981 0%, #047857 100%)', borderColor: '#6ee7b7', shadowColor: 'rgba(16, 185, 129, 0.5)' },
+    { letter: 'ब', word: 'बतख', emoji: '🦆', type: 'vyanjan', audioKey: 'vyanjan_22', speechPhrase: 'ब से बतख', bgGradient: 'linear-gradient(145deg, #eab308 0%, #a16207 100%)', borderColor: '#fef08a', shadowColor: 'rgba(234, 179, 8, 0.5)' },
+    { letter: 'भ', word: 'भालू', emoji: '🐻', type: 'vyanjan', audioKey: 'vyanjan_23', speechPhrase: 'भ से भालू', bgGradient: 'linear-gradient(145deg, #d97706 0%, #92400e 100%)', borderColor: '#fed7aa', shadowColor: 'rgba(217, 119, 6, 0.5)' },
+    { letter: 'म', word: 'मछली', emoji: '🐟', type: 'vyanjan', audioKey: 'vyanjan_24', speechPhrase: 'म से मछली', bgGradient: 'linear-gradient(145deg, #06b6d4 0%, #0e7490 100%)', borderColor: '#67e8f9', shadowColor: 'rgba(6, 182, 212, 0.5)' },
+    { letter: 'य', word: 'यज्ञ', emoji: '🪔', type: 'vyanjan', audioKey: 'vyanjan_25', speechPhrase: 'य से यज्ञ', bgGradient: 'linear-gradient(145deg, #f97316 0%, #c2410c 100%)', borderColor: '#fed7aa', shadowColor: 'rgba(249, 115, 22, 0.5)' },
+    { letter: 'र', word: 'रथ', emoji: '🛞', type: 'vyanjan', audioKey: 'vyanjan_26', speechPhrase: 'र से रथ', bgGradient: 'linear-gradient(145deg, #8b5cf6 0%, #5b21b6 100%)', borderColor: '#c4b5fd', shadowColor: 'rgba(139, 92, 246, 0.5)' },
+    { letter: 'ल', word: 'लट्टू', emoji: '🪀', type: 'vyanjan', audioKey: 'vyanjan_27', speechPhrase: 'ल से लट्टू', bgGradient: 'linear-gradient(145deg, #ec4899 0%, #9d174d 100%)', borderColor: '#fbcfe8', shadowColor: 'rgba(236, 72, 153, 0.5)' },
+    { letter: 'व', word: 'वक', emoji: '🦩', type: 'vyanjan', audioKey: 'vyanjan_28', speechPhrase: 'व से वक', bgGradient: 'linear-gradient(145deg, #f43f5e 0%, #be123c 100%)', borderColor: '#fecdd3', shadowColor: 'rgba(244, 63, 94, 0.5)' },
+    { letter: 'श', word: 'शलजम', emoji: '🧅', type: 'vyanjan', audioKey: 'vyanjan_29', speechPhrase: 'श से शलजम', bgGradient: 'linear-gradient(145deg, #a855f7 0%, #7e22ce 100%)', borderColor: '#e9d5ff', shadowColor: 'rgba(168, 85, 247, 0.5)' },
+    { letter: 'ष', word: 'षट्कोण', emoji: '⬡', type: 'vyanjan', audioKey: 'vyanjan_30', speechPhrase: 'ष से षट्कोण', bgGradient: 'linear-gradient(145deg, #3b82f6 0%, #1e40af 100%)', borderColor: '#bfdbfe', shadowColor: 'rgba(59, 130, 246, 0.5)' },
+    { letter: 'स', word: 'सेब', emoji: '🍏', type: 'vyanjan', audioKey: 'vyanjan_31', speechPhrase: 'स से सेब', bgGradient: 'linear-gradient(145deg, #84cc16 0%, #3f6212 100%)', borderColor: '#bef264', shadowColor: 'rgba(132, 204, 22, 0.5)' },
+    { letter: 'ह', word: 'हाथी', emoji: '🐘', type: 'vyanjan', audioKey: 'vyanjan_32', speechPhrase: 'ह से हाथी', bgGradient: 'linear-gradient(145deg, #64748b 0%, #334155 100%)', borderColor: '#cbd5e1', shadowColor: 'rgba(100, 116, 139, 0.5)' },
+
+    // संयुक्त व्यंजन (Samyukt Vyanjan)
+    { letter: 'क्ष', word: 'क्षत्रिय', emoji: '⚔️', type: 'samyukt', audioKey: 'vyanjan_33', speechPhrase: 'क्ष से क्षत्रिय', bgGradient: 'linear-gradient(145deg, #f59e0b 0%, #b45309 100%)', borderColor: '#fde047', shadowColor: 'rgba(245, 158, 11, 0.5)' },
+    { letter: 'त्र', word: 'त्रिशूल', emoji: '🔱', type: 'samyukt', audioKey: 'vyanjan_34', speechPhrase: 'त्र से त्रिशूल', bgGradient: 'linear-gradient(145deg, #06b6d4 0%, #0891b2 100%)', borderColor: '#67e8f9', shadowColor: 'rgba(6, 182, 212, 0.5)' },
+    { letter: 'ज्ञ', word: 'ज्ञानी', emoji: '📜', type: 'samyukt', audioKey: 'vyanjan_35', speechPhrase: 'ज्ञ से ज्ञानी', bgGradient: 'linear-gradient(145deg, #8b5cf6 0%, #6d28d9 100%)', borderColor: '#c4b5fd', shadowColor: 'rgba(139, 92, 246, 0.5)' }
   ];
 
   filteredAkshars: HindiAkshar[] = [];
   activeAkshar!: HindiAkshar;
-  selectedCategory: 'all' | 'swar' | 'vyanjan' = 'all';
+  selectedCategory: 'all' | 'swar' | 'vyanjan' | 'samyukt' = 'all';
   currentMode: 'learn' | 'quiz' = 'learn';
 
   // Quiz State
@@ -792,6 +855,7 @@ export class HindiVarnamalaComponent implements OnInit {
   quizScore = 0;
   quizFeedback: 'idle' | 'correct' | 'wrong' = 'idle';
   wrongSelectedLetter = '';
+  private quizTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     public appNav: AppNavService,
@@ -806,6 +870,10 @@ export class HindiVarnamalaComponent implements OnInit {
     this.initQuizRound();
   }
 
+  ngOnDestroy(): void {
+    this.clearQuizTimer();
+  }
+
   setMode(mode: 'learn' | 'quiz'): void {
     this.sound.playTap();
     this.currentMode = mode;
@@ -817,11 +885,13 @@ export class HindiVarnamalaComponent implements OnInit {
     }
   }
 
-  filterCategory(category: 'all' | 'swar' | 'vyanjan'): void {
+  filterCategory(category: 'all' | 'swar' | 'vyanjan' | 'samyukt'): void {
     this.sound.playTap();
     this.selectedCategory = category;
     if (category === 'all') {
       this.filteredAkshars = this.akshars;
+    } else if (category === 'vyanjan') {
+      this.filteredAkshars = this.akshars.filter(a => a.type === 'vyanjan' || a.type === 'samyukt');
     } else {
       this.filteredAkshars = this.akshars.filter(a => a.type === category);
     }
@@ -837,7 +907,19 @@ export class HindiVarnamalaComponent implements OnInit {
   }
 
   speakAkshar(item: HindiAkshar): void {
-    this.speech.speakHindi(`${item.speechPhrase}!`);
+    // 🕉️ Real authentic Hindi audio pronunciation
+    if (item.audioKey) {
+      this.sound.playHindiAudio(item.audioKey);
+    } else {
+      const list = this.akshars.filter(a => a.type === item.type);
+      const idx = list.findIndex(a => a.letter === item.letter);
+      if (idx !== -1) {
+        this.sound.playHindiPhrase(item.type === 'samyukt' ? 'vyanjan' : item.type, idx);
+      }
+    }
+    setTimeout(() => {
+      this.speech.speakHindi(`${item.speechPhrase}!`);
+    }, 700);
   }
 
   prevAkshar(): void {
@@ -856,7 +938,7 @@ export class HindiVarnamalaComponent implements OnInit {
     const randomIndex = Math.floor(Math.random() * this.akshars.length);
     this.quizTarget = this.akshars[randomIndex];
 
-    // Pick 2 wrong options
+    // Pick 2 random wrong options
     const others = this.akshars.filter(a => a.letter !== this.quizTarget.letter);
     const shuffled = others.sort(() => Math.random() - 0.5);
     const wrong1 = shuffled[0];
@@ -868,7 +950,7 @@ export class HindiVarnamalaComponent implements OnInit {
   }
 
   speakQuizQuestion(): void {
-    this.speech.speakHindi(`${this.quizTarget.speechPhrase} कहाँ है?`);
+    this.speakAkshar(this.quizTarget);
   }
 
   onQuizOptionSelect(option: HindiAkshar): void {
@@ -879,24 +961,40 @@ export class HindiVarnamalaComponent implements OnInit {
       this.confetti.fire();
       this.quizFeedback = 'correct';
       this.quizScore++;
-      this.speech.speakHindi(`शाबाश! बहुत बढ़िया! ${option.speechPhrase}!`);
+      this.speakAkshar(option);
 
-      setTimeout(() => {
+      this.clearQuizTimer();
+      this.quizTimer = setTimeout(() => {
         this.initQuizRound();
         this.speakQuizQuestion();
-      }, 1800);
+      }, 2500);
     } else {
       this.sound.playBoing();
       this.wrongSelectedLetter = option.letter;
-      this.speech.speakHindi(`यह तो ${option.speechPhrase} है! हमें ${this.quizTarget.speechPhrase} खोजना है!`);
+      this.speakAkshar(option);
       setTimeout(() => {
         this.wrongSelectedLetter = '';
       }, 900);
     }
   }
 
+  nextQuizQuestion(): void {
+    this.sound.playTap();
+    this.clearQuizTimer();
+    this.initQuizRound();
+    this.speakQuizQuestion();
+  }
+
+  private clearQuizTimer(): void {
+    if (this.quizTimer) {
+      clearTimeout(this.quizTimer);
+      this.quizTimer = null;
+    }
+  }
+
   goBack(): void {
     this.sound.playTap();
+    this.clearQuizTimer();
     this.appNav.goToHub();
   }
 }

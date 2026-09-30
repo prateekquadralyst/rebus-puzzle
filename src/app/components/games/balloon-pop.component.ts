@@ -782,7 +782,7 @@ export class BalloonPopComponent implements OnInit, OnDestroy {
     } catch {}
 
     this.poppedScore.update(s => s + 1);
-    this.speech.speakClue(String(balloon.num));
+    this.sound.playCountNumber(balloon.num);
 
     // Remove the popped balloon after its 180ms explosion animation finishes
     setTimeout(() => {

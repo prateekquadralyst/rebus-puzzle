@@ -7,10 +7,13 @@
 
 ## 🌟 Highlights at a Glance
 - 🌈 **11 Interactive Games & Learning Modules**
-- 🔊 **Multi-Sensory Procedural Audio**: 50+ synthesized sounds (piano notes, balloon pops, animal sounds, vehicle horns) with zero external MP3 dependencies!
-- 🗣️ **Bilingual Speech Synthesis**: Clear pronunciation in **English** and **Hindi (hi-IN)** using Web Speech API.
+- 🔊 **Zero-Latency In-Memory Soundbank (`public/audio/`)**: Real sampled Grand Piano notes, authentic animal roars/barks/meows, vehicle sounds, studio alphabet phonics voices (A-Z), clear number counting (1-10), and studio Hindi pronunciations (Swar, Vyanjan, and Samyuktakshar) with Web Audio buffer caching!
+- 🗣️ **Bilingual Speech & Phonics**: Studio voice clips and Web Speech synthesis in **English** and **Hindi (hi-IN)**.
+- 📱 **Auto Landscape Rainbow Piano**: Seamlessly locks screen orientation to Landscape mode via `@capacitor/screen-orientation` and Web Orientation API for maximum toddler touch accuracy.
+- ⏭️ **On-Demand Quiz Progression**: Instant 3D candy **"Next Question ⏭️" / "अगला सवाल"** button across quiz modes so kids advance at their own pace.
+- 🎠 **Super-Animative Start Wonderland**: Interactive Musical Rainbow Arch with 7 piano stars (Do-Re-Mi), 6 Switchable Cuddly Mascot Buddies (Teddy, Puppy, Kitty, Bunny, Lion, Elephant), Choo-Choo Steam Train, and Grand 3D Candy Play Button.
 - 🛡️ **Parent Gate & Screen Time Controls**: Protected by math challenge locks to manage healthy digital habits.
-- 📱 **Cross-Platform**: Runs in modern web browsers and compiles directly to a native **Android APK** with custom adaptive launcher icons and splash screens.
+- 📱 **Cross-Platform**: Runs in modern web browsers and compiles directly to a native **Android APK** with Capacitor 7.
 
 ---
 
@@ -33,49 +36,54 @@
 ---
 
 ### 2. 🎹 Rainbow Animal Piano & Xylophone (संगीत और पियानो)
-* **8 Rainbow Musical Keys**:
-  - Octave C4 to C5 with Western Solfège (`Do, Re, Mi, Fa, So, La, Ti, Do`) and Indian Swaras (`सा, रे, ग, म, प, ध, नि, सां`).
+* **Auto-Landscape Immersion**:
+  - Automatically locks the screen to landscape orientation upon entry so keys are wide, spacious, and impossible for toddlers to mis-tap. Restores portrait upon exit.
+* **8 Sampled Grand Piano Keys**:
+  - Real sampled Grand Piano audio (`C4.mp3` through `C5.mp3`) with Western Solfège (`Do, Re, Mi, Fa, So, La, Ti, Do`) and Indian Swaras (`सा, रे, ग, म, प, ध, नि, सां`).
 * **4 Fun Sound Modes**:
-  - 🎹 **Classic Piano / Marimba Bells**: Pristine synthesizer tones.
-  - 🐱 **Cat Choir ("Meow")**: Pitched meows for playful melodies.
-  - 🐶 **Puppy Dog ("Woof")**: Energetic pitched barks.
+  - 🎹 **Classic Grand Piano**: Sampled acoustic grand piano.
+  - 🐱 **Cat Choir ("Meow")**: Playful animal melodies.
+  - 🐶 **Puppy Dog ("Woof")**: Energetic barks.
   - 🦆 **Duckie ("Quack")**: Bouncy nasal quack tones.
-* **Guided Nursery Rhymes (Song Tutor)**:
-  - 🌟 *"Twinkle Twinkle Little Star"*
-  - 🚜 *"Old MacDonald Had a Farm"*
-  - 🎂 *"Happy Birthday to You"*
-  - Next key glows with an animated bouncing star hint, guiding young children to play songs on their own.
+* **Dual-Mode Song Tutor (6 Nursery Rhymes)**:
+  - 🎧 **"Demo सुनो (Auto)" Mode**: The piano automatically plays the song with glowing notes so the toddler can listen and dance.
+  - 🎹 **"अब आप बजाओ (Play Along)" Mode**: Guided play-along tutor where each correct key glows with an animated star, advancing note-by-note.
+  - Songs included: *"Twinkle Twinkle Little Star"*, *"Mary Had a Little Lamb"*, *"Row Row Row Your Boat"*, *"Old MacDonald Had a Farm"*, *"Jingle Bells"*, and *"Happy Birthday to You"*.
 
 ---
 
 ### 3. 🔤 ABCD Alphabet Safari (अल्फाबेट सफारी)
 * **Full A to Z Explorer**:
-  - 26 chunky candy cards featuring uppercase & lowercase letters, phonics sounds, and animal illustrations (A: Apple 🍎, B: Bear 🐻, C: Cat 🐱 ... Z: Zebra 🦓).
+  - 26 chunky candy cards featuring uppercase & lowercase letters, phonics sounds, and animal illustrations.
+  - **Real Voice Audio**: Tapping any letter plays crystal-clear human phonics pronunciation (`/audio/alphabet/A.mp3` - `Z.mp3`).
 * **Spotlight Theater**:
-  - Highlighting individual letters with rich saturated background gradients, animal animations, and crystal-clear pronunciation.
+  - Highlighting individual letters with rich saturated background gradients, animal animations, and speech audio.
 * **Find-the-Letter Quiz ("अक्षर खोजो")**:
-  - Friendly voice prompts (*"Can you find the letter B?"*) with instant positive reinforcement, celebration sounds, and star rewards.
+  - Friendly voice prompts (*"Can you find the letter B?"*) with instant positive reinforcement, celebration sounds, star rewards, and a prominent 3D **"Next Question ⏭️"** button.
 
 ---
 
 ### 4. 🔢 1 2 3 4 Numbers & Counting (संख्या और गिनती)
 * **Interactive Numbers 1 to 10**:
-  - Vibrant cards with large typography and counting objects (Rubber ducks 🦆, Stars ⭐, Apples 🍎, Balloons 🎈, Cars 🚗).
+  - Vibrant cards with large typography and counting objects.
 * **Tap-to-Count Sensory Play**:
-  - Tapping each object triggers bounce physics, star sparks, and numerical speech counting (*"One! Two! Three!"*).
+  - Tapping each object triggers bounce physics, star sparks, and **real human voice counting** (`/audio/numbers/1.mp3` - `10.mp3`).
 * **"How Many?" Counting Quiz**:
-  - Visual objects appear on screen, prompting the toddler to tap the matching number card.
+  - Visual objects appear on screen, prompting the toddler to tap the matching number card, with a 3D **"Next Question ⏭️"** button to advance freely.
 
 ---
 
 ### 5. 🕉️ क, ख, ग, घ हिंदी वर्णमाला (Hindi Varnamala)
-* **Complete Hindi Swar & Vyanjan**:
-  - **स्वर (Vowels)**: अ से अनार 🍎, आ से आम 🥭, इ से इमली 🌿 ... अः
-  - **व्यंजन (Consonants)**: क से कबूतर 🕊️, ख से खरगोश 🐇, ग से गमला 🪴 ... ज्ञ से ज्ञानी 📖
-* **Native Hindi Audio Engine**:
-  - Integrated with Web Speech API `hi-IN` voice synthesis to ensure authentic Hindi pronunciation.
+* **Complete Hindi Swar, Vyanjan & Samyuktakshar**:
+  - **स्वर (Vowels)**: अ से अनार 🍎, आ से आम 🥭, इ से इमली 🌿 ... अं से अंगूर 🍇
+  - **व्यंजन (Consonants)**: क से कबूतर 🕊️, ख से खरगोश 🐇, ग से गमला 🪴 ... ह से हाथी 🐘
+  - **संयुक्त व्यंजन (Joint Consonants)**: **क्ष से क्षत्रिय ⚔️**, **त्र से त्रिशूल 🔱**, **ज्ञ से ज्ञानी 📜**
+* **Dedicated Filter Pills**:
+  - `सभी अक्षर (All)`, `🍎 स्वर (Swar)`, `🕊️ व्यंजन (Vyanjan)`, and `⚔️ संयुक्त (क्ष, त्र, ज्ञ)`.
+* **Authentic Studio Voice Clips**:
+  - Every letter is paired with its dedicated studio audio clip (`public/audio/hindi/`) for 100% reliable offline pronunciation.
 * **अक्षर खोजो क्विज (Interactive Quiz)**:
-  - Audio prompts in Hindi (*"खोजो: 'क' कहाँ है?"*) with confetti and celebratory cheers upon correct answers.
+  - Audio prompts in Hindi (*"खोजो: 'क' कहाँ है?"*) with celebratory cheers and an **"अगला सवाल ⏭️"** progression button.
 
 ---
 
@@ -83,8 +91,7 @@
 * **Physics-based Floating Balloons**:
   - Multi-colored balloons rising gently from the bottom of the screen.
 * **Realistic Burst Mechanics**:
-  - Procedural sound effect with low resonant thud and high-frequency snap pop.
-  - Spawns burst badges, floating stars, and pop streaks.
+  - Real balloon burst sound (`/audio/fx/pop.wav`), popping confetti, and clear voice number announcements upon popping.
 
 ---
 
@@ -96,11 +103,10 @@
 ---
 
 ### 8. 🐮 Animal & Vehicle Sounds Matcher (आवाज़ पहचानो)
-* **50+ Procedural Soundboard**:
-  - Animals: Cow 🐮, Dog 🐶, Cat 🐱, Lion 🦁, Elephant 🐘, Rooster 🐓, Frog 🐸, Sheep 🐑.
-  - Vehicles: Train 🚂, Car Horn 🚗, Police Siren 🚓, Bicycle Bell 🚲, Helicopter 🚁, Rocket 🚀.
+* **Realistic Soundboard**:
+  - Authentic recordings of Dogs, Cats, Cows, Lions, Ducks, Frogs, Horses, Roosters, Sheep, Trains, Car Horns, Sirens, and Bicycle Bells.
 * **Audio Ear-Training Quiz**:
-  - Listen to the sound and choose the matching creature or vehicle.
+  - Listen to the sound and choose the matching creature or vehicle, complete with **"Next Sound ⏭️"** skip/advance button.
 
 ---
 
