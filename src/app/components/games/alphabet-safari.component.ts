@@ -115,6 +115,14 @@ interface LetterItem {
 
               <button 
                 type="button" 
+                class="spotlight-audio-btn write-btn" 
+                (click)="goToTracing(activeLetter.upper)"
+                title="Learn to write this letter">
+                <span>✏️ Write</span>
+              </button>
+
+              <button 
+                type="button" 
                 class="spot-nav-btn" 
                 (click)="nextLetter()"
                 title="Next Letter">
@@ -980,6 +988,11 @@ export class AlphabetSafariComponent implements OnInit {
     const idx = this.letters.findIndex(l => l.upper === this.activeLetter.upper);
     const nextIdx = (idx + 1) % this.letters.length;
     this.onLetterSelect(this.letters[nextIdx]);
+  }
+
+  goToTracing(char: string): void {
+    this.sound.playTap();
+    this.appNav.goToLetterTracing('alphabet', char);
   }
 
   initQuizRound(): void {

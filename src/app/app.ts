@@ -25,6 +25,8 @@ import { NumberCountingComponent } from './components/games/number-counting.comp
 import { HindiVarnamalaComponent } from './components/games/hindi-varnamala.component';
 import { MagicColoringComponent } from './components/games/magic-coloring.component';
 import { AnimalPianoComponent } from './components/games/animal-piano.component';
+import { LetterTracingComponent } from './components/games/letter-tracing.component';
+import { TicTacToeComponent } from './components/games/tic-tac-toe.component';
 import { GameStateService } from './core/services/game-state.service';
 import { SoundService } from './core/services/sound.service';
 import { AppNavService } from './core/services/app-nav.service';
@@ -46,6 +48,8 @@ import { AppNavService } from './core/services/app-nav.service';
     HindiVarnamalaComponent,
     MagicColoringComponent,
     AnimalPianoComponent,
+    LetterTracingComponent,
+    TicTacToeComponent,
     HeaderComponent,
     PuzzleStageComponent,
     AnswerSlotsComponent,

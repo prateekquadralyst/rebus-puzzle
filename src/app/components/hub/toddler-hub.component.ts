@@ -100,7 +100,7 @@ interface GameItem {
             [class.cat-active]="activeCategory === 'new'"
             (click)="setCategory('new')">
             <span class="new-dot"></span>
-            <span>✨ New Top Hits (5)</span>
+            <span>✨ New Top Hits (6)</span>
           </button>
           <button 
             type="button"
@@ -604,6 +604,34 @@ interface GameItem {
 export class ToddlerHubComponent implements OnInit {
   // ⭐ Newly Added Games Placed First at the Top with Rich Saturated Vibrant Colors!
   readonly games: GameItem[] = [
+    // 0. ⭕❌ Tic Tac Toe (New!)
+    {
+      id: 'tic_tac_toe',
+      title: 'Tic Tac Toe',
+      subtitle: 'Play Zero Kaata: Cyan ✕ vs Golden ○ with AI or Friend!',
+      emoji: '🎮',
+      badge: '✨ New!',
+      category: 'new',
+      tag: 'Cyan ✕ vs Gold ○ (AI & 2P)',
+      bgGradient: 'linear-gradient(145deg, #0f172a 0%, #1e1b4b 100%)',
+      borderColor: '#38bdf8',
+      shadowColor: 'rgba(56, 189, 248, 0.55)',
+      isNew: true
+    },
+    // 1. ✏️ Magic Letter & Number Tracing (New!)
+    {
+      id: 'tracing',
+      title: 'Magic Tracing',
+      subtitle: 'Learn to write ABCD, 1234 & क ख ग with magic pencil!',
+      emoji: '✏️',
+      badge: '✨ New!',
+      category: 'new',
+      tag: 'अक्षर व अंक लिखना सीखो',
+      bgGradient: 'linear-gradient(145deg, #0284c7 0%, #7c3aed 100%)',
+      borderColor: '#38bdf8',
+      shadowColor: 'rgba(56, 189, 248, 0.5)',
+      isNew: true
+    },
     // 1. 🎨 Magic Finger Coloring & Glow Slate (New!)
     {
       id: 'coloring',
@@ -794,6 +822,9 @@ export class ToddlerHubComponent implements OnInit {
     this.speech.speakClue(`Playing ${game.title}!`);
 
     switch (game.id) {
+      case 'tracing':
+        this.appNav.goToLetterTracing();
+        break;
       case 'coloring':
         this.appNav.goToColoring();
         break;
@@ -826,6 +857,9 @@ export class ToddlerHubComponent implements OnInit {
         break;
       case 'rebus':
         this.appNav.goToRebus();
+        break;
+      case 'tic_tac_toe':
+        this.appNav.goToTicTacToe();
         break;
       default:
         this.appNav.goToRebus();

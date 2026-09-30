@@ -152,6 +152,14 @@ interface HindiAkshar {
 
               <button 
                 type="button" 
+                class="spotlight-speak-btn write-btn" 
+                (click)="goToTracing(activeAkshar.letter)"
+                title="अक्षर लिखना सीखो">
+                <span>✏️ लिखो</span>
+              </button>
+
+              <button 
+                type="button" 
                 class="spot-nav-btn" 
                 (click)="nextAkshar()"
                 title="Next Akshar">
@@ -933,6 +941,11 @@ export class HindiVarnamalaComponent implements OnInit {
     const idx = this.filteredAkshars.findIndex(a => a.letter === this.activeAkshar.letter);
     const nextIdx = (idx + 1) % this.filteredAkshars.length;
     this.onSelectAkshar(this.filteredAkshars[nextIdx]);
+  }
+
+  goToTracing(letter: string): void {
+    this.sound.playTap();
+    this.appNav.goToLetterTracing('hindi', letter);
   }
 
   initQuizRound(): void {

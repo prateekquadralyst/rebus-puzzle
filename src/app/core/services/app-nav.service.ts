@@ -13,7 +13,9 @@ export type AppScreen =
   | 'number_counting'
   | 'hindi_varnamala'
   | 'magic_coloring'
-  | 'animal_piano';
+  | 'animal_piano'
+  | 'letter_tracing'
+  | 'tic_tac_toe';
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +26,10 @@ export class AppNavService {
    */
   readonly currentScreen = signal<AppScreen>('portal');
   readonly parentGateOpen = signal<boolean>(false);
+
+  // Optional target category & letter for direct jump to tracing
+  readonly tracingTargetCategory = signal<'alphabet' | 'number' | 'hindi'>('alphabet');
+  readonly tracingTargetChar = signal<string | null>(null);
 
   goToPortal(): void {
     this.currentScreen.set('portal');
@@ -75,6 +81,16 @@ export class AppNavService {
 
   goToPiano(): void {
     this.currentScreen.set('animal_piano');
+  }
+
+  goToLetterTracing(category: 'alphabet' | 'number' | 'hindi' = 'alphabet', targetChar?: string): void {
+    this.tracingTargetCategory.set(category);
+    this.tracingTargetChar.set(targetChar || null);
+    this.currentScreen.set('letter_tracing');
+  }
+
+  goToTicTacToe(): void {
+    this.currentScreen.set('tic_tac_toe');
   }
 
   openParentGate(): void {

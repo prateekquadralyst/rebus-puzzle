@@ -142,6 +142,14 @@ interface CountItem {
                 🔄 Count Again
               </button>
 
+              <button 
+                type="button" 
+                class="action-btn btn-write" 
+                (click)="goToTracing(activeStage.num)"
+                title="Learn to write this number">
+                ✏️ Write {{ activeStage.num }}
+              </button>
+
               @if (activeStage.num < stages.length) {
                 <button 
                   type="button" 
@@ -878,6 +886,11 @@ export class NumberCountingComponent implements OnInit {
     if (currentIndex < this.stages.length - 1) {
       this.selectStage(this.stages[currentIndex + 1]);
     }
+  }
+
+  goToTracing(num: number): void {
+    this.sound.playTap();
+    this.appNav.goToLetterTracing('number', num.toString());
   }
 
   // Quiz Methods
