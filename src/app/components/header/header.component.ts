@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GameStateService } from '../../core/services/game-state.service';
 import { SoundService } from '../../core/services/sound.service';
-
+import { ThemeService } from '../../core/services/theme.service';
 import { AppNavService } from '../../core/services/app-nav.service';
 
 @Component({
@@ -83,6 +83,15 @@ import { AppNavService } from '../../core/services/app-nav.service';
             class="icon-action-btn" 
             [title]="sound.isMuted() ? 'Unmute Sound' : 'Mute Sound'">
             {{ sound.isMuted() ? '🔇' : '🔊' }}
+          </button>
+
+          <!-- 🎨 Theme Customizer -->
+          <button 
+            type="button" 
+            (click)="openThemeModal()" 
+            class="icon-action-btn theme-header-btn" 
+            title="Theme Options / थीम बदलें">
+            🎨
           </button>
 
           <!-- ⚙️ Game Options Menu -->
@@ -383,6 +392,7 @@ export class HeaderComponent {
   constructor(
     public game: GameStateService,
     public sound: SoundService,
+    public themeService: ThemeService,
     public nav: AppNavService
   ) {}
 
@@ -399,6 +409,11 @@ export class HeaderComponent {
   openGuideModal(): void {
     this.sound.playTap();
     this.game.showGuideModal.set(true);
+  }
+
+  openThemeModal(): void {
+    this.sound.playTap();
+    this.themeService.open();
   }
 
   openMenuModal(): void {

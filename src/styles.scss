@@ -6,7 +6,7 @@
   --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 
-  /* Base Theme Colors */
+  /* Base Theme Colors (Midnight Galaxy Default) */
   --bg-dark: #070a12;
   --bg-card: rgba(16, 22, 36, 0.82);
   --bg-card-border: rgba(255, 255, 255, 0.12);
@@ -29,39 +29,131 @@
   --radius-lg: 22px;
   --radius-xl: 30px;
   --radius-full: 9999px;
+
+  /* App Global Theme Background & Accent */
+  --app-viewport-bg: radial-gradient(circle at 50% 15%, #1e1b4b 0%, #0f172a 65%, #030712 100%);
+  --theme-accent: #8b5cf6;
+  --theme-glow: rgba(139, 92, 246, 0.45);
+  --theme-header-bg: rgba(15, 23, 42, 0.75);
+  --theme-border: rgba(255, 255, 255, 0.12);
 }
 
-/* Theme: Neon Cyberpunk */
+/* Theme: 🌌 Midnight Galaxy */
+[data-theme='midnight'] {
+  --app-viewport-bg: radial-gradient(circle at 50% 15%, #1e1b4b 0%, #0f172a 65%, #030712 100%);
+  --bg-dark: #070a12;
+  --bg-card: rgba(16, 22, 36, 0.82);
+  --bg-card-border: rgba(255, 255, 255, 0.12);
+  --theme-accent: #8b5cf6;
+  --theme-glow: rgba(139, 92, 246, 0.45);
+  --theme-header-bg: rgba(15, 23, 42, 0.75);
+  --theme-border: rgba(255, 255, 255, 0.12);
+  --accent-purple: #8b5cf6;
+  --accent-purple-glow: rgba(139, 92, 246, 0.4);
+  --accent-indigo: #6366f1;
+}
+
+/* Theme: 🌈 Rainbow Sunshine */
+[data-theme='rainbow'] {
+  --app-viewport-bg: radial-gradient(circle at 50% 15%, #0284c7 0%, #0369a1 40%, #0c4a6e 80%, #082f49 100%);
+  --bg-dark: #082f49;
+  --bg-card: rgba(12, 74, 110, 0.85);
+  --bg-card-border: rgba(56, 189, 248, 0.35);
+  --bg-card-hover: rgba(14, 116, 144, 0.95);
+  --theme-accent: #38bdf8;
+  --theme-glow: rgba(56, 189, 248, 0.5);
+  --theme-header-bg: rgba(8, 47, 73, 0.8);
+  --theme-border: rgba(56, 189, 248, 0.3);
+  --accent-purple: #38bdf8;
+  --accent-purple-glow: rgba(56, 189, 248, 0.5);
+  --accent-indigo: #0284c7;
+  --accent-cyan: #7dd3fc;
+}
+
+/* Theme: 🍬 Candy Wonderland */
+[data-theme='candy'] {
+  --app-viewport-bg: radial-gradient(circle at 50% 15%, #9d174d 0%, #700c37 40%, #4c0519 80%, #1e0010 100%);
+  --bg-dark: #1e0010;
+  --bg-card: rgba(80, 7, 36, 0.85);
+  --bg-card-border: rgba(244, 63, 94, 0.35);
+  --bg-card-hover: rgba(112, 12, 55, 0.95);
+  --theme-accent: #f43f5e;
+  --theme-glow: rgba(244, 63, 94, 0.55);
+  --theme-header-bg: rgba(50, 4, 22, 0.8);
+  --theme-border: rgba(244, 63, 94, 0.3);
+  --accent-purple: #f43f5e;
+  --accent-purple-glow: rgba(244, 63, 94, 0.5);
+  --accent-indigo: #ec4899;
+  --accent-cyan: #fbcfe8;
+}
+
+/* Theme: 🌿 Jungle Safari / Emerald */
+[data-theme='emerald'] {
+  --app-viewport-bg: radial-gradient(circle at 50% 15%, #064e3b 0%, #043629 45%, #022c22 80%, #02120b 100%);
+  --bg-dark: #02120b;
+  --bg-card: rgba(6, 44, 28, 0.85);
+  --bg-card-border: rgba(16, 185, 129, 0.35);
+  --bg-card-hover: rgba(6, 68, 42, 0.95);
+  --theme-accent: #10b981;
+  --theme-glow: rgba(16, 185, 129, 0.5);
+  --theme-header-bg: rgba(2, 44, 34, 0.8);
+  --theme-border: rgba(16, 185, 129, 0.3);
+  --accent-purple: #10b981;
+  --accent-purple-glow: rgba(16, 185, 129, 0.5);
+  --accent-indigo: #059669;
+  --accent-cyan: #34d399;
+}
+
+/* Theme: 🌊 Ocean Magic */
+[data-theme='ocean'] {
+  --app-viewport-bg: radial-gradient(circle at 50% 15%, #0e7490 0%, #155e75 40%, #083344 80%, #02131e 100%);
+  --bg-dark: #02131e;
+  --bg-card: rgba(8, 51, 68, 0.85);
+  --bg-card-border: rgba(6, 182, 212, 0.35);
+  --bg-card-hover: rgba(14, 82, 107, 0.95);
+  --theme-accent: #06b6d4;
+  --theme-glow: rgba(6, 182, 212, 0.5);
+  --theme-header-bg: rgba(4, 35, 48, 0.8);
+  --theme-border: rgba(6, 182, 212, 0.3);
+  --accent-purple: #06b6d4;
+  --accent-purple-glow: rgba(6, 182, 212, 0.5);
+  --accent-indigo: #0284c7;
+  --accent-cyan: #22d3ee;
+}
+
+/* Theme: ⚡ Neon Cyberpunk */
 [data-theme='cyberpunk'] {
+  --app-viewport-bg: radial-gradient(circle at 50% 15%, #581c87 0%, #3b0764 45%, #22033c 80%, #090214 100%);
   --bg-dark: #090214;
-  --bg-card: rgba(24, 8, 44, 0.85);
-  --bg-card-border: rgba(236, 72, 153, 0.3);
+  --bg-card: rgba(36, 10, 66, 0.85);
+  --bg-card-border: rgba(236, 72, 153, 0.35);
+  --bg-card-hover: rgba(56, 14, 102, 0.95);
+  --theme-accent: #ec4899;
+  --theme-glow: rgba(236, 72, 153, 0.55);
+  --theme-header-bg: rgba(20, 4, 38, 0.8);
+  --theme-border: rgba(236, 72, 153, 0.3);
   --accent-purple: #ec4899;
   --accent-purple-glow: rgba(236, 72, 153, 0.5);
   --accent-indigo: #06b6d4;
   --accent-cyan: #38bdf8;
 }
 
-/* Theme: Retro Synthwave 80s */
+/* Theme: 🌅 Sunset Twilight / Retro Synthwave */
+[data-theme='sunset'],
 [data-theme='retro80s'] {
-  --bg-dark: #120702;
-  --bg-card: rgba(36, 18, 10, 0.85);
-  --bg-card-border: rgba(245, 158, 11, 0.3);
+  --app-viewport-bg: radial-gradient(circle at 50% 15%, #854d0e 0%, #713f12 35%, #451a03 75%, #180502 100%);
+  --bg-dark: #180502;
+  --bg-card: rgba(58, 24, 7, 0.85);
+  --bg-card-border: rgba(245, 158, 11, 0.35);
+  --bg-card-hover: rgba(88, 36, 10, 0.95);
+  --theme-accent: #f59e0b;
+  --theme-glow: rgba(245, 158, 11, 0.55);
+  --theme-header-bg: rgba(38, 12, 3, 0.8);
+  --theme-border: rgba(245, 158, 11, 0.3);
   --accent-purple: #f59e0b;
   --accent-purple-glow: rgba(245, 158, 11, 0.5);
   --accent-indigo: #ea580c;
   --accent-cyan: #fbbf24;
-}
-
-/* Theme: Emerald Oasis */
-[data-theme='emerald'] {
-  --bg-dark: #02120b;
-  --bg-card: rgba(6, 34, 22, 0.85);
-  --bg-card-border: rgba(16, 185, 129, 0.3);
-  --accent-purple: #10b981;
-  --accent-purple-glow: rgba(16, 185, 129, 0.5);
-  --accent-indigo: #059669;
-  --accent-cyan: #34d399;
 }
 
 *, *::before, *::after {
@@ -85,11 +177,12 @@ html, body {
 body {
   background-image: 
     radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
-    radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.18) 0%, transparent 45%),
+    radial-gradient(circle at 15% 15%, var(--theme-glow, rgba(99, 102, 241, 0.22)) 0%, transparent 45%),
     radial-gradient(circle at 85% 20%, rgba(236, 72, 153, 0.14) 0%, transparent 45%),
-    radial-gradient(circle at 50% 85%, rgba(6, 182, 212, 0.14) 0%, transparent 50%);
+    radial-gradient(circle at 50% 85%, var(--accent-cyan, rgba(6, 182, 212, 0.14)) 0%, transparent 50%);
   background-size: 26px 26px, 100% 100%, 100% 100%, 100% 100%;
   background-attachment: fixed;
+  transition: background-color 0.4s ease, color 0.4s ease;
 }
 
 /* Typography Utility */

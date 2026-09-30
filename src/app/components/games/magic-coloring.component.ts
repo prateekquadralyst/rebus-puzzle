@@ -15,6 +15,7 @@ interface ColoringTemplate {
 
 interface ColorOption {
   name: string;
+  hindiName: string;
   hex: string;
   isRainbow?: boolean;
 }
@@ -336,7 +337,7 @@ interface SparkleParticle {
               }
 
               <!-- TEMPLATE 7: Space Rocket -->
-              @else {
+              @else if (currentTemplate.id === 'rocket') {
                 <svg viewBox="0 0 400 400" class="coloring-svg">
                   <!-- Exhaust Flame -->
                   <polygon points="175,290 200,360 225,290" [attr.fill]="partColors['flame_out'] || '#ffffff'" stroke="#262626" stroke-width="6" (click)="onPartClick('flame_out', $event)" />
@@ -357,6 +358,95 @@ interface SparkleParticle {
                   <circle cx="200" cy="180" r="18" [attr.fill]="partColors['port_glass'] || '#ffffff'" stroke="#262626" stroke-width="4" (click)="onPartClick('port_glass', $event)" />
                 </svg>
               }
+
+              <!-- TEMPLATE 8: King Lion -->
+              @else if (currentTemplate.id === 'lion') {
+                <svg viewBox="0 0 400 400" class="coloring-svg">
+                  <!-- Big Fluffy Mane -->
+                  <path d="M 200 60 C 240 50 290 80 300 120 C 340 130 350 190 330 230 C 350 270 320 320 280 330 C 240 360 170 360 130 330 C 80 320 60 270 70 230 C 50 190 60 130 100 120 C 110 80 160 50 200 60 Z" [attr.fill]="partColors['mane'] || '#ffffff'" stroke="#262626" stroke-width="8" (click)="onPartClick('mane', $event)" />
+                  <!-- Ears Outer & Inner -->
+                  <circle cx="130" cy="120" r="28" [attr.fill]="partColors['ear_l'] || '#ffffff'" stroke="#262626" stroke-width="6" (click)="onPartClick('ear_l', $event)" />
+                  <circle cx="270" cy="120" r="28" [attr.fill]="partColors['ear_r'] || '#ffffff'" stroke="#262626" stroke-width="6" (click)="onPartClick('ear_r', $event)" />
+                  <circle cx="130" cy="120" r="14" [attr.fill]="partColors['ear_in_l'] || '#ffffff'" stroke="#262626" stroke-width="4" (click)="onPartClick('ear_in_l', $event)" />
+                  <circle cx="270" cy="120" r="14" [attr.fill]="partColors['ear_in_r'] || '#ffffff'" stroke="#262626" stroke-width="4" (click)="onPartClick('ear_in_r', $event)" />
+                  <!-- Face -->
+                  <circle cx="200" cy="190" r="80" [attr.fill]="partColors['face'] || '#ffffff'" stroke="#262626" stroke-width="7" (click)="onPartClick('face', $event)" />
+                  <!-- Snout & Cheeks -->
+                  <ellipse cx="200" cy="215" rx="42" ry="28" [attr.fill]="partColors['snout'] || '#ffffff'" stroke="#262626" stroke-width="6" (click)="onPartClick('snout', $event)" />
+                  <circle cx="155" cy="205" r="10" [attr.fill]="partColors['cheek_l'] || '#ffffff'" stroke="#262626" stroke-width="4" (click)="onPartClick('cheek_l', $event)" />
+                  <circle cx="245" cy="205" r="10" [attr.fill]="partColors['cheek_r'] || '#ffffff'" stroke="#262626" stroke-width="4" (click)="onPartClick('cheek_r', $event)" />
+                  <!-- Nose & Mouth -->
+                  <polygon points="190,202 210,202 200,215" fill="#1e293b" />
+                  <path d="M 200 215 L 200 226 M 190 226 Q 200 236 210 226" fill="none" stroke="#1e293b" stroke-width="4" stroke-linecap="round" />
+                  <!-- Eyes -->
+                  <circle cx="170" cy="170" r="8" fill="#1e293b" />
+                  <circle cx="172" cy="167" r="2.5" fill="#ffffff" />
+                  <circle cx="230" cy="170" r="8" fill="#1e293b" />
+                  <circle cx="232" cy="167" r="2.5" fill="#ffffff" />
+                </svg>
+              }
+
+              <!-- TEMPLATE 9: Magical Unicorn -->
+              @else if (currentTemplate.id === 'unicorn') {
+                <svg viewBox="0 0 400 400" class="coloring-svg">
+                  <!-- Golden Horn -->
+                  <polygon points="175,120 200,40 225,120" [attr.fill]="partColors['horn'] || '#ffffff'" stroke="#262626" stroke-width="6" (click)="onPartClick('horn', $event)" />
+                  <!-- Mane -->
+                  <path d="M 220 120 C 270 90 320 120 300 170 C 330 190 340 240 310 270 C 330 290 320 340 280 350 L 260 280 Z" [attr.fill]="partColors['mane'] || '#ffffff'" stroke="#262626" stroke-width="7" (click)="onPartClick('mane', $event)" />
+                  <!-- Face & Neck -->
+                  <path d="M 140 250 L 110 200 C 95 170 120 130 160 130 L 230 130 C 250 140 260 170 250 200 L 260 350 L 190 350 L 190 270 L 160 270 Z" [attr.fill]="partColors['face'] || '#ffffff'" stroke="#262626" stroke-width="8" (click)="onPartClick('face', $event)" />
+                  <!-- Ear -->
+                  <path d="M 220 125 L 245 80 L 255 125 Z" [attr.fill]="partColors['ear'] || '#ffffff'" stroke="#262626" stroke-width="6" (click)="onPartClick('ear', $event)" />
+                  <!-- Snout -->
+                  <ellipse cx="130" cy="210" rx="30" ry="24" [attr.fill]="partColors['snout'] || '#ffffff'" stroke="#262626" stroke-width="6" (click)="onPartClick('snout', $event)" />
+                  <!-- Star Cheek & Eye -->
+                  <circle cx="160" cy="225" r="10" [attr.fill]="partColors['star_cheek'] || '#ffffff'" stroke="#262626" stroke-width="4" (click)="onPartClick('star_cheek', $event)" />
+                  <circle cx="180" cy="170" r="8" fill="#1e293b" />
+                  <circle cx="182" cy="167" r="2.5" fill="#ffffff" />
+                  <circle cx="120" cy="205" r="3" fill="#1e293b" />
+                </svg>
+              }
+
+              <!-- TEMPLATE 10: Golden Fish -->
+              @else if (currentTemplate.id === 'fish') {
+                <svg viewBox="0 0 400 400" class="coloring-svg">
+                  <!-- Tail Fin -->
+                  <polygon points="120,200 40,120 60,200 40,280" [attr.fill]="partColors['tail'] || '#ffffff'" stroke="#262626" stroke-width="7" (click)="onPartClick('tail', $event)" />
+                  <!-- Top & Bottom Fins -->
+                  <path d="M 180 130 Q 230 70 260 130 Z" [attr.fill]="partColors['fin_top'] || '#ffffff'" stroke="#262626" stroke-width="6" (click)="onPartClick('fin_top', $event)" />
+                  <path d="M 200 270 Q 240 330 260 270 Z" [attr.fill]="partColors['fin_bot'] || '#ffffff'" stroke="#262626" stroke-width="6" (click)="onPartClick('fin_bot', $event)" />
+                  <!-- Fish Main Body -->
+                  <path d="M 120 200 C 150 110 290 110 320 200 C 290 290 150 290 120 200 Z" [attr.fill]="partColors['body'] || '#ffffff'" stroke="#262626" stroke-width="8" (click)="onPartClick('body', $event)" />
+                  <!-- Stripe -->
+                  <ellipse cx="205" cy="200" rx="18" ry="40" [attr.fill]="partColors['stripe'] || '#ffffff'" stroke="#262626" stroke-width="5" (click)="onPartClick('stripe', $event)" />
+                  <!-- Cheek, Eye, Smile -->
+                  <circle cx="280" cy="180" r="10" fill="#1e293b" />
+                  <circle cx="283" cy="177" r="3" fill="#ffffff" />
+                  <circle cx="265" cy="210" r="8" [attr.fill]="partColors['cheek'] || '#ffffff'" stroke="#262626" stroke-width="4" (click)="onPartClick('cheek', $event)" />
+                  <!-- Bubbles -->
+                  <circle cx="345" cy="160" r="12" [attr.fill]="partColors['bubble_1'] || '#ffffff'" stroke="#262626" stroke-width="4" (click)="onPartClick('bubble_1', $event)" />
+                  <circle cx="370" cy="130" r="8" [attr.fill]="partColors['bubble_2'] || '#ffffff'" stroke="#262626" stroke-width="3" (click)="onPartClick('bubble_2', $event)" />
+                </svg>
+              }
+
+              <!-- TEMPLATE 11: Ice Cream Cone -->
+              @else {
+                <svg viewBox="0 0 400 400" class="coloring-svg">
+                  <!-- Waffle Cone -->
+                  <polygon points="130,230 270,230 200,370" [attr.fill]="partColors['cone'] || '#ffffff'" stroke="#262626" stroke-width="7" (click)="onPartClick('cone', $event)" />
+                  <!-- Bottom Scoop -->
+                  <circle cx="200" cy="200" r="60" [attr.fill]="partColors['scoop_bot'] || '#ffffff'" stroke="#262626" stroke-width="7" (click)="onPartClick('scoop_bot', $event)" />
+                  <!-- Top Scoop -->
+                  <circle cx="200" cy="130" r="50" [attr.fill]="partColors['scoop_top'] || '#ffffff'" stroke="#262626" stroke-width="7" (click)="onPartClick('scoop_top', $event)" />
+                  <!-- Cherry on Top -->
+                  <circle cx="200" cy="65" r="18" [attr.fill]="partColors['cherry'] || '#ffffff'" stroke="#262626" stroke-width="5" (click)="onPartClick('cherry', $event)" />
+                  <path d="M 200 50 Q 220 20 235 30" fill="none" stroke="#78350f" stroke-width="4" stroke-linecap="round" />
+                  <!-- Sprinkles -->
+                  <circle cx="170" cy="120" r="7" [attr.fill]="partColors['sprinkle_1'] || '#ffffff'" stroke="#262626" stroke-width="3" (click)="onPartClick('sprinkle_1', $event)" />
+                  <circle cx="230" cy="120" r="7" [attr.fill]="partColors['sprinkle_2'] || '#ffffff'" stroke="#262626" stroke-width="3" (click)="onPartClick('sprinkle_2', $event)" />
+                  <circle cx="180" cy="190" r="7" [attr.fill]="partColors['sprinkle_3'] || '#ffffff'" stroke="#262626" stroke-width="3" (click)="onPartClick('sprinkle_3', $event)" />
+                </svg>
+              }
             </div>
           </div>
         } @else {
@@ -375,7 +465,7 @@ interface SparkleParticle {
             </canvas>
             
             <div class="slate-hint-pill">
-              <span>✨ Use your finger to draw glowing rainbow art!</span>
+              <span>{{ slateTool === 'stamp' ? '✨ Tap anywhere to place glowing stickers!' : (slateTool === 'eraser' ? '🧼 Drag to erase glowing lines!' : '✨ Draw glowing rainbow art with your finger!') }}</span>
             </div>
           </div>
         }
@@ -383,81 +473,232 @@ interface SparkleParticle {
 
       <!-- 🎨 CHUNKY COLOR PALETTE & TOOLS DOCK -->
       <footer class="controls-dock">
-        <!-- Color Circles Track -->
-        <div class="palette-bar">
-          @for (color of colorPalette; track color.name) {
+        @if (mode === 'paint') {
+          <!-- Color Circles Track -->
+          <div class="palette-bar">
+            @for (color of colorPalette; track color.name) {
+              <button 
+                type="button" 
+                class="color-btn"
+                [class.active-color]="selectedColor.name === color.name"
+                [style.background]="color.isRainbow ? 'conic-gradient(red, yellow, lime, aqua, blue, magenta, red)' : color.hex"
+                (click)="selectColor(color)"
+                [title]="color.name + ' (' + color.hindiName + ')'">
+                @if (color.isRainbow) {
+                  <span class="rainbow-star">🌈</span>
+                } @else if (selectedColor.name === color.name) {
+                  <span class="check-mark">✓</span>
+                }
+              </button>
+            }
+          </div>
+
+          <!-- Utility Action Tools for Paint Mode -->
+          <div class="action-tools-row">
+            <!-- 🪄 Magic Auto-Fill Wand -->
             <button 
               type="button" 
-              class="color-btn"
-              [class.active-color]="selectedColor.name === color.name"
-              [style.background]="color.isRainbow ? 'conic-gradient(red, yellow, lime, aqua, blue, magenta, red)' : color.hex"
-              (click)="selectColor(color)"
-              [title]="color.name">
-              @if (color.isRainbow) {
-                <span class="rainbow-star">🌈</span>
-              } @else if (selectedColor.name === color.name) {
-                <span class="check-mark">✓</span>
-              }
+              class="tool-btn magic-wand-btn animate-pop" 
+              (click)="magicAutoFill()"
+              title="Magic Auto-Fill / जादू से रंग भरो">
+              <span>🪄 Magic Fill</span>
             </button>
-          }
-        </div>
 
-        <!-- Utility Action Tools -->
-        <div class="action-tools-row">
-          @if (mode === 'slate') {
+            <!-- ↩️ Undo Paint -->
+            <button 
+              type="button" 
+              class="tool-btn undo-btn" 
+              [disabled]="paintHistory.length === 0"
+              (click)="undoPaint()"
+              title="Undo / पिछला रंग हटाएं">
+              <span>↩️ Undo</span>
+            </button>
+
+            <!-- 🔄 Reset Template -->
+            <button 
+              type="button" 
+              class="tool-btn clear-btn" 
+              (click)="resetTemplateColors()"
+              title="Start Over / दोबारा रंगें">
+              <span>🔄 Reset</span>
+            </button>
+
+            <!-- 📸 Save Artwork -->
+            <button 
+              type="button" 
+              class="tool-btn save-btn" 
+              (click)="saveTemplateArtwork()"
+              title="Save Photo / फोटो सेव करें">
+              <span>📸 Save</span>
+            </button>
+
+            <!-- 🌟 Done / Celebrate -->
+            <button 
+              type="button" 
+              class="tool-btn celebrate-btn" 
+              (click)="onDoneClick()"
+              title="Celebrate / पूरा हुआ!">
+              <span>🌟 Done!</span>
+            </button>
+          </div>
+        } @else {
+          <!-- ✨ SLATE / DRAW CONTROLS -->
+          <div class="slate-subtools-bar">
+            <!-- Tool Mode Toggle -->
+            <div class="slate-tool-pills">
+              <button 
+                type="button" 
+                class="tool-pill" 
+                [class.pill-active]="slateTool === 'brush'"
+                (click)="setSlateTool('brush')">
+                <span>🖌️ Brush</span>
+              </button>
+              <button 
+                type="button" 
+                class="tool-pill" 
+                [class.pill-active]="slateTool === 'stamp'"
+                (click)="setSlateTool('stamp')">
+                <span>🎨 Stamps</span>
+              </button>
+              <button 
+                type="button" 
+                class="tool-pill" 
+                [class.pill-active]="slateTool === 'eraser'"
+                (click)="setSlateTool('eraser')">
+                <span>🧼 Eraser</span>
+              </button>
+            </div>
+
+            <!-- Brush Style Selector (if Brush tool active) -->
+            @if (slateTool === 'brush') {
+              <div class="brush-styles-cluster">
+                <button 
+                  type="button" 
+                  class="style-chip" 
+                  [class.style-chip-active]="brushStyle === 'neon'"
+                  (click)="setBrushStyle('neon')">
+                  <span>🌟 Neon</span>
+                </button>
+                <button 
+                  type="button" 
+                  class="style-chip" 
+                  [class.style-chip-active]="brushStyle === 'rainbow'"
+                  (click)="setBrushStyle('rainbow')">
+                  <span>🌈 Rainbow</span>
+                </button>
+                <button 
+                  type="button" 
+                  class="style-chip" 
+                  [class.style-chip-active]="brushStyle === 'sparkle'"
+                  (click)="setBrushStyle('sparkle')">
+                  <span>✨ Stars</span>
+                </button>
+                <button 
+                  type="button" 
+                  class="style-chip" 
+                  [class.style-chip-active]="brushStyle === 'bubbles'"
+                  (click)="setBrushStyle('bubbles')">
+                  <span>🫧 Bubbles</span>
+                </button>
+              </div>
+            }
+
+            <!-- Stamps Picker (if Stamp tool active) -->
+            @if (slateTool === 'stamp') {
+              <div class="stamps-row">
+                @for (st of stamps; track st) {
+                  <button 
+                    type="button" 
+                    class="stamp-pill" 
+                    [class.stamp-active]="selectedStamp === st"
+                    (click)="selectStamp(st)">
+                    {{ st }}
+                  </button>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Color palette for drawing (if not eraser) -->
+          @if (slateTool !== 'eraser') {
+            <div class="palette-bar">
+              @for (color of colorPalette; track color.name) {
+                <button 
+                  type="button" 
+                  class="color-btn"
+                  [class.active-color]="selectedColor.name === color.name"
+                  [style.background]="color.isRainbow ? 'conic-gradient(red, yellow, lime, aqua, blue, magenta, red)' : color.hex"
+                  (click)="selectColor(color)"
+                  [title]="color.name">
+                  @if (color.isRainbow) {
+                    <span class="rainbow-star">🌈</span>
+                  } @else if (selectedColor.name === color.name) {
+                    <span class="check-mark">✓</span>
+                  }
+                </button>
+              }
+            </div>
+          }
+
+          <!-- Size Picker & Action Row -->
+          <div class="action-tools-row">
             <!-- Brush Size Picker -->
             <div class="brush-size-group">
               <button 
                 type="button" 
                 class="tool-btn size-btn" 
                 [class.size-active]="brushSize === 10" 
-                (click)="setBrushSize(10)">
+                (click)="setBrushSize(10)"
+                title="Small">
                 <span class="dot dot-sm"></span>
               </button>
               <button 
                 type="button" 
                 class="tool-btn size-btn" 
                 [class.size-active]="brushSize === 22" 
-                (click)="setBrushSize(22)">
+                (click)="setBrushSize(22)"
+                title="Medium">
                 <span class="dot dot-md"></span>
               </button>
               <button 
                 type="button" 
                 class="tool-btn size-btn" 
-                [class.size-active]="brushSize === 36" 
-                (click)="setBrushSize(36)">
+                [class.size-active]="brushSize === 38" 
+                (click)="setBrushSize(38)"
+                title="Large">
                 <span class="dot dot-lg"></span>
               </button>
             </div>
 
-            <!-- Clear Slate -->
+            <!-- ↩️ Undo Slate Stroke -->
+            <button 
+              type="button" 
+              class="tool-btn undo-btn" 
+              [disabled]="slateHistory.length === 0"
+              (click)="undoSlate()"
+              title="Undo / पिछला स्ट्रोक हटाएं">
+              <span>↩️ Undo</span>
+            </button>
+
+            <!-- 🧹 Clear Slate -->
             <button 
               type="button" 
               class="tool-btn clear-btn" 
               (click)="clearSlate()"
-              title="Clear Slate">
+              title="Clear Slate / साफ करें">
               <span>🧹 Clear</span>
             </button>
-          } @else {
-            <!-- Reset Colors -->
+
+            <!-- 📸 Save Artwork -->
             <button 
               type="button" 
-              class="tool-btn clear-btn" 
-              (click)="resetTemplateColors()"
-              title="Start Over">
-              <span>🔄 Reset</span>
+              class="tool-btn save-btn" 
+              (click)="saveArtwork()"
+              title="Save Photo / फोटो सेव करें">
+              <span>📸 Save</span>
             </button>
-          }
-
-          <!-- Celebration Cheer Button (Manual trigger if fully colored or clicked) -->
-          <button 
-            type="button" 
-            class="tool-btn celebrate-btn" 
-            (click)="onDoneClick()"
-            title="Celebrate!">
-            <span>🌟 Done!</span>
-          </button>
-        </div>
+          </div>
+        }
       </footer>
 
       <!-- 🥳 WIN CELEBRATION POPUP (Triggers ONLY when 100% of parts are colored!) -->
@@ -486,7 +727,8 @@ interface SparkleParticle {
       min-height: 100vh;
       min-height: 100dvh;
       width: 100%;
-      background: radial-gradient(circle at 50% 15%, #1e1b4b 0%, #0f172a 65%, #020617 100%);
+      background: var(--app-viewport-bg, radial-gradient(circle at 50% 15%, #1e1b4b 0%, #0f172a 65%, #020617 100%));
+      transition: background 0.4s ease;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -1038,6 +1280,41 @@ interface SparkleParticle {
       gap: 5px;
     }
 
+    .magic-wand-btn {
+      background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #f59e0b 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(236, 72, 153, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .magic-wand-btn:hover {
+      transform: scale(1.06);
+      box-shadow: 0 6px 18px rgba(236, 72, 153, 0.65);
+    }
+
+    .undo-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1.5px solid rgba(255, 255, 255, 0.2);
+      color: #e2e8f0;
+    }
+    .undo-btn:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.22);
+      transform: translateY(-2px);
+    }
+    .undo-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .save-btn {
+      background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+    }
+    .save-btn:hover {
+      transform: scale(1.06);
+      box-shadow: 0 6px 18px rgba(6, 182, 212, 0.6);
+    }
+
     .clear-btn {
       background: rgba(239, 68, 68, 0.2);
       border: 1.5px solid rgba(239, 68, 68, 0.4);
@@ -1057,6 +1334,97 @@ interface SparkleParticle {
     .celebrate-btn:hover {
       transform: scale(1.06);
       box-shadow: 0 6px 18px rgba(16, 185, 129, 0.65);
+    }
+
+    /* ✨ Slate Sub-Tools Bar */
+    .slate-subtools-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      margin-bottom: 4px;
+    }
+
+    .slate-tool-pills {
+      display: inline-flex;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 3px;
+      gap: 4px;
+    }
+
+    .tool-pill {
+      border: none;
+      background: transparent;
+      color: #cbd5e1;
+      padding: 5px 12px;
+      border-radius: 16px;
+      font-family: var(--font-display);
+      font-size: 0.74rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tool-pill:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.12);
+    }
+    .tool-pill.pill-active {
+      background: linear-gradient(135deg, #a855f7, #6366f1);
+      color: #ffffff;
+      box-shadow: 0 2px 10px rgba(168, 85, 247, 0.4);
+    }
+
+    .brush-styles-cluster, .stamps-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      padding: 3px 8px;
+    }
+
+    .style-chip {
+      border: none;
+      background: transparent;
+      color: #cbd5e1;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .style-chip:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+    }
+    .style-chip.style-chip-active {
+      background: rgba(245, 158, 11, 0.35);
+      border: 1px solid rgba(251, 191, 36, 0.6);
+      color: #fde047;
+    }
+
+    .stamp-pill {
+      border: none;
+      background: transparent;
+      font-size: 18px;
+      padding: 3px 6px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .stamp-pill:hover {
+      transform: scale(1.25);
+    }
+    .stamp-pill.stamp-active {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.2);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
     }
 
     /* Win Celebration Popup */
@@ -1222,22 +1590,61 @@ export class MagicColoringComponent implements OnInit, AfterViewInit, OnDestroy 
         'nose', 'body', 'wing_l', 'wing_r',
         'port_ring', 'port_glass', 'flame_out', 'flame_in'
       ]
+    },
+    {
+      id: 'lion',
+      name: 'Lion',
+      hindiName: 'शेर',
+      emoji: '🦁',
+      allParts: [
+        'mane', 'face', 'ear_l', 'ear_r',
+        'ear_in_l', 'ear_in_r', 'snout', 'cheek_l', 'cheek_r'
+      ]
+    },
+    {
+      id: 'unicorn',
+      name: 'Unicorn',
+      hindiName: 'यूनिकॉर्न',
+      emoji: '🦄',
+      allParts: [
+        'horn', 'mane', 'face', 'ear', 'snout', 'star_cheek'
+      ]
+    },
+    {
+      id: 'fish',
+      name: 'Golden Fish',
+      hindiName: 'मछली',
+      emoji: '🐠',
+      allParts: [
+        'body', 'tail', 'fin_top', 'fin_bot',
+        'stripe', 'cheek', 'bubble_1', 'bubble_2'
+      ]
+    },
+    {
+      id: 'icecream',
+      name: 'Ice Cream',
+      hindiName: 'आइसक्रीम',
+      emoji: '🍦',
+      allParts: [
+        'cone', 'scoop_bot', 'scoop_top', 'cherry',
+        'sprinkle_1', 'sprinkle_2', 'sprinkle_3'
+      ]
     }
   ];
 
   readonly colorPalette: ColorOption[] = [
-    { name: 'Red', hex: '#ef4444' },
-    { name: 'Orange', hex: '#f97316' },
-    { name: 'Yellow', hex: '#facc15' },
-    { name: 'Lime', hex: '#22c55e' },
-    { name: 'Aqua', hex: '#06b6d4' },
-    { name: 'Blue', hex: '#3b82f6' },
-    { name: 'Purple', hex: '#a855f7' },
-    { name: 'Pink', hex: '#ec4899' },
-    { name: 'Brown', hex: '#854d0e' },
-    { name: 'White', hex: '#ffffff' },
-    { name: 'Dark', hex: '#1e293b' },
-    { name: 'Rainbow', hex: '#ff007f', isRainbow: true }
+    { name: 'Red', hindiName: 'लाल', hex: '#ef4444' },
+    { name: 'Orange', hindiName: 'नारंगी', hex: '#f97316' },
+    { name: 'Yellow', hindiName: 'पीला', hex: '#facc15' },
+    { name: 'Lime', hindiName: 'हरा', hex: '#22c55e' },
+    { name: 'Aqua', hindiName: 'आसमानी', hex: '#06b6d4' },
+    { name: 'Blue', hindiName: 'नीला', hex: '#3b82f6' },
+    { name: 'Purple', hindiName: 'बैंगनी', hex: '#a855f7' },
+    { name: 'Pink', hindiName: 'गुलाबी', hex: '#ec4899' },
+    { name: 'Brown', hindiName: 'भूरा', hex: '#854d0e' },
+    { name: 'White', hindiName: 'सफ़ेद', hex: '#ffffff' },
+    { name: 'Dark', hindiName: 'गहरा', hex: '#1e293b' },
+    { name: 'Rainbow', hindiName: 'इंद्रधनुष', hex: '#ff007f', isRainbow: true }
   ];
 
   currentTemplate: ColoringTemplate = this.templates[0];
@@ -1247,6 +1654,16 @@ export class MagicColoringComponent implements OnInit, AfterViewInit, OnDestroy 
   brushSize = 22;
   showWinModal = false;
   totalStars = 28;
+
+  // 🪄 Undo stack for Paint mode
+  paintHistory: { partId: string; prevColor: string | undefined }[] = [];
+
+  // ✨ Draw / Slate tools
+  slateTool: 'brush' | 'stamp' | 'eraser' = 'brush';
+  brushStyle: 'neon' | 'rainbow' | 'sparkle' | 'bubbles' = 'neon';
+  selectedStamp = '⭐';
+  readonly stamps: string[] = ['⭐', '💖', '🌸', '🦋', '👑', '🐾', '🎈', '☀️'];
+  slateHistory: ImageData[] = [];
 
   // Drawing state for Canvas
   private isDrawing = false;
@@ -1343,9 +1760,17 @@ export class MagicColoringComponent implements OnInit, AfterViewInit, OnDestroy 
     this.sound.playTap();
   }
 
+  /* ------------------ 🎨 PAINT MODE METHODS ------------------ */
+
   onPartClick(partId: string, event: MouseEvent): void {
     event.stopPropagation();
     
+    // Save history for Undo
+    this.paintHistory.push({
+      partId,
+      prevColor: this.partColors[partId]
+    });
+
     // Assign color
     const fillColor = this.selectedColor.isRainbow 
       ? `hsl(${Math.floor(Math.random() * 360)}, 95%, 60%)` 
@@ -1355,19 +1780,115 @@ export class MagicColoringComponent implements OnInit, AfterViewInit, OnDestroy 
     this.coloredPartIds.add(partId);
     this.sound.playBrushSplash();
 
-    // ⭐ ONLY popup when 100% of parts have been colored!
+    // Voice announcement of color
+    if (!this.selectedColor.isRainbow && Math.random() < 0.6) {
+      this.speech.speakHindi(`${this.selectedColor.hindiName} रंग!`);
+    }
+
+    // Check completion
     if (this.coloredPartIds.size >= this.totalPartsCount) {
       if (this.completionTimeout) clearTimeout(this.completionTimeout);
-      // Give a gentle 500ms delay so child sees their last filled color!
       this.completionTimeout = setTimeout(() => {
         this.celebrateArtwork();
       }, 500);
     }
   }
 
+  undoPaint(): void {
+    if (this.paintHistory.length === 0) return;
+    const last = this.paintHistory.pop()!;
+    if (last.prevColor === undefined) {
+      delete this.partColors[last.partId];
+      this.coloredPartIds.delete(last.partId);
+    } else {
+      this.partColors[last.partId] = last.prevColor;
+    }
+    this.sound.playTap();
+  }
+
+  magicAutoFill(): void {
+    this.sound.playMagicSparkle();
+    this.confetti.fire();
+
+    const presets: { [tplId: string]: { [partId: string]: string } } = {
+      teddy: {
+        head: '#f59e0b', body: '#d97706', ear_l: '#f59e0b', ear_r: '#f59e0b',
+        ear_in_l: '#fbcfe8', ear_in_r: '#fbcfe8', snout: '#fef3c7',
+        tummy: '#fef3c7', arm_l: '#d97706', arm_r: '#d97706', foot_l: '#d97706', foot_r: '#d97706',
+        pad_l: '#fbcfe8', pad_r: '#fbcfe8', bow_l: '#ec4899', bow_r: '#ec4899', bow_c: '#be185d',
+        cheek_l: '#f43f5e', cheek_r: '#f43f5e'
+      },
+      butterfly: {
+        wing_top_l: '#38bdf8', wing_top_r: '#38bdf8', wing_bot_l: '#c084fc', wing_bot_r: '#c084fc',
+        spot_1: '#fde047', spot_2: '#fde047', spot_3: '#f43f5e', spot_4: '#f43f5e',
+        body: '#ec4899', head: '#a855f7', ant_l: '#facc15', ant_r: '#facc15'
+      },
+      car: {
+        car_body: '#ef4444', win_front: '#38bdf8', win_back: '#38bdf8',
+        light_front: '#fde047', light_rear: '#f97316',
+        wheel_l: '#1e293b', wheel_r: '#1e293b', hub_l: '#cbd5e1', hub_r: '#cbd5e1'
+      },
+      apple: {
+        apple_l: '#ef4444', apple_r: '#dc2626', leaf: '#22c55e',
+        cheek_l: '#f43f5e', cheek_r: '#f43f5e'
+      },
+      dino: {
+        dino_body: '#10b981', dino_tummy: '#86efac',
+        spike_1: '#f59e0b', spike_2: '#f59e0b', spike_3: '#f59e0b',
+        leg_l: '#059669', leg_r: '#059669'
+      },
+      cake: {
+        plate: '#cbd5e1', cake_base: '#f472b6', frost_base: '#fdf2f8',
+        cake_top: '#38bdf8', frost_top: '#f0fdf4',
+        candle_1: '#f59e0b', flame_1: '#ef4444', candle_2: '#a855f7', flame_2: '#ef4444', candle_3: '#10b981', flame_3: '#ef4444'
+      },
+      rocket: {
+        nose: '#ef4444', body: '#ffffff', wing_l: '#3b82f6', wing_r: '#3b82f6',
+        port_ring: '#f59e0b', port_glass: '#38bdf8', flame_out: '#f97316', flame_in: '#fde047'
+      },
+      lion: {
+        mane: '#ea580c', face: '#f59e0b', ear_l: '#f59e0b', ear_r: '#f59e0b',
+        ear_in_l: '#fbcfe8', ear_in_r: '#fbcfe8', snout: '#fef3c7',
+        cheek_l: '#f43f5e', cheek_r: '#f43f5e'
+      },
+      unicorn: {
+        horn: '#facc15', mane: '#ec4899', face: '#ffffff', ear: '#fbcfe8',
+        snout: '#fdf2f8', star_cheek: '#fde047'
+      },
+      fish: {
+        body: '#f97316', tail: '#facc15', fin_top: '#facc15', fin_bot: '#facc15',
+        stripe: '#38bdf8', cheek: '#f43f5e', bubble_1: '#38bdf8', bubble_2: '#7dd3fc'
+      },
+      icecream: {
+        cone: '#d97706', scoop_bot: '#10b981', scoop_top: '#ec4899',
+        cherry: '#ef4444', sprinkle_1: '#fde047', sprinkle_2: '#38bdf8', sprinkle_3: '#a855f7'
+      }
+    };
+
+    const targetPalette = presets[this.currentTemplate.id];
+    if (targetPalette) {
+      for (const [part, col] of Object.entries(targetPalette)) {
+        this.paintHistory.push({ partId: part, prevColor: this.partColors[part] });
+        this.partColors[part] = col;
+        this.coloredPartIds.add(part);
+      }
+    }
+    this.speech.speakHindi('जादुई रंग भर गए! कितना सुंदर है!');
+    this.celebrateArtwork();
+  }
+
+  saveTemplateArtwork(): void {
+    this.sound.playSuccess();
+    this.confetti.fire();
+    this.speech.speakHindi('वाह! बहुत सुंदर चित्र बनाया है!');
+    this.celebrateArtwork();
+  }
+
   resetTemplateColors(): void {
+    this.sound.playSwoosh();
     this.partColors = {};
     this.coloredPartIds.clear();
+    this.paintHistory = [];
     if (this.completionTimeout) clearTimeout(this.completionTimeout);
   }
 
@@ -1375,7 +1896,6 @@ export class MagicColoringComponent implements OnInit, AfterViewInit, OnDestroy 
     if (this.isFullyColored) {
       this.celebrateArtwork();
     } else {
-      // Gentle encouragement
       this.sound.playGiggle();
       const remaining = this.totalPartsCount - this.coloredCount;
       this.speech.speakHindi(`अरे वाह! अभी ${remaining} हिस्से बाकी हैं, पूरा रंग भरें!`);
@@ -1401,11 +1921,30 @@ export class MagicColoringComponent implements OnInit, AfterViewInit, OnDestroy 
 
   /* ------------------ ✨ CANVAS GLOW SLATE LOGIC ------------------ */
 
+  setSlateTool(tool: 'brush' | 'stamp' | 'eraser'): void {
+    this.slateTool = tool;
+    this.sound.playTap();
+    if (tool === 'stamp') {
+      this.speech.speakHindi('स्टिकर चुनें और स्लेट पर लगाएं!');
+    } else if (tool === 'eraser') {
+      this.speech.speakHindi('रबर! जो मिटाना है मिटाएं!');
+    }
+  }
+
+  setBrushStyle(style: 'neon' | 'rainbow' | 'sparkle' | 'bubbles'): void {
+    this.brushStyle = style;
+    this.sound.playTap();
+  }
+
+  selectStamp(stamp: string): void {
+    this.selectedStamp = stamp;
+    this.sound.playPop();
+  }
+
   private initCanvas(): void {
     const canvas = this.slateCanvasRef?.nativeElement;
     if (!canvas) return;
 
-    // Handle high DPI
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width * (window.devicePixelRatio || 1);
     canvas.height = rect.height * (window.devicePixelRatio || 1);
@@ -1420,18 +1959,55 @@ export class MagicColoringComponent implements OnInit, AfterViewInit, OnDestroy 
     this.startSparkleLoop();
   }
 
+  saveSlateState(): void {
+    if (!this.ctx || !this.slateCanvasRef?.nativeElement) return;
+    const canvas = this.slateCanvasRef.nativeElement;
+    if (this.slateHistory.length >= 10) {
+      this.slateHistory.shift();
+    }
+    this.slateHistory.push(this.ctx.getImageData(0, 0, canvas.width, canvas.height));
+  }
+
+  undoSlate(): void {
+    if (!this.ctx || !this.slateCanvasRef?.nativeElement || this.slateHistory.length === 0) return;
+    const canvas = this.slateCanvasRef.nativeElement;
+    const prev = this.slateHistory.pop()!;
+    this.ctx.putImageData(prev, 0, 0);
+    this.sound.playTap();
+  }
+
+  drawStamp(x: number, y: number): void {
+    if (!this.ctx) return;
+    this.saveSlateState();
+    const size = this.brushSize * 1.8;
+    this.ctx.save();
+    this.ctx.font = `${size}px "Outfit", sans-serif`;
+    this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'middle';
+    this.ctx.shadowBlur = 18;
+    this.ctx.shadowColor = this.selectedColor.isRainbow ? '#f59e0b' : this.selectedColor.hex;
+    this.ctx.fillText(this.selectedStamp, x, y);
+    this.ctx.restore();
+    this.sound.playBoing();
+    this.spawnSparkle(x, y, this.selectedColor.hex);
+  }
+
   startDrawing(e: MouseEvent): void {
-    this.isDrawing = true;
     const pos = this.getCanvasCoords(e);
+    if (this.slateTool === 'stamp') {
+      this.drawStamp(pos.x, pos.y);
+      return;
+    }
+    this.saveSlateState();
+    this.isDrawing = true;
     this.lastX = pos.x;
     this.lastY = pos.y;
     this.sound.playChime(1.2);
   }
 
   draw(e: MouseEvent): void {
-    if (!this.isDrawing || !this.ctx) return;
+    if (!this.isDrawing || !this.ctx || this.slateTool === 'stamp') return;
     const pos = this.getCanvasCoords(e);
-
     this.executeStroke(pos.x, pos.y);
   }
 
@@ -1444,6 +2020,11 @@ export class MagicColoringComponent implements OnInit, AfterViewInit, OnDestroy 
     e.preventDefault();
     const touch = e.touches[0];
     const pos = this.getTouchCoords(touch);
+    if (this.slateTool === 'stamp') {
+      this.drawStamp(pos.x, pos.y);
+      return;
+    }
+    this.saveSlateState();
     this.isDrawing = true;
     this.lastX = pos.x;
     this.lastY = pos.y;
@@ -1451,7 +2032,7 @@ export class MagicColoringComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   handleTouchMove(e: TouchEvent): void {
-    if (!this.isDrawing || !this.ctx || e.touches.length === 0) return;
+    if (!this.isDrawing || !this.ctx || e.touches.length === 0 || this.slateTool === 'stamp') return;
     e.preventDefault();
     const touch = e.touches[0];
     const pos = this.getTouchCoords(touch);
@@ -1461,27 +2042,50 @@ export class MagicColoringComponent implements OnInit, AfterViewInit, OnDestroy 
   private executeStroke(currX: number, currY: number): void {
     if (!this.ctx) return;
 
+    if (this.slateTool === 'eraser') {
+      this.ctx.save();
+      this.ctx.globalCompositeOperation = 'destination-out';
+      this.ctx.lineWidth = this.brushSize * 1.6;
+      this.ctx.beginPath();
+      this.ctx.moveTo(this.lastX, this.lastY);
+      this.ctx.lineTo(currX, currY);
+      this.ctx.stroke();
+      this.ctx.restore();
+      this.lastX = currX;
+      this.lastY = currY;
+      return;
+    }
+
     this.ctx.lineWidth = this.brushSize;
 
     // Rainbow or chosen color
     let strokeColor = this.selectedColor.hex;
-    if (this.selectedColor.isRainbow) {
-      this.rainbowHue = (this.rainbowHue + 4) % 360;
+    if (this.selectedColor.isRainbow || this.brushStyle === 'rainbow') {
+      this.rainbowHue = (this.rainbowHue + 5) % 360;
       strokeColor = `hsl(${this.rainbowHue}, 100%, 65%)`;
     }
 
     // Glowing Neon Stroke
-    this.ctx.shadowBlur = 15;
+    this.ctx.shadowBlur = this.brushStyle === 'bubbles' ? 6 : 18;
     this.ctx.shadowColor = strokeColor;
     this.ctx.strokeStyle = strokeColor;
 
-    this.ctx.beginPath();
-    this.ctx.moveTo(this.lastX, this.lastY);
-    this.ctx.lineTo(currX, currY);
-    this.ctx.stroke();
+    if (this.brushStyle === 'bubbles') {
+      // Draw luminous circular bubbles
+      this.ctx.fillStyle = strokeColor;
+      this.ctx.beginPath();
+      this.ctx.arc(currX, currY, this.brushSize * 0.6, 0, Math.PI * 2);
+      this.ctx.fill();
+    } else {
+      this.ctx.beginPath();
+      this.ctx.moveTo(this.lastX, this.lastY);
+      this.ctx.lineTo(currX, currY);
+      this.ctx.stroke();
+    }
 
-    // Spawn sparkling fairy dust along stroke
-    if (Math.random() < 0.45) {
+    // Sparkles along stroke
+    const sparkleChance = this.brushStyle === 'sparkle' ? 0.8 : 0.4;
+    if (Math.random() < sparkleChance) {
       this.spawnSparkle(currX, currY, strokeColor);
       this.sound.playChime(0.9 + Math.random() * 0.6);
     }
@@ -1493,9 +2097,22 @@ export class MagicColoringComponent implements OnInit, AfterViewInit, OnDestroy 
   clearSlate(): void {
     const canvas = this.slateCanvasRef?.nativeElement;
     if (!canvas || !this.ctx) return;
+    this.saveSlateState();
     this.sound.playSwoosh();
     this.ctx.clearRect(0, 0, canvas.width, canvas.height);
     this.sparkles = [];
+  }
+
+  saveArtwork(): void {
+    const canvas = this.slateCanvasRef?.nativeElement;
+    if (!canvas) return;
+    const link = document.createElement('a');
+    link.download = `my-glowing-art-${Date.now()}.png`;
+    link.href = canvas.toDataURL();
+    link.click();
+    this.sound.playSuccess();
+    this.confetti.fire();
+    this.speech.speakHindi('आपकी सुंदर ड्राइंग सेव हो गई!');
   }
 
   private getCanvasCoords(e: MouseEvent): { x: number; y: number } {
@@ -1523,13 +2140,13 @@ export class MagicColoringComponent implements OnInit, AfterViewInit, OnDestroy 
       x,
       y,
       color,
-      size: 3 + Math.random() * 5,
-      life: 20,
-      maxLife: 20,
+      size: 3 + Math.random() * 6,
+      life: 22,
+      maxLife: 22,
       vx: (Math.random() - 0.5) * 3,
       vy: (Math.random() - 0.5) * 3
     });
-    if (this.sparkles.length > 50) {
+    if (this.sparkles.length > 60) {
       this.sparkles.shift();
     }
   }

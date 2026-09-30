@@ -402,7 +402,8 @@ interface StarBurst {
       min-height: 100vh;
       min-height: 100dvh;
       width: 100%;
-      background: radial-gradient(circle at 50% 10%, #1e1b4b 0%, #0f172a 70%, #030712 100%);
+      background: var(--app-viewport-bg, radial-gradient(circle at 50% 10%, #1e1b4b 0%, #0f172a 70%, #030712 100%));
+      transition: background 0.4s ease;
       display: flex;
       flex-direction: column;
       justify-content: space-between;

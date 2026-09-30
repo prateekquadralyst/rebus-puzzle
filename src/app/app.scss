@@ -5,6 +5,8 @@
   position: relative;
   overflow-x: hidden;
   user-select: none;
+  background: var(--app-viewport-bg, transparent);
+  transition: background 0.4s ease;
 }
 
 .glow-orb {

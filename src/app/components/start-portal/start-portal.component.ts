@@ -4,6 +4,7 @@ import { AppNavService } from '../../core/services/app-nav.service';
 import { SoundService } from '../../core/services/sound.service';
 import { SpeechService } from '../../core/services/speech.service';
 import { ConfettiService } from '../../core/services/confetti.service';
+import { ThemeService } from '../../core/services/theme.service';
 
 interface FloatingBalloon {
   id: number;
@@ -148,8 +149,16 @@ interface MascotBuddy {
           <span class="star-pill-text">{{ totalStars }} Stars</span>
         </div>
 
-        <!-- 🎵 Sound & Voice Controls -->
+        <!-- 🎨 Theme & 🎵 Sound Controls -->
         <div class="header-actions">
+          <button 
+            type="button" 
+            (click)="openThemeModal()" 
+            class="header-circle-btn theme-btn"
+            id="btn-portal-theme"
+            title="Theme Options / थीम बदलें">
+            🎨
+          </button>
           <button 
             type="button" 
             (click)="sound.toggleMute()" 
@@ -160,85 +169,87 @@ interface MascotBuddy {
         </div>
       </header>
 
-      <!-- 🎪 Center Stage: Animated Living Mascot, Musical Rainbow, & Mega Play Button -->
+      <!-- 🎪 Center Stage: High-Impact Toddler Wonderland Layout -->
       <main class="portal-content">
-        <!-- 🌈 Musical Piano Rainbow Arch (Tap stars to play real piano notes!) -->
-        <div class="rainbow-arch-banner">
-          <div class="rainbow-arch-track">
-            <span class="rainbow-curve-line"></span>
-            <div class="rainbow-stars-cluster">
-              @for (star of rainbowStars; track star.id) {
+        <!-- 1. Hero Brand Title at the Top -->
+        <div class="brand-hero-group">
+          <div class="magic-pill-badge">
+            <span class="badge-sparkle">✨</span>
+            <span class="badge-text">TODDLER ADVENTURE WORLD</span>
+            <span class="badge-sparkle">✨</span>
+          </div>
+          <h1 class="portal-brand-title">
+            <span class="brand-word brand-toddler">TODDLER</span><span class="brand-word brand-mind">MIND</span>
+          </h1>
+          <p class="portal-tagline">
+            <span class="tagline-star">⭐</span>
+            जादुई दुनिया • खेलो, सीखो और मुस्कुराओ!
+            <span class="tagline-star">⭐</span>
+          </p>
+        </div>
+
+        <!-- 2. Living Mascot Companion Island with Cloud & 6 Friend Dot Avatars -->
+        <div class="mascot-island-stage">
+          <!-- Interactive Speech Cloud -->
+          <div class="mascot-speech-cloud animate-pop" (click)="onMascotClick()" title="Tap to listen!">
+            <span class="speech-quote">{{ currentSpeechText }}</span>
+            <span class="speech-tap-badge">👆 Tap me!</span>
+          </div>
+
+          <!-- Mascot Avatar with Aura and Cloud Throne -->
+          <div 
+            class="mascot-hero-avatar" 
+            (click)="onMascotClick()"
+            [class.mascot-jumping]="isMascotJumping"
+            title="Tap me to play!">
+            <div class="mascot-radiant-glow" [style.--glow-color]="currentBuddy.color"></div>
+            <div class="mascot-cloud-throne">☁️</div>
+            <span class="mascot-emoji-char">{{ currentBuddy.emoji }}</span>
+            <span class="mascot-waving-paw">{{ currentBuddy.paw }}</span>
+          </div>
+
+          <!-- 🐾 6 Compact Circular Buddy Avatar Dots (Instant 1-Tap Animal Switching) -->
+          <div class="buddies-dot-strip">
+            <span class="strip-label">Friends:</span>
+            <div class="buddies-dots-cluster">
+              @for (buddy of buddies; track buddy.id) {
                 <button 
                   type="button" 
-                  class="rainbow-star-item"
-                  [style.--star-color]="star.color"
-                  [style.--star-glow]="star.glow"
-                  [class.star-tapped]="tappedStarId === star.id"
-                  (click)="onRainbowStarClick(star, $event)"
-                  [title]="'Play musical note ' + star.noteLabel + ' (' + star.solfege + ')'">
-                  <span class="star-glyph">{{ star.emoji }}</span>
-                  <span class="star-note-tag">{{ star.solfege }}</span>
+                  class="buddy-dot-btn"
+                  [class.active-buddy]="currentBuddy.id === buddy.id"
+                  [style.--buddy-color]="buddy.color"
+                  (click)="selectBuddy(buddy)"
+                  [title]="buddy.name + ' (' + buddy.hindiName + ')'">
+                  <span class="buddy-dot-icon">{{ buddy.emoji }}</span>
+                  @if (currentBuddy.id === buddy.id) {
+                    <span class="buddy-active-star">⭐</span>
+                  }
                 </button>
               }
             </div>
           </div>
-          <span class="rainbow-hint-text">🎵 Tap stars to play music! 🎹</span>
         </div>
 
-        <!-- 🧸 Living Mascot Companion Stage -->
-        <div 
-          class="mascot-stage" 
-          (click)="onMascotClick()"
-          [class.mascot-jumping]="isMascotJumping"
-          title="Tap me to play!">
-          
-          <div class="mascot-aura"></div>
-          
-          <!-- Cloud Pillow Base -->
-          <div class="mascot-cloud-pillow">☁️</div>
-
-          <!-- Cute Mascot Avatar with Swapping Moods -->
-          <div class="mascot-avatar">
-            <span class="mascot-emoji">{{ currentBuddy.emoji }}</span>
-            <div class="waving-paw">{{ currentBuddy.paw }}</div>
-          </div>
-
-          <!-- Interactive Speech Bubble -->
-          <div class="speech-bubble animate-pop">
-            <span class="speech-text">{{ currentSpeechText }}</span>
-            <span class="speech-tap-hint">👆 Tap me!</span>
-          </div>
-        </div>
-
-        <!-- 🐾 Mascot Buddy Picker Pills (Choose favorite friend!) -->
-        <div class="buddies-picker-row">
-          <span class="buddies-label">Choose Friend:</span>
-          <div class="buddies-pills">
-            @for (buddy of buddies; track buddy.id) {
+        <!-- 3. Rainbow Music Halo (Sleek, glowing curved bar of 7 musical note gems) -->
+        <div class="rainbow-music-strip">
+          <div class="rainbow-gems-track">
+            @for (star of rainbowStars; track star.id) {
               <button 
                 type="button" 
-                class="buddy-pill-btn"
-                [class.buddy-active]="currentBuddy.id === buddy.id"
-                [style.--buddy-color]="buddy.color"
-                (click)="selectBuddy(buddy)"
-                [title]="'Play with ' + buddy.name + ' (' + buddy.hindiName + ')'">
-                <span class="buddy-pill-emoji">{{ buddy.emoji }}</span>
-                <span class="buddy-pill-name">{{ buddy.hindiName }}</span>
+                class="rainbow-gem-btn"
+                [style.--gem-color]="star.color"
+                [style.--gem-glow]="star.glow"
+                [class.gem-tapped]="tappedStarId === star.id"
+                (click)="onRainbowStarClick(star, $event)"
+                [title]="'Play ' + star.noteLabel + ' (' + star.solfege + ')'">
+                <span class="gem-glyph">{{ star.emoji }}</span>
+                <span class="gem-solfege">{{ star.solfege }}</span>
               </button>
             }
           </div>
         </div>
 
-        <!-- Grand Game Title -->
-        <div class="title-group">
-          <span class="title-badge">🌈 PLAY • LEARN • EXPLORE 🌈</span>
-          <h1 class="portal-title">
-            TODDLER<span class="title-accent">MIND</span>
-          </h1>
-          <p class="portal-sub">जादुई दुनिया • खेल-खेल में सीखो और मुस्कुराओ!</p>
-        </div>
-
-        <!-- 🚀 Grand Jelly "TAP TO PLAY! • चलो खेलें!" Mega 3D Button -->
+        <!-- 4. Grand 3D Candy Jelly "TAP TO PLAY! • चलो खेलें!" Mega Button -->
         <div class="grand-play-dock">
           <button 
             type="button" 
@@ -260,12 +271,13 @@ interface MascotBuddy {
               <span class="grand-sparkle-star">✨</span>
             </div>
           </button>
-          <span class="sub-play-tip">👆 Touch to enter the fun game hub! 🏰</span>
+          <span class="sub-play-tip">👆 Touch to enter the wonderland! 🏰</span>
         </div>
       </main>
 
       <!-- 🚂 Rolling Meadow Track & Interactive Critters -->
       <footer class="portal-ground">
+        <div class="ground-grass-hill"></div>
         <!-- Interactive Choo Choo Train on the Hill -->
         <div class="train-track-hill">
           <button 
@@ -431,15 +443,17 @@ interface MascotBuddy {
   `,
   styles: [`
     .portal-viewport {
-      min-height: 100vh;
-      min-height: 100dvh;
+      height: 100vh;
+      height: 100dvh;
+      max-height: 100dvh;
       width: 100%;
-      background: radial-gradient(circle at 50% 15%, #1e1b4b 0%, #0f172a 65%, #030712 100%);
+      background: var(--app-viewport-bg, radial-gradient(circle at 50% 15%, #1e1b4b 0%, #0f172a 65%, #030712 100%));
+      transition: background 0.4s ease;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       position: relative;
-      overflow-x: hidden;
+      overflow: hidden;
       user-select: none;
     }
 
@@ -651,326 +665,347 @@ interface MascotBuddy {
       background: rgba(255, 255, 255, 0.2);
     }
 
-    /* 🎪 Main Content Area */
+    /* 🎪 Main Content Stage */
     .portal-content {
       flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 8px 16px;
+      padding: 0 clamp(12px, 3vw, 24px);
+      gap: clamp(6px, 1.4vh, 12px);
       text-align: center;
       position: relative;
       z-index: 10;
+      max-width: 650px;
+      margin: 0 auto;
+      width: 100%;
     }
 
-    /* 🧸 Living Mascot Stage */
-    .mascot-stage {
-      position: relative;
-      cursor: pointer;
-      margin-bottom: 12px;
+    /* 1. Brand Hero Top */
+    .brand-hero-group {
       display: flex;
       flex-direction: column;
       align-items: center;
+      gap: 2px;
+      margin-top: -4px;
+    }
+
+    .magic-pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 14px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(253, 224, 71, 0.35);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+    }
+    .badge-sparkle {
+      font-size: 0.8rem;
+      animation: spinSun 6s linear infinite;
+    }
+    .badge-text {
+      font-size: clamp(0.64rem, 1.8vw, 0.74rem);
+      font-weight: 900;
+      color: #fde047;
+      letter-spacing: 0.14em;
+      text-shadow: 0 0 10px rgba(253, 224, 71, 0.6);
+    }
+
+    .portal-brand-title {
+      font-size: clamp(2.2rem, 6.2vw, 3.2rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      font-family: var(--font-display, sans-serif);
+      margin: 2px 0 0 0;
+      filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.5));
+    }
+    .brand-word {
+      display: inline-block;
+    }
+    .brand-toddler {
+      color: #ffffff;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.5), 0 3px 0 rgba(0, 0, 0, 0.3);
+    }
+    .brand-mind {
+      background: linear-gradient(135deg, #a78bfa 0%, #ec4899 50%, #f43f5e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 20px rgba(167, 139, 250, 0.8));
+    }
+
+    .portal-tagline {
+      font-size: clamp(0.72rem, 2vw, 0.85rem);
+      color: #cbd5e1;
+      font-weight: 600;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+    }
+    .tagline-star {
+      font-size: 0.72rem;
+      color: #fde047;
+    }
+
+    /* 2. Mascot Island Stage */
+    .mascot-island-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(4px, 1vh, 8px);
+      position: relative;
+    }
+
+    .mascot-speech-cloud {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 6px 16px;
+      border-radius: 18px;
+      background: #ffffff;
+      color: #1e1b4b;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      position: relative;
+      cursor: pointer;
+      max-width: 90vw;
       transition: transform 0.2s;
     }
-    .mascot-stage:hover {
-      transform: scale(1.05);
+    .mascot-speech-cloud:hover {
+      transform: scale(1.04);
     }
-    .mascot-stage:active {
-      transform: scale(0.96);
-    }
-
-    .mascot-aura {
-      position: absolute;
-      top: 40%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(251, 191, 36, 0.4) 0%, transparent 70%);
-      animation: pulseSun 2.8s ease-in-out infinite;
-    }
-
-    .mascot-cloud-pillow {
+    .mascot-speech-cloud::after {
+      content: '';
       position: absolute;
       bottom: -6px;
       left: 50%;
       transform: translateX(-50%);
-      font-size: clamp(3.2rem, 9vw, 4.4rem);
-      opacity: 0.55;
-      filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.5));
-      animation: bobCloud 3s ease-in-out infinite;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 6px solid #ffffff;
+    }
+    .speech-quote {
+      font-size: clamp(0.8rem, 2.4vw, 0.95rem);
+      font-weight: 800;
+      color: #1e1b4b;
+      line-height: 1.25;
+    }
+    .speech-tap-badge {
+      font-size: 0.64rem;
+      font-weight: 700;
+      color: #6366f1;
+      margin-top: 1px;
     }
 
-    .mascot-avatar {
+    .mascot-hero-avatar {
       position: relative;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .mascot-hero-avatar:hover {
+      transform: scale(1.08);
+    }
+    .mascot-hero-avatar:active {
+      transform: scale(0.95);
+    }
+
+    .mascot-radiant-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: clamp(120px, 30vw, 150px);
+      height: clamp(120px, 30vw, 150px);
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--glow-color, rgba(251, 191, 36, 0.45)) 0%, transparent 70%);
+      animation: pulseSun 2.6s ease-in-out infinite;
+      filter: blur(14px);
+    }
+
+    .mascot-cloud-throne {
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: clamp(3rem, 8vw, 4.2rem);
+      opacity: 0.6;
+      filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.45));
+      animation: bobCloud 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .mascot-emoji-char {
+      font-size: clamp(4.2rem, 12vw, 5.5rem);
+      line-height: 1;
       display: inline-block;
+      filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.6));
+      animation: floatGentle 3s ease-in-out infinite;
+      position: relative;
       z-index: 2;
     }
 
-    .mascot-emoji {
-      font-size: clamp(4.6rem, 14vw, 6.2rem);
-      line-height: 1;
-      display: inline-block;
-      filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.6));
-      animation: floatGentle 3s ease-in-out infinite;
-    }
-
-    .waving-paw {
+    .mascot-waving-paw {
       position: absolute;
-      top: -4px;
-      right: -12px;
-      font-size: clamp(1.8rem, 5vw, 2.5rem);
+      top: -2px;
+      right: -10px;
+      font-size: clamp(1.6rem, 4.5vw, 2.2rem);
       animation: wavePaw 1.4s ease-in-out infinite;
       transform-origin: 70% 70%;
+      z-index: 3;
     }
 
     .mascot-jumping {
       animation: superFlip 0.6s ease;
     }
 
-    /* Speech Bubble */
-    .speech-bubble {
-      margin-top: 10px;
-      display: inline-flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 7px 18px;
-      border-radius: 20px;
-      background: #ffffff;
-      color: #1e1b4b;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
-      position: relative;
-      z-index: 3;
-    }
-    .speech-bubble::before {
-      content: '';
-      position: absolute;
-      top: -7px;
-      left: 50%;
-      transform: translateX(-50%);
-      border-left: 7px solid transparent;
-      border-right: 7px solid transparent;
-      border-bottom: 7px solid #ffffff;
-    }
-    .speech-text {
-      font-size: clamp(0.85rem, 2.5vw, 1rem);
-      font-weight: 800;
-      color: #1e1b4b;
-    }
-    .speech-tap-hint {
-      font-size: 0.68rem;
-      font-weight: 700;
-      color: #6366f1;
-      margin-top: 1px;
-    }
-
-    /* Titles */
-    .title-group {
-      margin-bottom: 18px;
-    }
-
-    .title-badge {
-      display: inline-block;
-      font-size: clamp(0.68rem, 2vw, 0.78rem);
-      font-weight: 900;
-      color: #fde047;
-      letter-spacing: 0.14em;
-      margin-bottom: 4px;
-      text-shadow: 0 0 12px rgba(253, 224, 71, 0.6);
-    }
-
-    .portal-title {
-      font-size: clamp(2.2rem, 7.5vw, 3.6rem);
-      font-weight: 900;
-      color: #ffffff;
-      letter-spacing: -0.03em;
-      line-height: 1.08;
-      text-shadow: 0 4px 25px rgba(99, 102, 241, 0.5);
-    }
-
-    .title-accent {
-      color: #a78bfa;
-      text-shadow: 0 0 30px rgba(167, 139, 250, 0.8);
-    }
-
-    .portal-sub {
-      font-size: clamp(0.78rem, 2.4vw, 0.95rem);
-      color: #94a3b8;
-      font-weight: 500;
-      margin-top: 5px;
-      max-width: 440px;
-    }
-
-    /* 🌈 Musical Rainbow Arch */
-    .rainbow-arch-banner {
-      width: 100%;
-      max-width: 500px;
-      margin: 0 auto 10px auto;
+    /* 🐾 6 Compact Buddy Avatar Dots */
+    .buddies-dot-strip {
       display: flex;
-      flex-direction: column;
       align-items: center;
+      gap: 8px;
+      margin-top: 2px;
+    }
+    .strip-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: #cbd5e1;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .buddies-dots-cluster {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .buddy-dot-btn {
+      width: clamp(36px, 8.5vw, 44px);
+      height: clamp(36px, 8.5vw, 44px);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 2px solid rgba(255, 255, 255, 0.18);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       position: relative;
+      backdrop-filter: blur(8px);
+      outline: none;
+      transition: all 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .buddy-dot-btn:hover {
+      transform: translateY(-3px) scale(1.15);
+      background: rgba(255, 255, 255, 0.22);
+    }
+    .buddy-dot-btn.active-buddy {
+      transform: scale(1.22);
+      border-color: #fde047;
+      background: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 0 16px var(--buddy-color, #f59e0b), 0 0 24px rgba(253, 224, 71, 0.5);
+    }
+    .buddy-dot-icon {
+      font-size: clamp(1.2rem, 3.2vw, 1.5rem);
+      line-height: 1;
+    }
+    .buddy-active-star {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      font-size: 0.75rem;
+      animation: twinkle 1.5s infinite;
     }
 
-    .rainbow-arch-track {
+    /* 3. Rainbow Music Halo Bar */
+    .rainbow-music-strip {
       width: 100%;
-      padding: 10px 14px;
-      border-radius: 26px;
+      max-width: 460px;
+      position: relative;
+    }
+    .rainbow-gems-track {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
       background: rgba(255, 255, 255, 0.06);
-      border: 2px solid rgba(255, 255, 255, 0.16);
-      backdrop-filter: blur(12px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      border: 1.5px solid rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
       position: relative;
       overflow: hidden;
     }
-
-    .rainbow-curve-line {
+    .rainbow-gems-track::before {
+      content: '';
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
-      height: 4px;
+      height: 3px;
       background: linear-gradient(90deg, #ef4444, #f97316, #eab308, #10b981, #06b6d4, #6366f1, #ec4899);
-      box-shadow: 0 0 12px rgba(236, 72, 153, 0.8);
       animation: rainbowShift 3s linear infinite;
     }
     @keyframes rainbowShift {
       0% { filter: hue-rotate(0deg); }
       100% { filter: hue-rotate(360deg); }
     }
-
-    .rainbow-stars-cluster {
-      display: flex;
-      align-items: center;
-      justify-content: space-around;
-      gap: 6px;
-      width: 100%;
-    }
-
-    .rainbow-star-item {
+    .rainbow-gem-btn {
+      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 4px 6px;
-      border-radius: 14px;
-      border: 1.5px solid var(--star-color);
+      justify-content: center;
+      padding: 3px 2px;
+      border-radius: 12px;
+      border: 1.5px solid var(--gem-color);
       background: rgba(255, 255, 255, 0.08);
       cursor: pointer;
       outline: none;
       transition: all 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      box-shadow: 0 4px 12px var(--star-glow);
+      box-shadow: 0 3px 10px var(--gem-glow);
     }
-    .rainbow-star-item:hover {
-      transform: translateY(-4px) scale(1.15);
-      background: rgba(255, 255, 255, 0.2);
-      box-shadow: 0 6px 18px var(--star-glow);
+    .rainbow-gem-btn:hover {
+      transform: translateY(-3px) scale(1.15);
+      background: rgba(255, 255, 255, 0.22);
     }
-    .rainbow-star-item:active, .rainbow-star-item.star-tapped {
-      transform: scale(1.25) rotate(10deg);
-      background: var(--star-color);
+    .rainbow-gem-btn:active, .rainbow-gem-btn.gem-tapped {
+      transform: scale(1.28) rotate(8deg);
+      background: var(--gem-color);
     }
-
-    .star-glyph {
-      font-size: clamp(1.2rem, 3.5vw, 1.5rem);
+    .gem-glyph {
+      font-size: clamp(1rem, 2.6vw, 1.25rem);
       line-height: 1;
-      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
     }
-
-    .star-note-tag {
-      font-size: 0.64rem;
+    .gem-solfege {
+      font-size: 0.62rem;
       font-weight: 900;
       color: #ffffff;
-      margin-top: 2px;
+      margin-top: 1px;
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
     }
 
-    .rainbow-hint-text {
-      font-size: 0.68rem;
-      font-weight: 800;
-      color: #a7f3d0;
-      margin-top: 4px;
-      letter-spacing: 0.04em;
-    }
-
-    /* 🐾 Mascot Buddies Switcher */
-    .buddies-picker-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-    }
-
-    .buddies-label {
-      font-size: 0.72rem;
-      font-weight: 800;
-      color: #cbd5e1;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .buddies-pills {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .buddy-pill-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 5px 11px;
-      border-radius: 18px;
-      border: 1.5px solid rgba(255, 255, 255, 0.18);
-      background: rgba(255, 255, 255, 0.08);
-      color: #e2e8f0;
-      font-size: 0.76rem;
-      font-weight: 800;
-      cursor: pointer;
-      backdrop-filter: blur(8px);
-      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    .buddy-pill-btn:hover {
-      transform: translateY(-2px) scale(1.06);
-      background: rgba(255, 255, 255, 0.18);
-    }
-    .buddy-pill-btn.buddy-active {
-      border-color: #fde047 !important;
-      background: rgba(253, 224, 71, 0.22) !important;
-      box-shadow: 0 0 16px rgba(253, 224, 71, 0.65);
-      color: #ffffff;
-      transform: scale(1.08);
-    }
-
-    .buddy-pill-emoji {
-      font-size: 1.15rem;
-    }
-    .buddy-pill-name {
-      line-height: 1;
-    }
-
-    /* 🚀 Grand Jelly Play Mega Button */
+    /* 4. Grand 3D Candy Jelly PLAY Button */
     .grand-play-dock {
       display: flex;
       flex-direction: column;
       align-items: center;
       width: 100%;
-      max-width: 420px;
-      margin: 6px auto 14px auto;
+      max-width: 400px;
       position: relative;
+      margin: 2px 0;
     }
-
     .grand-candy-play-btn {
       width: 100%;
-      height: 84px;
-      border-radius: 32px;
-      border: 3.5px solid #6ee7b7;
+      height: clamp(64px, 8.5vh, 76px);
+      border-radius: 28px;
+      border: 3px solid #6ee7b7;
       background: linear-gradient(135deg, #10b981 0%, #059669 45%, #047857 100%);
       color: #ffffff;
       display: flex;
@@ -980,28 +1015,27 @@ interface MascotBuddy {
       outline: none;
       position: relative;
       box-shadow: 
-        0 18px 42px -4px rgba(16, 185, 129, 0.7),
-        0 0 32px rgba(52, 211, 153, 0.5),
+        0 14px 34px -4px rgba(16, 185, 129, 0.7),
+        0 0 28px rgba(52, 211, 153, 0.5),
         inset 0 3px 5px rgba(255, 255, 255, 0.8),
-        inset 0 -5px 0 rgba(0, 0, 0, 0.25);
+        inset 0 -4px 0 rgba(0, 0, 0, 0.25);
       animation: grandPulse 2.2s infinite;
-      transition: all 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     .grand-candy-play-btn:hover {
-      transform: translateY(-4px) scale(1.03);
+      transform: translateY(-3px) scale(1.03);
       box-shadow: 
-        0 24px 50px -4px rgba(16, 185, 129, 0.85),
-        0 0 45px rgba(52, 211, 153, 0.7);
+        0 18px 40px -4px rgba(16, 185, 129, 0.85),
+        0 0 38px rgba(52, 211, 153, 0.7);
     }
     .grand-candy-play-btn:active {
       transform: translateY(2px) scale(0.97);
     }
-
     .play-pulse-ring {
       position: absolute;
-      inset: -8px;
-      border-radius: 38px;
-      border: 2.5px solid #34d399;
+      inset: -6px;
+      border-radius: 34px;
+      border: 2px solid #34d399;
       opacity: 0;
       pointer-events: none;
     }
@@ -1015,78 +1049,90 @@ interface MascotBuddy {
       0% { transform: scale(0.96); opacity: 0.8; }
       100% { transform: scale(1.22); opacity: 0; }
     }
-
+    @keyframes grandPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.025); }
+    }
     .btn-inner-content {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
       z-index: 2;
     }
-
     .play-icon-glow {
-      width: 48px;
-      height: 48px;
+      width: clamp(40px, 9vw, 46px);
+      height: clamp(40px, 9vw, 46px);
       border-radius: 50%;
       background: #ffffff;
       color: #059669;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 900;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
-
     .play-text-col {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
       line-height: 1.15;
     }
-
     .grand-play-title {
       font-family: var(--font-display, sans-serif);
-      font-size: clamp(1.3rem, 4.4vw, 1.65rem);
+      font-size: clamp(1.2rem, 3.8vw, 1.5rem);
       font-weight: 900;
       letter-spacing: 0.04em;
       color: #ffffff;
-      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
     }
-
     .grand-play-hindi {
-      font-size: clamp(0.78rem, 2.5vw, 0.92rem);
+      font-size: clamp(0.74rem, 2.2vw, 0.86rem);
       font-weight: 800;
       color: #fef08a;
       letter-spacing: 0.02em;
     }
-
     .grand-sparkle-star {
-      font-size: 1.6rem;
+      font-size: 1.4rem;
       animation: twinkle 1.5s infinite;
     }
-
     .sub-play-tip {
-      font-size: 0.74rem;
+      font-size: 0.72rem;
       font-weight: 700;
       color: #94a3b8;
-      margin-top: 8px;
+      margin-top: 4px;
     }
 
-    @keyframes grandPulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.025); }
+    /* 5. Meadow Ground & Choo Choo Train */
+    .portal-ground {
+      width: 100%;
+      padding: 4px 14px 12px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      position: relative;
+      z-index: 5;
     }
-
-    /* 🚂 Interactive Choo Choo Train Track */
+    .ground-grass-hill {
+      position: absolute;
+      bottom: 0;
+      left: -5%;
+      right: -5%;
+      height: 100%;
+      background: linear-gradient(180deg, rgba(34, 197, 94, 0.22) 0%, rgba(21, 128, 61, 0.4) 100%);
+      border-top: 2px solid rgba(74, 222, 128, 0.35);
+      border-radius: 50% 50% 0 0 / 18px 18px 0 0;
+      pointer-events: none;
+    }
     .train-track-hill {
       width: 100%;
       max-width: 600px;
       display: flex;
       justify-content: center;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
       position: relative;
     }
-
     .choo-train {
       background: none;
       border: none;
@@ -1095,7 +1141,7 @@ interface MascotBuddy {
       display: inline-flex;
       align-items: center;
       gap: 2px;
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       animation: trainPuff 4s ease-in-out infinite alternate;
       position: relative;
       transition: transform 0.3s;
@@ -1115,10 +1161,9 @@ interface MascotBuddy {
       50% { transform: translateX(60px) scale(1.25); }
       100% { transform: translateX(0) scale(1); }
     }
-
     .train-speech-pop {
       position: absolute;
-      top: -26px;
+      top: -24px;
       left: 50%;
       transform: translateX(-50%);
       padding: 3px 10px;
@@ -1130,32 +1175,18 @@ interface MascotBuddy {
       white-space: nowrap;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     }
-
-    /* 🌸 Bottom Meadow */
-    .portal-ground {
-      width: 100%;
-      padding: 6px 16px 16px 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      position: relative;
-      z-index: 5;
-    }
-
     .garden-decor {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: clamp(10px, 3.2vw, 20px);
-      font-size: clamp(1.3rem, 3.8vw, 1.7rem);
+      gap: clamp(8px, 2.8vw, 18px);
+      font-size: clamp(1.2rem, 3.4vw, 1.55rem);
       filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
     }
-
     .critter-btn {
       background: none;
       border: none;
-      font-size: clamp(1.4rem, 4vw, 1.85rem);
+      font-size: clamp(1.3rem, 3.6vw, 1.7rem);
       cursor: pointer;
       outline: none;
       transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -1180,7 +1211,6 @@ interface MascotBuddy {
       50% { transform: translate(5px, -7px) rotate(12deg); }
       100% { transform: translate(-4px, 4px) rotate(-8deg); }
     }
-
     .flower-item {
       cursor: pointer;
       display: inline-block;
@@ -1666,9 +1696,15 @@ export class StartPortalComponent implements OnInit {
   constructor(
     public appNav: AppNavService,
     public sound: SoundService,
+    public themeService: ThemeService,
     private speech: SpeechService,
     private confetti: ConfettiService
   ) {}
+
+  openThemeModal(): void {
+    this.sound.playTap();
+    this.themeService.open();
+  }
 
   ngOnInit(): void {
     const savedStars = localStorage.getItem('toddler_total_stars');

@@ -4,6 +4,7 @@ import { AppNavService } from '../../core/services/app-nav.service';
 import { SoundService } from '../../core/services/sound.service';
 import { SpeechService } from '../../core/services/speech.service';
 import { ConfettiService } from '../../core/services/confetti.service';
+import { ThemeService } from '../../core/services/theme.service';
 
 interface GameItem {
   id: string;
@@ -48,6 +49,16 @@ interface GameItem {
             <span class="star-pill-icon">⭐</span>
             <span class="star-pill-text">{{ totalStars }}</span>
           </div>
+
+          <!-- Theme Picker Button -->
+          <button 
+            type="button" 
+            (click)="openThemeModal()" 
+            class="hub-theme-btn"
+            id="btn-hub-theme"
+            title="Theme Options / थीम बदलें">
+            🎨
+          </button>
 
           <!-- Sound Toggle -->
           <button 
@@ -158,7 +169,8 @@ interface GameItem {
       min-height: 100vh;
       min-height: 100dvh;
       width: 100%;
-      background: radial-gradient(circle at 50% 10%, #1e1b4b 0%, #0f172a 60%, #030712 100%);
+      background: var(--app-viewport-bg, radial-gradient(circle at 50% 10%, #1e1b4b 0%, #0f172a 60%, #030712 100%));
+      transition: background 0.4s ease;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -245,7 +257,7 @@ interface GameItem {
       background: rgba(245, 158, 11, 0.28);
     }
 
-    .hub-sound-btn {
+    .hub-sound-btn, .hub-theme-btn {
       width: 38px;
       height: 38px;
       border-radius: 50%;
@@ -259,11 +271,16 @@ interface GameItem {
       backdrop-filter: blur(10px);
       color: #ffffff;
       outline: none;
-      transition: all 0.2s;
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    .hub-sound-btn:hover {
-      transform: scale(1.08);
+    .hub-sound-btn:hover, .hub-theme-btn:hover {
+      transform: scale(1.1);
       background: rgba(255, 255, 255, 0.22);
+    }
+    .hub-theme-btn:hover {
+      transform: scale(1.1) rotate(12deg);
+      border-color: var(--theme-accent, #8b5cf6);
+      box-shadow: 0 0 12px var(--theme-glow, rgba(139, 92, 246, 0.4));
     }
 
     /* Content Stage */
@@ -744,9 +761,15 @@ export class ToddlerHubComponent implements OnInit {
   constructor(
     public appNav: AppNavService,
     public sound: SoundService,
+    public themeService: ThemeService,
     private speech: SpeechService,
     private confetti: ConfettiService
   ) {}
+
+  openThemeModal(): void {
+    this.sound.playTap();
+    this.themeService.open();
+  }
 
   ngOnInit(): void {
     this.filteredGames = this.games;
