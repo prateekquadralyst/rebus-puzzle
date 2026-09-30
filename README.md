@@ -6,7 +6,7 @@
 ---
 
 ## 🌟 Highlights at a Glance
-- 🌈 **11 Interactive Games & Learning Modules**
+- 🌈 **12 Interactive Games & Learning Modules**
 - 🔊 **Zero-Latency In-Memory Soundbank (`public/audio/`)**: Real sampled Grand Piano notes, authentic animal roars/barks/meows, vehicle sounds, studio alphabet phonics voices (A-Z), clear number counting (1-10), and studio Hindi pronunciations (Swar, Vyanjan, and Samyuktakshar) with Web Audio buffer caching!
 - 🎨 **Multi-Theme Engine**: 6 hand-tailored visual themes (*Midnight Sky, Candy Land, Jungle Safari, Sunshine Play, Ocean Breeze, Space Galaxy*).
 - 🗣️ **Bilingual Speech & Phonics**: Studio voice clips and Web Speech synthesis in **English** and **Hindi (hi-IN)** for colors, letters, numbers, and praise.
@@ -152,6 +152,26 @@
 
 ---
 
+### 12. ⭕❌ Tic Tac Toe (शून्य-काँटा / Zero Kaata)
+* **Dual Game Modes**:
+  - 🤖 **vs Computer (Single Player AI)**:
+    - 🟢 **Easy (सरल)**: Relaxed, casual play with random moves tailored for young kids.
+    - 🟡 **Medium (मध्यम)**: Smart tactical engine that detects and blocks threats while capitalizing on winning moves.
+    - 🔴 **Hard / High (कठिन - Unbeatable)**: Powered by the **Minimax Algorithm** with full tree evaluation—impossible to beat!
+  - 👥 **2 Players (Pass & Play)**:
+    - Turn-by-turn two-player mode on the same device with real-time turn banners and indicators.
+* **Distinct High-Contrast Neon Visuals**:
+  - **Player X**: Electric Cyan-Blue (`#00f0ff` / `#38bdf8`) with neon cyan glows, radial tile depth, and SVG vector cross.
+  - **Player O**: Radiant Sun Amber-Gold (`#fbbf24` / `#f59e0b`) with warm amber glows and SVG vector circle.
+  - Dynamic `markPop` spring rotation pop-in animation on every placed move.
+* **⚡ Precision SVG Laser Strike Overlay**:
+  - Exact vector laser strike rendering across all 8 combinations (Horizontals, Verticals, and true 45° Diagonals) without CSS transform clipping.
+* **📊 Persistent Score Tracker & FX**:
+  - Real-time tracking for Player X, Player O, and Ties saved in LocalStorage.
+  - Multi-colored confetti celebration showers, tap/win Web Audio feedback, and speech synthesis announcements.
+
+---
+
 ## 🎨 Multi-Theme Customization Engine
 The app features 6 hand-crafted visual themes switchable anytime via the 🎨 Theme button:
 1. 🌙 **Midnight Sky (डिफ़ॉल्ट)**: Deep cosmic navy with glowing purple and indigo accents.
@@ -181,8 +201,8 @@ The app features 6 hand-crafted visual themes switchable anytime via the 🎨 Th
 
 ### 🏰 Toddler Hub
 - Responsive 2-column candy card grid with Category Filter Pills:
-  - 🌈 **All (11)**
-  - ✨ **New Top Hits (5)** (Magic Coloring, Rainbow Piano, ABCD Safari, 123 Counting, क ख ग घ)
+  - 🌈 **All (12)**
+  - ✨ **New Top Hits (6)** (Tic Tac Toe, Magic Coloring, Rainbow Piano, ABCD Safari, 123 Counting, क ख ग घ)
   - 🎈 **Fun & Sounds (3)**
   - 🧩 **Puzzles (3)**
 
