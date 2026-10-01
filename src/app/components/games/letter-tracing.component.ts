@@ -85,7 +85,7 @@ interface Particle {
             class="cat-tab" 
             [class.cat-active]="activeCategory === 'hindi'"
             (click)="setCategory('hindi')">
-            <span>🕉️ वर्णमाला</span>
+            <span>🕉️ हिंदी</span>
           </button>
         </div>
 
@@ -632,6 +632,7 @@ interface Particle {
       display: flex;
       align-items: center;
       gap: 8px;
+      flex-shrink: 0;
     }
 
     .pill-btn {
@@ -648,6 +649,7 @@ interface Particle {
       cursor: pointer;
       backdrop-filter: blur(10px);
       transition: transform 0.2s, background 0.2s;
+      flex-shrink: 0;
     }
     .pill-btn:hover {
       transform: translateY(-2px);
@@ -668,6 +670,7 @@ interface Particle {
       cursor: pointer;
       backdrop-filter: blur(8px);
       transition: transform 0.2s;
+      flex-shrink: 0;
     }
     .star-badge:hover {
       transform: scale(1.08);
@@ -683,9 +686,11 @@ interface Particle {
       border-radius: 24px;
       border: 1px solid rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(12px);
+      flex-shrink: 1;
+      min-width: 0;
     }
     .cat-tab {
-      padding: 6px 14px;
+      padding: 6px 12px;
       border-radius: 18px;
       border: none;
       background: transparent;
@@ -720,10 +725,85 @@ interface Particle {
       color: #ffffff;
       backdrop-filter: blur(10px);
       transition: transform 0.2s;
+      flex-shrink: 0;
     }
     .icon-btn:hover {
       transform: scale(1.1);
       background: rgba(255, 255, 255, 0.25);
+    }
+
+    @media (max-width: 600px) {
+      .tracing-header {
+        padding: 8px 10px;
+        gap: 5px;
+      }
+      .header-left, .header-right {
+        gap: 4px;
+      }
+      .pill-btn {
+        padding: 5px 8px;
+        font-size: 0.74rem;
+        gap: 4px;
+      }
+      .star-badge {
+        padding: 5px 8px;
+        font-size: 0.74rem;
+      }
+      .category-tabs {
+        padding: 3px;
+        gap: 2px;
+      }
+      .cat-tab {
+        padding: 5px 8px;
+        font-size: 0.72rem;
+      }
+      .icon-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .tracing-header {
+        padding: 6px 8px;
+        gap: 3px;
+      }
+      .header-left, .header-right {
+        gap: 3px;
+      }
+      .pill-btn {
+        padding: 4px 6px;
+        font-size: 0.7rem;
+        gap: 2px;
+      }
+      .star-badge {
+        padding: 4px 6px;
+        font-size: 0.7rem;
+      }
+      .category-tabs {
+        padding: 2px;
+        gap: 2px;
+      }
+      .cat-tab {
+        padding: 4px 6px;
+        font-size: 0.68rem;
+      }
+      .icon-btn {
+        width: 29px;
+        height: 29px;
+        font-size: 13px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .pill-btn .btn-text {
+        display: none;
+      }
+      .cat-tab {
+        padding: 3px 4px;
+        font-size: 0.62rem;
+      }
     }
 
     /* Hindi Sub Nav */
@@ -1187,21 +1267,29 @@ interface Particle {
       margin: 8px auto;
       position: relative;
       touch-action: none;
+      border-radius: 18px;
+      overflow: hidden;
     }
     .slate-watermark {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-family: var(--font-display);
-      font-size: clamp(7rem, 25vw, 12rem);
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-family: var(--font-display, system-ui, sans-serif);
+      font-size: clamp(9.5rem, 46vw, 15.5rem);
       font-weight: 900;
-      color: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.15);
+      text-shadow: 0 0 15px rgba(255, 255, 255, 0.08);
       pointer-events: none;
       user-select: none;
       line-height: 1;
     }
     .slate-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
       display: block;
@@ -1792,7 +1880,7 @@ export class LetterTracingComponent implements OnInit, AfterViewInit, OnDestroy 
     this.particles = []; // no sparkle canvas in slate mode
     setTimeout(() => {
       this.initSlateCanvas();
-    }, 100);
+    }, 40);
   }
 
   toggleDemoSpeed(): void {
@@ -2248,24 +2336,38 @@ export class LetterTracingComponent implements OnInit, AfterViewInit, OnDestroy 
   // -------------------------------------------------------------
   private initSlateCanvas(): void {
     const canvas = this.slateCanvasRef?.nativeElement;
-    const parent = canvas?.parentElement;
-    if (!canvas || !parent) return;
+    if (!canvas) return;
 
-    const dpr = window.devicePixelRatio || 1;
-    const w = Math.round(parent.clientWidth * dpr);
-    const h = Math.round(parent.clientHeight * dpr);
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return;
 
-    // FIX: setting canvas.width/height erases the drawing — only resize if size really changed
-    if (canvas.width === w && canvas.height === h) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+    const targetW = Math.round(rect.width * dpr);
+    const targetH = Math.round(rect.height * dpr);
 
-    canvas.width = w;
-    canvas.height = h;
+    if (canvas.width === targetW && canvas.height === targetH) return;
+
+    // Preserve any existing strokes across minor resizes if possible
+    let existingData: ImageData | null = null;
     const ctx = canvas.getContext('2d');
+    if (ctx && canvas.width > 0 && canvas.height > 0) {
+      try {
+        existingData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      } catch {
+        existingData = null;
+      }
+    }
+
+    canvas.width = targetW;
+    canvas.height = targetH;
+
     if (ctx) {
       ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.scale(dpr, dpr);
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
+      if (existingData) {
+        ctx.putImageData(existingData, 0, 0);
+      }
     }
   }
 
@@ -2274,10 +2376,7 @@ export class LetterTracingComponent implements OnInit, AfterViewInit, OnDestroy 
     const canvas = this.slateCanvasRef?.nativeElement;
     const ctx = canvas?.getContext('2d');
     if (canvas && ctx) {
-      ctx.save();
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.restore();
     }
     this.isSlateDrawing = false;
     this.lastSlatePoint = null;
@@ -2293,18 +2392,26 @@ export class LetterTracingComponent implements OnInit, AfterViewInit, OnDestroy 
     this.wipeSlate();
   }
 
+  private getSlatePoint(e: PointerEvent, canvas: HTMLCanvasElement): { x: number; y: number } {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = rect.width > 0 ? canvas.width / rect.width : 1;
+    const scaleY = rect.height > 0 ? canvas.height / rect.height : 1;
+    return {
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY
+    };
+  }
+
   onSlatePointerDown(e: PointerEvent): void {
-    this.isSlateDrawing = true;
     const canvas = this.slateCanvasRef?.nativeElement;
     if (!canvas) return;
+    this.initSlateCanvas();
+    this.isSlateDrawing = true;
     canvas.setPointerCapture?.(e.pointerId);
 
-    const rect = canvas.getBoundingClientRect();
-    this.lastSlatePoint = {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
-    };
-    this.drawSlateStroke(this.lastSlatePoint, this.lastSlatePoint);
+    const pt = this.getSlatePoint(e, canvas);
+    this.lastSlatePoint = pt;
+    this.drawSlateStroke(pt, pt);
   }
 
   onSlatePointerMove(e: PointerEvent): void {
@@ -2312,11 +2419,7 @@ export class LetterTracingComponent implements OnInit, AfterViewInit, OnDestroy 
     const canvas = this.slateCanvasRef?.nativeElement;
     if (!canvas) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const current = {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
-    };
+    const current = this.getSlatePoint(e, canvas);
     this.drawSlateStroke(this.lastSlatePoint, current);
     this.lastSlatePoint = current;
   }
@@ -2332,44 +2435,61 @@ export class LetterTracingComponent implements OnInit, AfterViewInit, OnDestroy 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    ctx.lineWidth = 14;
+    const rect = canvas.getBoundingClientRect();
+    const dpr = rect.width > 0 ? canvas.width / rect.width : 1;
+    const strokeWidth = 14 * dpr;
+
+    ctx.lineWidth = strokeWidth;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
     if (this.selectedPenColor === 'rainbow') {
-      const grad = ctx.createLinearGradient(p1.x, p1.y, p2.x + 20, p2.y + 20);
+      const grad = ctx.createLinearGradient(p1.x, p1.y, p2.x + 20 * dpr, p2.y + 20 * dpr);
       grad.addColorStop(0, '#f43f5e');
       grad.addColorStop(0.5, '#f59e0b');
       grad.addColorStop(1, '#06b6d4');
       ctx.strokeStyle = grad;
+      ctx.fillStyle = grad;
       ctx.shadowColor = '#f59e0b';
-      ctx.shadowBlur = 10;
+      ctx.shadowBlur = 10 * dpr;
     } else if (this.selectedPenColor === 'gold') {
       ctx.strokeStyle = '#f59e0b';
+      ctx.fillStyle = '#f59e0b';
       ctx.shadowColor = '#fbbf24';
-      ctx.shadowBlur = 12;
+      ctx.shadowBlur = 12 * dpr;
     } else if (this.selectedPenColor === 'cyan') {
       ctx.strokeStyle = '#06b6d4';
+      ctx.fillStyle = '#06b6d4';
       ctx.shadowColor = '#67e8f9';
-      ctx.shadowBlur = 12;
+      ctx.shadowBlur = 12 * dpr;
     } else if (this.selectedPenColor === 'pink') {
       ctx.strokeStyle = '#ec4899';
+      ctx.fillStyle = '#ec4899';
       ctx.shadowColor = '#f472b6';
-      ctx.shadowBlur = 10;
+      ctx.shadowBlur = 10 * dpr;
     } else if (this.selectedPenColor === 'lime') {
       ctx.strokeStyle = '#10b981';
+      ctx.fillStyle = '#10b981';
       ctx.shadowColor = '#6ee7b7';
-      ctx.shadowBlur = 10;
+      ctx.shadowBlur = 10 * dpr;
     } else {
       ctx.strokeStyle = '#ffffff';
+      ctx.fillStyle = '#ffffff';
       ctx.shadowColor = 'transparent';
       ctx.shadowBlur = 0;
     }
 
+    // Always fill a circle at the point so even single taps draw a neat round chalk mark
     ctx.beginPath();
-    ctx.moveTo(p1.x, p1.y);
-    ctx.lineTo(p2.x, p2.y);
-    ctx.stroke();
+    ctx.arc(p1.x, p1.y, strokeWidth / 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (p1.x !== p2.x || p1.y !== p2.y) {
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.stroke();
+    }
 
     this.sound.playPop(1.2);
   }
