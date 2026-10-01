@@ -6,13 +6,13 @@
 ---
 
 ## 🌟 Highlights at a Glance
-- 🌈 **12 Interactive Games & Learning Modules**
+- 🌈 **18 Interactive Games & Learning Modules**
 - 🔊 **Zero-Latency In-Memory Soundbank (`public/audio/`)**: Real sampled Grand Piano notes, authentic animal roars/barks/meows, vehicle sounds, studio alphabet phonics voices (A-Z), clear number counting (1-10), and studio Hindi pronunciations (Swar, Vyanjan, and Samyuktakshar) with Web Audio buffer caching!
 - 🎨 **Multi-Theme Engine**: 6 hand-tailored visual themes (*Midnight Sky, Candy Land, Jungle Safari, Sunshine Play, Ocean Breeze, Space Galaxy*).
 - 🗣️ **Bilingual Speech & Phonics**: Studio voice clips and Web Speech synthesis in **English** and **Hindi (hi-IN)** for colors, letters, numbers, and praise.
 - 📱 **Auto Landscape Rainbow Piano**: Seamlessly locks screen orientation to Landscape mode via `@capacitor/screen-orientation` and Web Orientation API for maximum toddler touch accuracy.
 - ⏭️ **On-Demand Quiz Progression**: Instant 3D candy **"Next Question ⏭️" / "अगला सवाल"** button across quiz modes so kids advance at their own pace.
-- 🏰 **100dvh Toddler Wonderland Start Portal**: Living Mascot companion on cloud throne, 6 instant 1-tap buddy avatar dots, 7-note rainbow music halo, grand 3D candy jelly play button, and rolling meadow with Choo-Choo train & critters.
+- 🏰 **100dvh Toddler Wonderland Start Portal**: Living Mascot companion on cloud throne, 🧒 **Child Profile & 12-Sticker Album (बच्चे की प्रोफ़ाइल और स्टिकर एल्बम)**, 🎁 **24-Hour Daily Surprise Gift Station** with real-time countdown timer, ⚡ **1-Tap Quick-Play Shelf**, ☀️/🌙 **Dedicated Day/Night Switch Button** in header, 🌸 **7 Musical Melody Flowers**, 6 instant 1-tap buddy avatar dots, 7-note rainbow music halo, grand 3D candy jelly play button, and rolling meadow with Choo-Choo train & critters.
 - 🛡️ **Parent Gate & Screen Time Controls**: Protected by math challenge locks to manage healthy digital habits.
 - 📱 **Cross-Platform**: Runs in modern web browsers and compiles directly to a native **Android APK** with Capacitor 7.
 
@@ -169,6 +169,94 @@
 * **📊 Persistent Score Tracker & FX**:
   - Real-time tracking for Player X, Player O, and Ties saved in LocalStorage.
   - Multi-colored confetti celebration showers, tap/win Web Audio feedback, and speech synthesis announcements.
+
+---
+
+### 13. 🔍 Spot the Odd One Out (अलग कौन सा है? / Mind Quiz)
+* **Visual Discrimination & Categorization**:
+  - 4 large chunky candy cards per question.
+  - 10+ categorized scenarios: Animals vs Vehicles (🐶 🐱 🐰 🚗), Fruits vs Lion (🍎 🍌 🍇 🦁), Birds vs Elephant (🕊️ 🦜 🦅 🐘), Sea Creatures vs Monkey (🐟 🐬 🐙 🐒), Food vs Toys, Veggies vs Cake, Clothes vs Phone, Sky vs Chair, etc.
+  - Bilingual voiceover in English and Hindi (*"इनमें से कौन सा अलग है?"*).
+  - Clear voice explanation on correct answer (*"शाबाश! कार एक गाड़ी है, जानवर नहीं!"*).
+  - 3D **"Next Question ⏭️ / अगला सवाल"** progression button.
+
+---
+
+### 14. 👥 Shadow / Silhouette Match (परछाई पहचानो)
+* **Spatial Reasoning & Shape Recognition**:
+  - Top shelf of cute colorful buddies (Safari animals, Friendly pets, Vehicles, Fruits, Pond critters, Sky wonders).
+  - Bottom shelf of dark silhouette mystery shadows.
+  - 1-tap select and match mechanics.
+  - Correct match bursts the silhouette into 100% vibrant color with star particles, authentic animal roars/barks/horns, and congratulatory voice praise (*"शाबाश! शेर की परछाई मिल गई! 🦁"*).
+  - Multi-round sets with **"Next Puzzle ⏭️ / अगली परछाई पहेली"** button.
+
+---
+
+### 15. 🍽️ Feed the Hungry Animals (जानवरों को खाना खिलाओ)
+* **Empathy, Habits & Sensory Interaction**:
+  - Center-stage giant friendly cartoon animals with moving mouth animations:
+    - 🐒 **Monkey** -> Craves sweet 🍌 **Banana**
+    - 🐰 **Bunny** -> Craves crunchy 🥕 **Carrot**
+    - 🐶 **Puppy** -> Craves juicy 🦴 **Bone**
+    - 🐱 **Kitty** -> Craves fresh 🐟 **Fish**
+    - 🐻 **Bear** -> Craves golden 🍯 **Honey**
+    - 🐮 **Cow** -> Craves fresh green 🍀 **Grass**
+  - Chewing audio effects (*"Nom Nom Nom! 😋"*), floating hearts, and bilingual gratitude (*"वाह! केला बहुत मीठा था!"*).
+  - Progressive animal switching with **"Next Buddy ⏭️ / अगले दोस्त को खिलाओ"** button.
+
+---
+
+### 16. 🐻 Size Sorter: Big, Medium, Small (बड़ा, मंझला और छोटा)
+* **Visual Cognitive Sizing & Comparison**:
+  - 3 Dedicated Sizing Baskets/Zones:
+    - 🐘 **Big / बड़ा** (Scale factor 1.45x)
+    - 🐕 **Medium / मंझला** (Scale factor 1.05x)
+    - 🐣 **Small / छोटा** (Scale factor 0.70x)
+  - **6 Interactive Thematic Sets**:
+    1. 🐻 **Bear Family** (Papa Bear, Mama Bear, Baby Bear)
+    2. 🍎 **Juicy Apples** (Giant Apple, Medium Apple, Tiny Apple)
+    3. 🚛 **Vehicles** (Big Truck, Family Car, Little Scooter)
+    4. 🌳 **Trees & Plants** (Giant Oak, Green Bush, Tiny Sprout)
+    5. 🐋 **Ocean Buddies** (Blue Whale, Dolphin, Baby Clownfish)
+    6. ⚽ **Play Balls** (Beach Ball, Basketball, Tennis Ball)
+  - 1-Tap selection with glowing halo ring, intuitive basket placement, gentle bounce on mismatch, star sparkles on match, and bilingual voice praises (*"बड़ा भालू! That is BIG!"*).
+
+---
+
+### 17. 🙈 Peekaboo Hide & Seek (कहाँ छुपा है? / ढूंढो मुझे!)
+* **Sensory Surprise & Object Permanence Play**:
+  - **6 Atmospheric Themed Scenes**:
+    1. 🌿 **Sunny Garden**: Bush, Flowerpot, Wooden Barrel -> 🐶 **Puppy** ("Woof Woof!")
+    2. ☁️ **Sky & Clouds**: Fluffy Cloud, Rainbow, Sun -> 🐦 **Little Birdie** ("Tweet Tweet!")
+    3. 🚜 **Farm Barn**: Red Barn, Haystack, Wooden Crate -> 🐮 **Daisy Cow** ("Moo Moo!")
+    4. 🌴 **Jungle Safari**: Palm Tree, Bamboo Grove, Hollow Log -> 🦁 **Baby Lion** ("Roar Roar!")
+    5. 🪷 **Pond & Stream**: Water Lily, Reeds, Smooth Stones -> 🦆 **Yellow Duckling** ("Quack Quack!")
+    6. 🛋️ **Cozy Bedroom**: Cushion Chair, Toy Chest, Blanket -> 🐱 **Fluffy Kitty** ("Meow Meow!")
+  - Hiding spots wiggle with realistic sound clues (*"👂 Listen Clue"* button).
+  - Tapping reveals the spot: empty spots trigger light giggles, while finding the buddy triggers the dramatic **"🙈 ➡️ 🐶 PEEKABOO / कूकू!"** spring pop-up with authentic animal voice audio, confetti explosion, and tickling interaction!
+
+---
+
+### 18. 🧪 Magic Color Mixing Lab (जादुई रंग मिलाओ)
+* **Toddler Science, Chemistry & Color Theory Discovery**:
+  - **8 Vibrant Color Flasks**: 🔴 Red (लाल), 🟡 Yellow (पीला), 🔵 Blue (नीला), 🟢 Green (हरा), ⚪ White (सफ़ेद), 🖤 Black (काला), 🟠 Orange (संतरा), 🟣 Purple (बैंगनी).
+  - **Realistic Hero Pouring Animation**: The selected flask lifts and tilts directly over the cauldron opening with a flowing liquid stream and splash ripples entering the cauldron liquid.
+  - **14 Magic Recipe Transformations**:
+    - 🔴 Red + 🟡 Yellow = 🟠 **Orange (संतरी)** -> 🍊 Juicy Orange
+    - 🟡 Yellow + 🔵 Blue = 🟢 **Green (हरा)** -> 🐸 Green Froggy
+    - 🔴 Red + 🔵 Blue = 🟣 **Purple (जादुई बैंगनी)** -> 🍇 Sweet Grapes
+    - 🔴 Red + ⚪ White = 🌸 **Pink (गुलाबी)** -> 🌸 Pink Lotus
+    - 🔵 Blue + ⚪ White = 🩵 **Sky Blue (हल्का आसमानी)** -> ☁️ Fluffy Cloud
+    - 🖤 Black + ⚪ White = 🩶 **Silver Grey (सलेटी)** -> 🐘 Gentle Elephant
+    - 🔴 Red + 🖤 Black = 🍷 **Maroon (गहरा लाल)** -> 🍒 Sweet Cherries
+    - 🟢 Green + 🟡 Yellow = 🍋 **Lime Neon (तोता रंग)** -> 🦜 Green Parrot
+    - 🟢 Green + 🔵 Blue = 🪼 **Aqua Teal (समुद्री नीला)** -> 🐬 Ocean Dolphin
+    - 🟣 Purple + ⚪ White = 🪻 **Lavender (हल्का जामुनी)** -> 🪻 Lavender Flower
+    - 🟠 Orange + ⚪ White = 🍑 **Peach (आड़ू रंग)** -> 🍑 Sweet Peach
+    - 🔴 Red + 🟢 Green = 🥥 **Earth Brown (मिट्टी रंग)** -> 🥥 Fresh Coconut
+    - 🔴 Red + 🟡 Yellow + 🔵 Blue = 🧸 **Teddy Brown (भूरा रंग)** -> 🧸 Teddy Bear
+    - 🌈 4+ Colors Mixed = 🦄 **Magic Rainbow Unicorn (इंद्रधनुष)** -> 🦄 Unicorn Sparkles
+  - Interactive magic spoon stirring (`🥄`), tappable floating bubbles (`🫧`), color quest mode, and interactive mascot voice reactions.
 
 ---
 

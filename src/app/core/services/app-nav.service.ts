@@ -15,7 +15,13 @@ export type AppScreen =
   | 'magic_coloring'
   | 'animal_piano'
   | 'letter_tracing'
-  | 'tic_tac_toe';
+  | 'tic_tac_toe'
+  | 'odd_one_out'
+  | 'shadow_match'
+  | 'feed_animals'
+  | 'size_sorter'
+  | 'peekaboo'
+  | 'color_mixing';
 
 @Injectable({
   providedIn: 'root'
@@ -91,6 +97,30 @@ export class AppNavService {
 
   goToTicTacToe(): void {
     this.currentScreen.set('tic_tac_toe');
+  }
+
+  goToOddOneOut(): void {
+    this.currentScreen.set('odd_one_out');
+  }
+
+  goToShadowMatch(): void {
+    this.currentScreen.set('shadow_match');
+  }
+
+  goToFeedAnimals(): void {
+    this.currentScreen.set('feed_animals');
+  }
+
+  goToSizeSorter(): void {
+    this.currentScreen.set('size_sorter');
+  }
+
+  goToPeekaboo(): void {
+    this.currentScreen.set('peekaboo');
+  }
+
+  goToColorMixing(): void {
+    this.currentScreen.set('color_mixing');
   }
 
   openParentGate(): void {

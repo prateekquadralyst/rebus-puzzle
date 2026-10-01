@@ -958,39 +958,89 @@ interface SparkleParticle {
     @media (max-width: 640px) {
       .enhanced-coloring-header {
         border-radius: 20px;
-        padding: 8px 12px;
-        gap: 8px;
+        padding: 8px 10px;
+        gap: 6px;
       }
       .title-sub-cue {
         display: none;
       }
       .title-avatar-badge {
-        width: 36px;
-        height: 36px;
-        min-width: 36px;
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
       }
       .avatar-emoji {
-        font-size: 18px;
+        font-size: 16px;
       }
       .title-main {
-        font-size: 1rem;
+        font-size: 0.95rem;
       }
       .header-pill-btn {
-        padding: 6px 10px;
-        font-size: 0.74rem;
+        padding: 5px 8px;
+        font-size: 0.72rem;
       }
       .star-milestone-pill {
-        padding: 5px 9px;
-        font-size: 0.74rem;
+        padding: 4px 8px;
+        font-size: 0.72rem;
       }
       .mode-pill-btn {
-        padding: 5px 9px;
-        font-size: 0.7rem;
+        padding: 4px 8px;
+        font-size: 0.68rem;
       }
       .header-sound-btn {
-        width: 34px;
-        height: 34px;
-        font-size: 15px;
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .enhanced-coloring-header {
+        padding: 6px 8px;
+        gap: 4px;
+        border-radius: 16px;
+      }
+      .header-left-cluster {
+        gap: 4px;
+      }
+      .title-avatar-badge {
+        display: none;
+      }
+      .title-tag-chip {
+        display: none;
+      }
+      .title-main {
+        font-size: 0.82rem;
+        white-space: nowrap;
+      }
+      .header-right-cluster {
+        gap: 4px;
+      }
+      .mode-pill-toggle {
+        padding: 2px;
+        border-radius: 16px;
+      }
+      .mode-pill-btn {
+        padding: 4px 6px;
+        font-size: 0.66rem;
+      }
+      .header-sound-btn {
+        width: 29px;
+        height: 29px;
+        font-size: 13px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .pill-text {
+        display: none;
+      }
+      .title-main {
+        font-size: 0.75rem;
+      }
+      .mode-pill-btn {
+        padding: 3px 5px;
+        font-size: 0.62rem;
       }
     }
 

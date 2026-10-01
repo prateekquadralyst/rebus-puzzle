@@ -100,21 +100,21 @@ interface GameItem {
             [class.cat-active]="activeCategory === 'new'"
             (click)="setCategory('new')">
             <span class="new-dot"></span>
-            <span>✨ New Top Hits (6)</span>
+            <span>✨ New Top Hits ({{ getCategoryCount('new') }})</span>
           </button>
           <button 
             type="button"
             class="cat-tab-btn"
             [class.cat-active]="activeCategory === 'fun'"
             (click)="setCategory('fun')">
-            <span>🎈 Fun & Sounds (3)</span>
+            <span>🎈 Fun & Sounds ({{ getCategoryCount('fun') }})</span>
           </button>
           <button 
             type="button"
             class="cat-tab-btn"
             [class.cat-active]="activeCategory === 'puzzle'"
             (click)="setCategory('puzzle')">
-            <span>🧩 Puzzles (3)</span>
+            <span>🧩 Puzzles ({{ getCategoryCount('puzzle') }})</span>
           </button>
         </div>
 
@@ -604,7 +604,91 @@ interface GameItem {
 export class ToddlerHubComponent implements OnInit {
   // ⭐ Newly Added Games Placed First at the Top with Rich Saturated Vibrant Colors!
   readonly games: GameItem[] = [
-    // 0. ⭕❌ Tic Tac Toe (New!)
+    // 0. 🐻 Size Sorter (New Toddler Learning Game!)
+    {
+      id: 'size_sorter',
+      title: 'Size Sorter',
+      subtitle: 'Sort Papa Bear, Mama Bear & Baby Bear into Big, Med & Small!',
+      emoji: '🐻',
+      badge: '🐻 New!',
+      category: 'new',
+      tag: 'बड़ा, मंझला और छोटा (Size Sort)',
+      bgGradient: 'linear-gradient(145deg, #1e1b4b 0%, #3730a3 100%)',
+      borderColor: '#818cf8',
+      shadowColor: 'rgba(99, 102, 241, 0.6)',
+      isNew: true
+    },
+    // 1. 🙈 Peekaboo Hide & Seek (New Toddler Surprise Game!)
+    {
+      id: 'peekaboo',
+      title: 'Peekaboo Hide & Seek',
+      subtitle: 'Where is Puppy or Birdie hiding? Tap the bushes & clouds!',
+      emoji: '🙈',
+      badge: '🙈 New!',
+      category: 'new',
+      tag: 'कहाँ छुपा है? / ढूंढो मुझे!',
+      bgGradient: 'linear-gradient(145deg, #831843 0%, #be185d 100%)',
+      borderColor: '#f472b6',
+      shadowColor: 'rgba(236, 72, 153, 0.6)',
+      isNew: true
+    },
+    // 2. 🧪 Magic Color Mixing Lab (New Toddler Science Magic!)
+    {
+      id: 'color_mixing',
+      title: 'Color Mixing Lab',
+      subtitle: 'Mix Red + Yellow = Orange or Blue + Yellow = Green in magic cauldron!',
+      emoji: '🧪',
+      badge: '✨ Magic!',
+      category: 'new',
+      tag: 'जादुई रंग मिलाओ (Color Lab)',
+      bgGradient: 'linear-gradient(145deg, #3b0764 0%, #6b21a8 100%)',
+      borderColor: '#c084fc',
+      shadowColor: 'rgba(168, 85, 247, 0.6)',
+      isNew: true
+    },
+    // 3. 🔍 Spot the Odd One Out (New Brain Game!)
+    {
+      id: 'odd_one_out',
+      title: 'Odd One Out',
+      subtitle: 'Spot the different object: 🐶 vs 🚗 or 🍎 vs 🦁!',
+      emoji: '🔍',
+      badge: '🧠 Brain!',
+      category: 'new',
+      tag: 'अलग कौन सा है? (Mind Quiz)',
+      bgGradient: 'linear-gradient(145deg, #312e81 0%, #4338ca 100%)',
+      borderColor: '#818cf8',
+      shadowColor: 'rgba(99, 102, 241, 0.6)',
+      isNew: true
+    },
+    // 1. 👥 Shadow / Silhouette Match (New Brain Game!)
+    {
+      id: 'shadow_match',
+      title: 'Shadow Match',
+      subtitle: 'Match cute animals & vehicles with their dark silhouettes!',
+      emoji: '👥',
+      badge: '🧠 Brain!',
+      category: 'new',
+      tag: 'परछाई पहचानो (Silhouette)',
+      bgGradient: 'linear-gradient(145deg, #581c87 0%, #7e22ce 100%)',
+      borderColor: '#c084fc',
+      shadowColor: 'rgba(168, 85, 247, 0.6)',
+      isNew: true
+    },
+    // 2. 🍽️ Feed the Hungry Animals (New Fun Game!)
+    {
+      id: 'feed_animals',
+      title: 'Feed Animals',
+      subtitle: 'Feed bananas to monkey, carrots to bunny & bones to puppy!',
+      emoji: '🍽️',
+      badge: '😋 Yummy!',
+      category: 'new',
+      tag: 'जानवरों को खाना खिलाओ',
+      bgGradient: 'linear-gradient(145deg, #9a3412 0%, #ea580c 100%)',
+      borderColor: '#fde047',
+      shadowColor: 'rgba(234, 88, 12, 0.6)',
+      isNew: true
+    },
+    // 3. ⭕❌ Tic Tac Toe (New!)
     {
       id: 'tic_tac_toe',
       title: 'Tic Tac Toe',
@@ -861,10 +945,32 @@ export class ToddlerHubComponent implements OnInit {
       case 'tic_tac_toe':
         this.appNav.goToTicTacToe();
         break;
+      case 'odd_one_out':
+        this.appNav.goToOddOneOut();
+        break;
+      case 'shadow_match':
+        this.appNav.goToShadowMatch();
+        break;
+      case 'feed_animals':
+        this.appNav.goToFeedAnimals();
+        break;
+      case 'size_sorter':
+        this.appNav.goToSizeSorter();
+        break;
+      case 'peekaboo':
+        this.appNav.goToPeekaboo();
+        break;
+      case 'color_mixing':
+        this.appNav.goToColorMixing();
+        break;
       default:
         this.appNav.goToRebus();
         break;
     }
+  }
+
+  getCategoryCount(cat: 'new' | 'fun' | 'puzzle'): number {
+    return this.games.filter(g => g.category === cat).length;
   }
 
   onMascotBannerClick(): void {

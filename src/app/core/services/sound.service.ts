@@ -492,6 +492,34 @@ export class SoundService {
     osc.stop(t + 0.24);
   }
 
+  /**
+   * 😋 Playful Nom-Nom / Munch Chewing sound for Feeding animals
+   */
+  playChew(): void {
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    [0, 0.12, 0.24].forEach((delay, idx) => {
+      const t = ctx.currentTime + delay;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'triangle';
+      const baseFreq = 320 - idx * 25;
+      osc.frequency.setValueAtTime(baseFreq, t);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.6, t + 0.08);
+
+      gain.gain.setValueAtTime(0.22, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(t);
+      osc.stop(t + 0.08);
+    });
+  }
+
   /* ========================================================
    * 🐾 REALISTIC ANIMAL PROCEDURAL SOUND SYNTHESIS
    * ======================================================== */
@@ -1756,6 +1784,13 @@ export class SoundService {
 
     osc.start(t);
     osc.stop(t + 0.28);
+  }
+
+  /**
+   * 🔔 Playful Ding Sound (alias to playChime)
+   */
+  playDing(pitchMultiplier = 1): void {
+    this.playChime(pitchMultiplier);
   }
 
   /**

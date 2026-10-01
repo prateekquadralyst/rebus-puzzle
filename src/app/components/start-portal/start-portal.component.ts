@@ -1,10 +1,25 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AppNavService } from '../../core/services/app-nav.service';
 import { SoundService } from '../../core/services/sound.service';
 import { SpeechService } from '../../core/services/speech.service';
 import { ConfettiService } from '../../core/services/confetti.service';
 import { ThemeService } from '../../core/services/theme.service';
+
+interface ChildProfile {
+  name: string;
+  avatar: string;
+}
+
+interface StickerItem {
+  id: string;
+  name: string;
+  hindiName: string;
+  emoji: string;
+  description: string;
+  hindiDescription: string;
+  isUnlocked: boolean;
+}
 
 interface FloatingBalloon {
   id: number;
@@ -41,27 +56,50 @@ interface MascotBuddy {
   hindiGreeting: string;
 }
 
+interface DailyGift {
+  name: string;
+  hindiName: string;
+  emoji: string;
+  bonusStars: number;
+}
+
+interface MelodyFlower {
+  emoji: string;
+  note: string;
+  name: string;
+  solfege: string;
+}
+
 @Component({
   selector: 'app-start-portal',
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="portal-viewport">
+    <div class="portal-viewport" [class.portal-night]="isNightMode">
       <!-- 🌌 Interactive Sky Decor (Tappable Clouds, Sun, Stars & Balloons) -->
       <div class="sky-elements">
-        <!-- Interactive Smiling Sun -->
+        <!-- ☀️/🌙 Interactive Smiling Sun / Moon (Positioned in sky background, click to toggle) -->
         <button 
           type="button" 
           class="interactive-sun" 
           [class.sun-squish]="isSunSquishing"
-          (click)="onSunClick($event)"
-          title="Tap the warm smiling sun!">
-          <div class="sun-glow"></div>
-          <span class="sun-face">☀️</span>
+          [class.celestial-moon]="isNightMode"
+          (click)="onCelestialClick($event)"
+          [title]="isNightMode ? 'Tap to wake up sunshine! • सुबह करो ☀️' : 'Tap for cozy starry night! • रात करो 🌙'">
+          <div class="sun-glow" [class.moon-glow]="isNightMode"></div>
+          <span class="sun-face">{{ isNightMode ? '🌙' : '☀️' }}</span>
           @if (sunSparkle) {
-            <span class="sun-sparkle-fx animate-pop">✨💛✨</span>
+            <span class="sun-sparkle-fx animate-pop">{{ isNightMode ? '✨🌟✨' : '✨💛✨' }}</span>
           }
         </button>
+
+        <!-- 🌟 Twinkling Night Fireflies (Only during Night Mode) -->
+        @if (isNightMode) {
+          <div class="firefly firefly-1">✨</div>
+          <div class="firefly firefly-2">🌟</div>
+          <div class="firefly firefly-3">✨</div>
+          <div class="firefly firefly-4">💫</div>
+        }
 
         <!-- Floating Interactive Clouds -->
         <button 
@@ -109,7 +147,7 @@ interface MascotBuddy {
         @for (b of balloons; track b.id) {
           @if (!b.isPopped) {
             <button 
-              type="button"
+              type="button" 
               class="interactive-balloon"
               [style.left.%]="b.leftPct"
               [style.bottom.%]="b.bottomPct"
@@ -132,25 +170,47 @@ interface MascotBuddy {
 
       <!-- 🌟 Top Header Navigation Bar -->
       <header class="portal-header">
-        <!-- 🛡️ Parent Gate Button -->
-        <button 
-          type="button" 
-          (click)="openParentGate()"
-          class="parent-gate-btn"
-          id="btn-parent-gate"
-          title="Parent Zone & Settings">
-          <span class="gate-icon">🛡️</span>
-          <span class="gate-label">Parents</span>
-        </button>
+        <div class="header-left-group">
+          <!-- 🧒 Child Profile & Sticker Album Button -->
+          <button 
+            type="button" 
+            (click)="openChildProfile()"
+            class="child-profile-btn"
+            id="btn-child-profile"
+            title="Child Profile & Stickers / बच्चे की प्रोफ़ाइल">
+            <span class="profile-avatar-emoji">{{ childProfile.avatar }}</span>
+            <span class="profile-name-text">{{ childProfile.name }}</span>
+            <span class="profile-sticker-count">🏷️ {{ unlockedStickersCount }}</span>
+          </button>
+        </div>
 
         <!-- Center Star Milestone Trophy Pill -->
         <div class="star-milestone-pill" (click)="onStarPillClick()" title="Your collected stars!">
           <span class="star-pill-icon">⭐</span>
-          <span class="star-pill-text">{{ totalStars }} Stars</span>
+          <span class="star-pill-text">{{ totalStars }}</span>
         </div>
 
-        <!-- 🎨 Theme & 🎵 Sound Controls -->
+        <!-- Right Controls: ☀️/🌙 Day-Night + 🛡️ Parent Gate + 🎨 Theme + 🎵 Sound -->
         <div class="header-actions">
+          <button 
+            type="button" 
+            (click)="toggleDayNight()" 
+            class="header-circle-btn day-night-circle-btn"
+            [class.dn-night]="isNightMode"
+            id="btn-day-night-toggle"
+            [title]="isNightMode ? 'Switch to Sunshine Day (दिन करें ☀️)' : 'Switch to Cozy Night (रात करें 🌙)'">
+            {{ isNightMode ? '🌙' : '☀️' }}
+          </button>
+
+          <button 
+            type="button" 
+            (click)="openParentGate()"
+            class="header-circle-btn parent-gate-circle-btn"
+            id="btn-parent-gate"
+            title="Parent Zone & Settings / पेरेंट ज़ोन 🛡️">
+            🛡️
+          </button>
+
           <button 
             type="button" 
             (click)="openThemeModal()" 
@@ -164,7 +224,7 @@ interface MascotBuddy {
             (click)="sound.toggleMute()" 
             class="header-circle-btn"
             [title]="sound.isMuted() ? 'Turn Sound On' : 'Turn Sound Off'">
-            {{ sound.isMuted() ? '🔇' : '🎵' }}
+            {{ sound.isMuted() ? '🔇' : '🔊' }}
           </button>
         </div>
       </header>
@@ -272,6 +332,78 @@ interface MascotBuddy {
             </div>
           </button>
           <span class="sub-play-tip">👆 Touch to enter the wonderland! 🏰</span>
+
+          <!-- ⚡ 1-Tap Quick-Play Bar (Instant Direct Jump into Top Favorites) -->
+          <div class="quick-play-shelf">
+            <span class="quick-shelf-title">✨ 1-Tap Quick Play • सीधे खेलें:</span>
+            <div class="quick-shelf-pills">
+              <button 
+                type="button" 
+                class="quick-pill pill-tracing" 
+                (click)="quickLaunch('tracing')" 
+                title="Magic Letter & Number Tracing • लिखना सीखो">
+                <span class="quick-emoji">✏️</span>
+                <span class="quick-label">Tracing</span>
+              </button>
+              <button 
+                type="button" 
+                class="quick-pill pill-coloring" 
+                (click)="quickLaunch('coloring')" 
+                title="Magic Finger Coloring & Slate • रंग भरो">
+                <span class="quick-emoji">🎨</span>
+                <span class="quick-label">Coloring</span>
+              </button>
+              <button 
+                type="button" 
+                class="quick-pill pill-piano" 
+                (click)="quickLaunch('piano')" 
+                title="Rainbow Animal Piano • पियानो">
+                <span class="quick-emoji">🎹</span>
+                <span class="quick-label">Piano</span>
+              </button>
+              <button 
+                type="button" 
+                class="quick-pill pill-balloon" 
+                (click)="quickLaunch('balloon')" 
+                title="Balloon Pop Burst • गुब्बारे फोड़ो">
+                <span class="quick-emoji">🎈</span>
+                <span class="quick-label">Balloons</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 🎁 Dedicated Daily Surprise Gift Station (In User's Red Circle Spot) -->
+        <div class="daily-gift-station">
+          <button 
+            type="button" 
+            class="daily-gift-box-btn" 
+            [class.gift-shaking]="!isGiftClaimedToday && isGiftShaking"
+            [class.gift-box-claimed]="isGiftClaimedToday"
+            (click)="handleDailyGiftTap()"
+            [title]="isGiftClaimedToday ? 'आज का तोहफ़ा ले चुके हैं! अगला तोहफ़ा: ' + giftCountdownFormatted : 'आज का जादुई उपहार खोलें! • Tap to open daily gift!'">
+            
+            <div class="gift-halo-glow" [class.claimed-halo]="isGiftClaimedToday"></div>
+            
+            <span class="gift-box-icon">{{ isGiftClaimedToday ? '📦' : '🎁' }}</span>
+
+            @if (!isGiftClaimedToday) {
+              <div class="gift-tag-badge animate-bounce">
+                <span>Gift! ✨</span>
+              </div>
+            } @else {
+              <div class="gift-countdown-badge">
+                <span class="clock-icon">⏳</span>
+                <span class="countdown-digits">{{ giftCountdownFormatted }}</span>
+              </div>
+            }
+          </button>
+
+          @if (showGiftClaimedNotice) {
+            <div class="gift-claimed-toast animate-pop">
+              <span>🌟 आज का तोहफ़ा ले लिया गया है! अगला कल खुलेगा! ⏳</span>
+            </div>
+          }
         </div>
       </main>
 
@@ -297,25 +429,203 @@ interface MascotBuddy {
           </button>
         </div>
 
-        <!-- Bottom Garden Meadow Critters & Flowers -->
+        <!-- Meadow Activity Row: Critters & Musical Flowers -->
         <div class="garden-decor">
+          <!-- Hopping Froggy -->
           <button type="button" class="critter-btn frog-btn" [class.frog-jumping]="isFrogJumping" (click)="onFrogClick()" title="Tap Froggy!">
             🐸
           </button>
-          <span class="flower-item" (click)="onFlowerClick('🌸')">🌸</span>
-          <span class="flower-item" (click)="onFlowerClick('🍄')">🍄</span>
+
+          <!-- 🌸 7 Musical Melody Flowers (Xylophone Scale C4 to C5) -->
+          @for (flower of melodyFlowers; track flower.name) {
+            <button 
+              type="button" 
+              class="melody-flower-btn"
+              [class.flower-singing]="tappedFlowerNote === flower.note"
+              (click)="onMelodyFlowerClick(flower, $event)"
+              [title]="'Play musical flower ' + flower.name + ' (' + flower.solfege + ')'">
+              <span class="flower-glyph">{{ flower.emoji }}</span>
+              @if (tappedFlowerNote === flower.note) {
+                <span class="flower-note-pop animate-pop">{{ flower.solfege }} 🎵</span>
+              }
+            </button>
+          }
+
+          <!-- Fluttering Butterfly -->
           <button type="button" class="critter-btn butterfly-item" (click)="onButterflyClick()" title="Tap Butterfly!">
             🦋
           </button>
-          <span class="flower-item" (click)="onFlowerClick('🌻')">🌻</span>
+
+          <!-- Buzzing Bee -->
           <button type="button" class="critter-btn bee-btn" (click)="onBeeClick()" title="Tap Busy Bee!">
             🐝
           </button>
-          <span class="flower-item" (click)="onFlowerClick('🌼')">🌼</span>
-          <span class="flower-item" (click)="onFlowerClick('🌷')">🌷</span>
-          <span class="flower-item" (click)="onFlowerClick('🍀')">🍀</span>
         </div>
       </footer>
+
+      <!-- 🧒 Toddler Profile & Sticker Album Modal -->
+      @if (isChildProfileOpen) {
+        <div class="profile-modal-backdrop" (click)="closeChildProfile()">
+          <div class="profile-modal-card glass-panel animate-pop" (click)="$event.stopPropagation()">
+            <!-- Modal Header -->
+            <div class="profile-modal-header">
+              <div class="profile-title-col">
+                <span class="profile-title-icon">🧒</span>
+                <div class="profile-title-text">
+                  <h3 class="profile-modal-heading">बच्चे की प्रोफ़ाइल • Child Profile</h3>
+                  <span class="profile-modal-sub">स्टिकर्स और पुरस्कार संग्रह • Sticker Album</span>
+                </div>
+              </div>
+              <button type="button" class="btn-close-modal" (click)="closeChildProfile()" title="Close">✕</button>
+            </div>
+
+            <!-- Profile Info & Avatar Customizer -->
+            <div class="profile-avatar-section">
+              <!-- Giant Active Avatar with Halo -->
+              <div class="active-avatar-throne">
+                <div class="avatar-glow-ring"></div>
+                <span class="active-avatar-emoji animate-bounce">{{ childProfile.avatar }}</span>
+              </div>
+
+              <!-- Name Input & Quick Select Chips -->
+              <div class="name-customizer-box">
+                <label class="name-input-label" for="child-name-input">बच्चे का नाम (Child's Name):</label>
+                <div class="name-input-wrapper">
+                  <input 
+                    type="text" 
+                    id="child-name-input" 
+                    class="child-name-input"
+                    [value]="childProfile.name"
+                    (input)="onChildNameChange($event)"
+                    placeholder="उदा. आरव, परी, Little Champ"
+                    maxlength="16" />
+                  <span class="name-save-check">✓</span>
+                </div>
+
+                <!-- Quick Name Chips -->
+                <div class="quick-name-chips">
+                  @for (qName of quickNameSuggestions; track qName) {
+                    <button 
+                      type="button" 
+                      class="quick-name-chip"
+                      [class.chip-active]="childProfile.name === qName"
+                      (click)="setChildName(qName)">
+                      {{ qName }}
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- 10 Fun Avatar Choices Selector -->
+            <div class="avatar-palette-box">
+              <span class="palette-title">👉 अपना पसंदीदा अवतार चुनो (Pick Avatar):</span>
+              <div class="avatar-emojis-row">
+                @for (av of avatarOptions; track av) {
+                  <button 
+                    type="button" 
+                    class="avatar-pick-btn"
+                    [class.avatar-selected]="childProfile.avatar === av"
+                    (click)="setChildAvatar(av)">
+                    <span>{{ av }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+
+            <!-- Achievements & Star Summary Bar -->
+            <div class="profile-stats-bar">
+              <div class="stat-box">
+                <span class="stat-icon">⭐</span>
+                <span class="stat-val">{{ totalStars }}</span>
+                <span class="stat-lbl">Stars</span>
+              </div>
+              <div class="stat-box">
+                <span class="stat-icon">🏷️</span>
+                <span class="stat-val">{{ unlockedStickersCount }} / {{ stickersList.length }}</span>
+                <span class="stat-lbl">Stickers</span>
+              </div>
+              <div class="stat-box">
+                <span class="stat-icon">🎁</span>
+                <span class="stat-val">{{ isGiftClaimedToday ? 'आज लिया ✓' : 'बाकी है ✨' }}</span>
+                <span class="stat-lbl">Daily Gift</span>
+              </div>
+            </div>
+
+            <!-- 🌟 Magical Sticker Album Section -->
+            <div class="stickers-album-section">
+              <div class="album-heading-row">
+                <span class="album-icon">🌟</span>
+                <h4 class="album-heading">जादुई स्टिकर एल्बम • Sticker Album</h4>
+                <span class="album-badge">{{ unlockedStickersCount }} Unlocked</span>
+              </div>
+
+              <div class="stickers-grid">
+                @for (stk of stickersList; track stk.id) {
+                  <button 
+                    type="button" 
+                    class="sticker-card"
+                    [class.sticker-unlocked]="stk.isUnlocked"
+                    [class.sticker-locked]="!stk.isUnlocked"
+                    (click)="onStickerTap(stk)"
+                    [title]="stk.isUnlocked ? stk.hindiName + ' (' + stk.name + ')' : 'Locked: ' + stk.hindiDescription">
+                    
+                    <div class="sticker-badge-icon">
+                      @if (stk.isUnlocked) {
+                        <span class="sticker-emoji animate-pop">{{ stk.emoji }}</span>
+                      } @else {
+                        <span class="sticker-locked-icon">🔒</span>
+                      }
+                    </div>
+
+                    <span class="sticker-name">{{ stk.isUnlocked ? stk.hindiName : '???' }}</span>
+                    <span class="sticker-sub">{{ stk.isUnlocked ? stk.name : 'खेलकर खोलो' }}</span>
+                  </button>
+                }
+              </div>
+            </div>
+
+            <div class="profile-modal-footer">
+              <button type="button" class="btn-done-profile" (click)="closeChildProfile()">
+                ✨ बढ़िया! खेलना जारी रखें • Done ✨
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- 🎁 Daily Surprise Gift Unboxing Modal -->
+      @if (isDailyGiftOpen && currentGift) {
+        <div class="gift-modal-backdrop" (click)="closeDailyGift()">
+          <div class="gift-modal-card glass-panel" (click)="$event.stopPropagation()">
+            <div class="gift-burst-halo"></div>
+            <div class="gift-modal-badge">✨ DAILY SURPRISE GIFT ✨</div>
+            <h2 class="gift-modal-title">जादुई उपहार! • Surprise Unlocked!</h2>
+            
+            <div class="gift-reveal-box">
+              <div class="gift-shine-ring"></div>
+              <span class="gift-revealed-emoji animate-pop">{{ currentGift.emoji }}</span>
+            </div>
+
+            <div class="gift-details">
+              <h3 class="gift-item-name">{{ currentGift.name }}</h3>
+              <p class="gift-item-hindi">{{ currentGift.hindiName }}</p>
+              <div class="gift-reward-pill">
+                <span>⭐ +{{ currentGift.bonusStars }} Milestone Stars Added!</span>
+              </div>
+              @if (recentlyUnlockedSticker) {
+                <div class="gift-sticker-unlocked-pill animate-pop">
+                  <span>🏷️ नया स्टिकर अनलॉक: {{ recentlyUnlockedSticker.emoji }} {{ recentlyUnlockedSticker.hindiName }}!</span>
+                </div>
+              }
+            </div>
+
+            <button type="button" class="btn-claim-gift" (click)="closeDailyGift()">
+              🌟 Yay! Thank You! • मज़ा आया! 🌟
+            </button>
+          </div>
+        </div>
+      }
 
       <!-- 🛡️ Kid-Safe Parent Gate Glassmorphism Modal -->
       @if (isParentGateOpen) {
@@ -468,10 +778,10 @@ interface MascotBuddy {
     /* Interactive Smiling Sun */
     .interactive-sun {
       position: absolute;
-      top: -30px;
-      right: 12%;
-      width: 160px;
-      height: 160px;
+      top: 58px;
+      right: clamp(12px, 5vw, 45px);
+      width: clamp(80px, 15vw, 120px);
+      height: clamp(80px, 15vw, 120px);
       border: none;
       background: transparent;
       cursor: pointer;
@@ -479,6 +789,7 @@ interface MascotBuddy {
       align-items: center;
       justify-content: center;
       pointer-events: auto;
+      z-index: 2;
       transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     .interactive-sun:hover {
@@ -489,13 +800,13 @@ interface MascotBuddy {
       inset: 0;
       border-radius: 50%;
       background: radial-gradient(circle, rgba(253, 224, 71, 0.35) 0%, transparent 70%);
-      filter: blur(25px);
+      filter: blur(20px);
       animation: pulseSun 4s ease-in-out infinite;
     }
     .sun-face {
-      font-size: clamp(3.5rem, 8vw, 4.8rem);
+      font-size: clamp(2.6rem, 6vw, 3.6rem);
       line-height: 1;
-      filter: drop-shadow(0 0 20px rgba(250, 204, 21, 0.6));
+      filter: drop-shadow(0 0 16px rgba(250, 204, 21, 0.6));
       animation: spinSun 30s linear infinite;
     }
     .sun-squish {
@@ -504,7 +815,7 @@ interface MascotBuddy {
     .sun-sparkle-fx {
       position: absolute;
       top: 65%;
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       pointer-events: none;
     }
 
@@ -589,80 +900,171 @@ interface MascotBuddy {
       width: 100%;
       max-width: 900px;
       margin: 0 auto;
-      padding: 16px 20px;
+      padding: 8px 12px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 6px;
       position: relative;
-      z-index: 10;
+      z-index: 25;
+      flex-wrap: nowrap;
     }
 
-    .parent-gate-btn {
+    @media (max-width: 380px) {
+      .portal-header {
+        padding: 6px 8px;
+        gap: 3px;
+      }
+      .profile-name-text {
+        max-width: 46px;
+        font-size: 0.68rem;
+      }
+      .profile-sticker-count {
+        font-size: 0.58rem;
+        padding: 1px 3px;
+      }
+      .header-circle-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+      }
+      .star-milestone-pill {
+        padding: 3px 6px;
+        font-size: 0.72rem;
+      }
+    }
+
+    .header-left-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 1;
+      min-width: 0;
+    }
+
+    /* 🧒 Child Profile Button */
+    .child-profile-btn {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      color: #e2e8f0;
-      font-size: 0.82rem;
-      font-weight: 700;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(236, 72, 153, 0.3) 0%, rgba(139, 92, 246, 0.35) 100%);
+      border: 1.5px solid rgba(244, 114, 182, 0.5);
+      color: #ffffff;
+      font-size: 0.74rem;
+      font-weight: 800;
       cursor: pointer;
-      backdrop-filter: blur(12px);
-      transition: all 0.2s;
+      backdrop-filter: blur(10px);
+      white-space: nowrap;
+      flex-shrink: 1;
+      min-width: 0;
+      box-shadow: 0 4px 12px rgba(236, 72, 153, 0.25);
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    .parent-gate-btn:hover {
-      background: rgba(255, 255, 255, 0.18);
-      transform: translateY(-2px);
-      border-color: rgba(167, 139, 250, 0.5);
+    .child-profile-btn:hover {
+      transform: translateY(-2px) scale(1.04);
+      background: linear-gradient(135deg, rgba(236, 72, 153, 0.45) 0%, rgba(139, 92, 246, 0.5) 100%);
+      border-color: #f472b6;
+    }
+    .profile-avatar-emoji {
+      font-size: 1.1rem;
+      line-height: 1;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+    .profile-name-text {
+      max-width: 60px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: #ffffff;
+    }
+    .profile-sticker-count {
+      padding: 1px 4px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.2);
+      font-size: 0.62rem;
+      font-weight: 900;
+      color: #fde047;
     }
 
     .star-milestone-pill {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 16px;
-      border-radius: 24px;
-      background: rgba(245, 158, 11, 0.15);
-      border: 1.5px solid rgba(251, 191, 36, 0.35);
+      gap: 3px;
+      padding: 4px 8px;
+      border-radius: 18px;
+      background: rgba(245, 158, 11, 0.2);
+      border: 1.5px solid rgba(251, 191, 36, 0.45);
       color: #fde047;
-      font-size: 0.82rem;
+      font-size: 0.76rem;
       font-weight: 800;
       cursor: pointer;
       backdrop-filter: blur(10px);
+      white-space: nowrap;
+      flex-shrink: 0;
       transition: transform 0.2s;
     }
     .star-milestone-pill:hover {
       transform: scale(1.06);
-      background: rgba(245, 158, 11, 0.25);
+      background: rgba(245, 158, 11, 0.3);
     }
 
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 5px;
+      flex-shrink: 0;
     }
 
     .header-circle-btn {
-      width: 44px;
-      height: 44px;
+      width: 33px;
+      height: 33px;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
+      font-size: 15px;
       cursor: pointer;
       backdrop-filter: blur(10px);
-      transition: all 0.2s;
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       outline: none;
       color: #ffffff;
+      flex-shrink: 0;
+      padding: 0;
     }
     .header-circle-btn:hover {
-      transform: scale(1.08);
-      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.1);
+      background: rgba(255, 255, 255, 0.25);
+    }
+    .header-circle-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* ☀️/🌙 Dedicated Day/Night Circle Button */
+    .day-night-circle-btn {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(251, 191, 36, 0.35) 100%);
+      border: 1.5px solid rgba(251, 191, 36, 0.55);
+      font-size: 16px;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+    }
+    .day-night-circle-btn.dn-night {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.35) 0%, rgba(139, 92, 246, 0.45) 100%) !important;
+      border-color: #a78bfa !important;
+      box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3) !important;
+    }
+
+    /* 🛡️ Parent Gate Circle Button */
+    .parent-gate-circle-btn {
+      background: rgba(139, 92, 246, 0.22);
+      border: 1.5px solid rgba(167, 139, 250, 0.45);
+      font-size: 15px;
+    }
+    .parent-gate-circle-btn:hover {
+      background: rgba(139, 92, 246, 0.38);
+      border-color: #c084fc;
     }
 
     /* 🎪 Main Content Stage */
@@ -1211,16 +1613,724 @@ interface MascotBuddy {
       50% { transform: translate(5px, -7px) rotate(12deg); }
       100% { transform: translate(-4px, 4px) rotate(-8deg); }
     }
-    .flower-item {
-      cursor: pointer;
-      display: inline-block;
-      transition: transform 0.2s;
-    }
-    .flower-item:hover {
-      transform: scale(1.3) rotate(15deg);
-    }
     .butterfly-item {
       animation: flutter 4s ease-in-out infinite;
+    }
+
+    /* ☀️/🌙 Day & Night Celestial Styles */
+    .portal-night {
+      background: radial-gradient(circle at 50% 15%, #0f172a 0%, #030712 70%, #000000 100%) !important;
+    }
+    .celestial-moon {
+      transform: scale(1.05);
+    }
+    .moon-glow {
+      background: radial-gradient(circle, rgba(168, 85, 247, 0.45) 0%, rgba(99, 102, 241, 0.2) 50%, transparent 75%) !important;
+    }
+    .celestial-badge {
+      position: absolute;
+      bottom: 8px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #fde047;
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+    }
+    .firefly {
+      position: absolute;
+      font-size: 1.2rem;
+      pointer-events: none;
+      animation: fireflyFloat 6s ease-in-out infinite alternate;
+    }
+    .firefly-1 { top: 25%; left: 18%; animation-duration: 5s; }
+    .firefly-2 { top: 38%; right: 22%; animation-duration: 7s; animation-delay: -2s; }
+    .firefly-3 { top: 55%; left: 30%; animation-duration: 6.5s; animation-delay: -1s; }
+    .firefly-4 { top: 70%; right: 15%; animation-duration: 8s; animation-delay: -3s; }
+    @keyframes fireflyFloat {
+      0% { transform: translate(0, 0) scale(0.8); opacity: 0.3; }
+      50% { transform: translate(15px, -20px) scale(1.3); opacity: 1; filter: drop-shadow(0 0 10px #fde047); }
+      100% { transform: translate(-10px, 15px) scale(0.9); opacity: 0.4; }
+    }
+
+    /* ⚡ 1-Tap Quick Play Shelf */
+    .quick-play-shelf {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+      max-width: 420px;
+    }
+    .quick-shelf-title {
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: #e2e8f0;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    }
+    .quick-shelf-pills {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      justify-content: center;
+    }
+    .quick-pill {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 7px 8px;
+      border-radius: 16px;
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      color: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 6px 16px -2px rgba(0, 0, 0, 0.35);
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .quick-pill:hover {
+      transform: translateY(-2px) scale(1.06);
+    }
+    .quick-pill:active {
+      transform: translateY(1px) scale(0.96);
+    }
+    .quick-pill-emoji {
+      font-size: 1.15rem;
+    }
+    .pill-tracing { background: linear-gradient(135deg, rgba(2, 132, 199, 0.55) 0%, rgba(124, 58, 237, 0.65) 100%); border-color: #38bdf8; }
+    .pill-coloring { background: linear-gradient(135deg, rgba(236, 72, 153, 0.55) 0%, rgba(139, 92, 246, 0.65) 100%); border-color: #f472b6; }
+    .pill-piano { background: linear-gradient(135deg, rgba(245, 158, 11, 0.55) 0%, rgba(239, 68, 68, 0.65) 100%); border-color: #fde047; }
+    .pill-balloon { background: linear-gradient(135deg, rgba(225, 29, 72, 0.55) 0%, rgba(219, 39, 119, 0.65) 100%); border-color: #fb7185; }
+
+    /* 🎁 Dedicated Daily Surprise Gift Station in User's Red Circle */
+    .daily-gift-station {
+      position: absolute;
+      bottom: clamp(46px, 6.5vh, 66px);
+      right: clamp(12px, 3.5vw, 24px);
+      z-index: 15;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: auto;
+    }
+
+    .daily-gift-box-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      outline: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0;
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .daily-gift-box-btn:hover {
+      transform: scale(1.2) translateY(-4px);
+    }
+    .daily-gift-box-btn:active {
+      transform: scale(0.95);
+    }
+
+    .gift-halo-glow {
+      position: absolute;
+      width: 65px;
+      height: 65px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.55) 0%, transparent 70%);
+      filter: blur(10px);
+      z-index: 1;
+      animation: pulseSun 2.5s infinite;
+    }
+    .claimed-halo {
+      background: radial-gradient(circle, rgba(148, 163, 184, 0.3) 0%, transparent 70%) !important;
+    }
+
+    .gift-box-icon {
+      font-size: clamp(2.4rem, 6.5vw, 3.2rem);
+      line-height: 1;
+      position: relative;
+      z-index: 2;
+      filter: drop-shadow(0 8px 18px rgba(245, 158, 11, 0.7));
+    }
+    .gift-box-claimed .gift-box-icon {
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5)) grayscale(0.2);
+      opacity: 0.88;
+    }
+
+    .gift-tag-badge {
+      position: absolute;
+      top: -10px;
+      z-index: 3;
+      padding: 3px 8px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+      color: #ffffff;
+      font-size: 0.68rem;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .gift-countdown-badge {
+      position: absolute;
+      bottom: -18px;
+      z-index: 3;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 7px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(251, 191, 36, 0.45);
+      color: #fde047;
+      font-size: 0.65rem;
+      font-weight: 800;
+      white-space: nowrap;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+    .clock-icon {
+      font-size: 0.72rem;
+    }
+    .countdown-digits {
+      font-family: monospace;
+      letter-spacing: 0.04em;
+    }
+
+    .gift-claimed-toast {
+      position: absolute;
+      top: -46px;
+      right: -10px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1.5px solid #f59e0b;
+      padding: 6px 12px;
+      border-radius: 14px;
+      color: #fde047;
+      font-size: 0.74rem;
+      font-weight: 800;
+      white-space: nowrap;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    .gift-shaking {
+      animation: giftWobble 2.5s infinite;
+    }
+    @keyframes giftWobble {
+      0%, 75%, 100% { transform: rotate(0deg) scale(1); }
+      80% { transform: rotate(-14deg) scale(1.15); }
+      85% { transform: rotate(14deg) scale(1.2); }
+      90% { transform: rotate(-10deg) scale(1.15); }
+      95% { transform: rotate(6deg) scale(1.1); }
+    }
+
+    /* 🌸 7 Musical Melody Flowers */
+    .melody-flower-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      outline: none;
+      position: relative;
+      font-size: clamp(1.3rem, 3.4vw, 1.65rem);
+      padding: 0;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .melody-flower-btn:hover {
+      transform: scale(1.35) rotate(15deg);
+    }
+    .flower-singing {
+      animation: flowerBounce 0.45s ease;
+    }
+    @keyframes flowerBounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.4) translateY(-8px) rotate(-15deg); }
+    }
+    .flower-note-pop {
+      position: absolute;
+      top: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: #38bdf8;
+      color: #0c4a6e;
+      font-size: 0.72rem;
+      font-weight: 900;
+      white-space: nowrap;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    /* 🎁 Daily Gift Unboxing Modal */
+    .gift-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 7, 18, 0.85);
+      backdrop-filter: blur(14px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .gift-modal-card {
+      width: 100%;
+      max-width: 380px;
+      background: linear-gradient(160deg, #1e1b4b 0%, #0f172a 100%);
+      border: 2px solid rgba(251, 191, 36, 0.5);
+      border-radius: 32px;
+      padding: 28px 24px;
+      box-shadow: 0 25px 60px -15px rgba(245, 158, 11, 0.5);
+      position: relative;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      overflow: hidden;
+    }
+    .gift-burst-halo {
+      position: absolute;
+      top: -50px;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(251, 191, 36, 0.4) 0%, transparent 70%);
+      filter: blur(25px);
+      pointer-events: none;
+    }
+    .gift-modal-badge {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 20px;
+      background: rgba(251, 191, 36, 0.2);
+      border: 1px solid rgba(251, 191, 36, 0.5);
+      color: #fde047;
+      font-size: 0.74rem;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+    .gift-modal-title {
+      font-family: var(--font-display, sans-serif);
+      font-size: 1.35rem;
+      font-weight: 900;
+      color: #ffffff;
+      margin: 0 0 16px 0;
+    }
+    .gift-reveal-box {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.04) 100%);
+      border: 2px dashed rgba(251, 191, 36, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .gift-revealed-emoji {
+      font-size: 4.2rem;
+      filter: drop-shadow(0 8px 18px rgba(251, 191, 36, 0.7));
+    }
+    .gift-item-name {
+      font-family: var(--font-display, sans-serif);
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: #fde047;
+      margin: 0 0 4px 0;
+    }
+    .gift-item-hindi {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #e2e8f0;
+      margin: 0 0 12px 0;
+    }
+    .gift-reward-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 16px;
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      color: #34d399;
+      font-size: 0.85rem;
+      font-weight: 800;
+      margin-bottom: 20px;
+    }
+    .btn-claim-gift {
+      width: 100%;
+      padding: 14px;
+      border-radius: 20px;
+      border: none;
+      background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+      color: #ffffff;
+      font-family: var(--font-display, sans-serif);
+      font-size: 1.05rem;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 10px 24px -4px rgba(245, 158, 11, 0.6);
+      transition: transform 0.2s;
+    }
+    .btn-claim-gift:hover {
+      transform: translateY(-2px) scale(1.02);
+    }
+    .gift-sticker-unlocked-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 12px;
+      border-radius: 14px;
+      background: rgba(236, 72, 153, 0.25);
+      border: 1px solid rgba(244, 114, 182, 0.5);
+      color: #f472b6;
+      font-size: 0.78rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    /* 🧒 Child Profile & Sticker Album Modal Styles */
+    .profile-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.84);
+      backdrop-filter: blur(16px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 16px;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    .profile-modal-card {
+      width: 100%;
+      max-width: 440px;
+      max-height: 88vh;
+      overflow-y: auto;
+      background: linear-gradient(165deg, rgba(30, 27, 75, 0.96) 0%, rgba(15, 23, 42, 0.98) 100%);
+      border: 2px solid rgba(236, 72, 153, 0.4);
+      border-radius: 28px;
+      padding: 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 40px rgba(236, 72, 153, 0.2);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      color: #ffffff;
+    }
+
+    .profile-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 12px;
+    }
+    .profile-title-col {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .profile-title-icon {
+      font-size: 1.8rem;
+    }
+    .profile-title-text {
+      display: flex;
+      flex-direction: column;
+    }
+    .profile-modal-heading {
+      font-size: 0.98rem;
+      font-weight: 900;
+      color: #ffffff;
+      margin: 0;
+    }
+    .profile-modal-sub {
+      font-size: 0.72rem;
+      color: #f472b6;
+      font-weight: 700;
+    }
+
+    .profile-avatar-section {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 12px 14px;
+    }
+    .active-avatar-throne {
+      position: relative;
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(236, 72, 153, 0.3) 0%, rgba(139, 92, 246, 0.15) 70%);
+      border: 2px solid #f472b6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 16px rgba(236, 72, 153, 0.3);
+    }
+    .active-avatar-emoji {
+      font-size: 2.3rem;
+      line-height: 1;
+    }
+    .name-customizer-box {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-width: 0;
+    }
+    .name-input-label {
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: #cbd5e1;
+    }
+    .name-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .child-name-input {
+      width: 100%;
+      padding: 7px 28px 7px 10px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1.5px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      font-size: 0.88rem;
+      font-weight: 800;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .child-name-input:focus {
+      border-color: #f472b6;
+    }
+    .name-save-check {
+      position: absolute;
+      right: 8px;
+      color: #10b981;
+      font-size: 0.82rem;
+      font-weight: 900;
+    }
+    .quick-name-chips {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .quick-name-chip {
+      padding: 2px 7px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e2e8f0;
+      font-size: 0.65rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .quick-name-chip:hover, .chip-active {
+      background: rgba(236, 72, 153, 0.35);
+      border-color: #f472b6;
+      color: #ffffff;
+    }
+
+    .avatar-palette-box {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .palette-title {
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: #94a3b8;
+    }
+    .avatar-emojis-row {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .avatar-pick-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .avatar-pick-btn:hover {
+      transform: scale(1.15);
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .avatar-selected {
+      background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%) !important;
+      border-color: #ffffff !important;
+      transform: scale(1.12);
+      box-shadow: 0 0 15px rgba(236, 72, 153, 0.7);
+    }
+
+    .profile-stats-bar {
+      display: flex;
+      gap: 8px;
+    }
+    .stat-box {
+      flex: 1;
+      padding: 8px 6px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .stat-icon {
+      font-size: 1.15rem;
+    }
+    .stat-val {
+      font-size: 0.82rem;
+      font-weight: 900;
+      color: #fde047;
+    }
+    .stat-lbl {
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: #94a3b8;
+    }
+
+    .stickers-album-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .album-heading-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .album-icon {
+      font-size: 1.1rem;
+    }
+    .album-heading {
+      font-size: 0.85rem;
+      font-weight: 900;
+      color: #ffffff;
+      margin: 0;
+      flex: 1;
+    }
+    .album-badge {
+      padding: 2px 7px;
+      border-radius: 10px;
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid rgba(251, 191, 36, 0.4);
+      color: #fde047;
+      font-size: 0.65rem;
+      font-weight: 800;
+    }
+
+    .stickers-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      max-height: 200px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .sticker-card {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1.5px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      padding: 7px 3px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .sticker-unlocked {
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 100%);
+      border-color: rgba(245, 158, 11, 0.45);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    .sticker-unlocked:hover {
+      transform: translateY(-3px) scale(1.08);
+      border-color: #fde047;
+    }
+    .sticker-locked {
+      opacity: 0.45;
+      filter: grayscale(0.8);
+    }
+    .sticker-badge-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 3px;
+    }
+    .sticker-emoji {
+      font-size: 1.7rem;
+      filter: drop-shadow(0 2px 8px rgba(245, 158, 11, 0.6));
+    }
+    .sticker-locked-icon {
+      font-size: 1.1rem;
+      color: #94a3b8;
+    }
+    .sticker-name {
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: #ffffff;
+      text-align: center;
+      line-height: 1.15;
+    }
+    .sticker-sub {
+      font-size: 0.55rem;
+      font-weight: 600;
+      color: #94a3b8;
+      text-align: center;
+    }
+
+    .btn-done-profile {
+      width: 100%;
+      padding: 11px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+      border: none;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 0.86rem;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);
+      transition: filter 0.2s;
+    }
+    .btn-done-profile:hover {
+      filter: brightness(1.1);
     }
 
     /* 🛡️ Parent Gate Glassmorphism Modal */
@@ -1568,12 +2678,74 @@ interface MascotBuddy {
     }
   `]
 })
-export class StartPortalComponent implements OnInit {
+export class StartPortalComponent implements OnInit, OnDestroy {
   isMascotJumping = false;
   isSunSquishing = false;
   sunSparkle = false;
   rainingClouds = new Set<number>();
   totalStars = 28;
+
+  // ☀️/🌙 Day & Night State
+  isNightMode = false;
+
+  // 🧒 Child Profile & Sticker Album State
+  childProfile: ChildProfile = { name: 'Little Champ', avatar: '🧸' };
+  isChildProfileOpen = false;
+  readonly avatarOptions = ['🧸', '🐶', '🐱', '🦁', '🐰', '🦖', '🦸', '👑', '🚀', '🐼'];
+  readonly quickNameSuggestions = ['Aarav 🌟', 'Pari 🌸', 'Champ 🏆', 'Little Star ⭐'];
+  recentlyUnlockedSticker: StickerItem | null = null;
+
+  // 🏷️ 12 Collectible Magical Stickers
+  stickersList: StickerItem[] = [
+    { id: 'star_champ', name: 'Super Star', hindiName: 'चमकता सितारा', emoji: '⭐', description: 'Bright glowing star!', hindiDescription: 'चमकता हुआ जादुई सितारा!', isUnlocked: true },
+    { id: 'teddy_pal', name: 'Teddy Pal', hindiName: 'प्यारा टेडी', emoji: '🧸', description: 'Cozy cuddle buddy!', hindiDescription: 'सच्चा दोस्त प्यारा टेडी!', isUnlocked: true },
+    { id: 'balloon_pop', name: 'Balloon Popper', hindiName: 'गुब्बारा चैंपियन', emoji: '🎈', description: 'Popped colourful balloons!', hindiDescription: 'गुब्बारे फोड़ने का माहिर!', isUnlocked: true },
+    { id: 'lion_brave', name: 'Brave Lion', hindiName: 'बहादुर शेर', emoji: '🦁', description: 'Roar of courage!', hindiDescription: 'बहादुर और निडर शेर!', isUnlocked: false },
+    { id: 'rocket_fly', name: 'Cosmic Rocket', hindiName: 'अंतरिक्ष यान', emoji: '🚀', description: 'Flying into stars!', hindiDescription: 'तारों की सैर करने वाला रॉकेट!', isUnlocked: false },
+    { id: 'artist_brush', name: 'Magic Painter', hindiName: 'रंग कलाकार', emoji: '🎨', description: 'Master of colors!', hindiDescription: 'सुंदर रंगों का जादूगर!', isUnlocked: false },
+    { id: 'music_note', name: 'Melody Star', hindiName: 'संगीत का जादू', emoji: '🎵', description: 'Loves musical tunes!', hindiDescription: 'मीठे सुरों की धुन!', isUnlocked: false },
+    { id: 'healthy_food', name: 'Animal Feeder', hindiName: 'जानवरों का दोस्त', emoji: '🍎', description: 'Fed hungry animal buddies!', hindiDescription: 'जानवरों को खाना खिलाने वाला!', isUnlocked: false },
+    { id: 'puzzle_whiz', name: 'Mind Whiz', hindiName: 'माइंड पहेली मास्टर', emoji: '🧩', description: 'Solved brain puzzles!', hindiDescription: 'दिमागी पहेलियाँ सुलझाने वाला!', isUnlocked: false },
+    { id: 'royal_crown', name: 'Golden Crown', hindiName: 'शाही मुकुट', emoji: '👑', description: 'Champion king & queen!', hindiDescription: 'जीत का शाही मुकुट!', isUnlocked: false },
+    { id: 'dino_buddy', name: 'Baby Dino', hindiName: 'छोटा डायनासोर', emoji: '🦖', description: 'Roar of fun!', hindiDescription: 'मज़ेदार नन्हा डायनासोर!', isUnlocked: false },
+    { id: 'rainbow_magic', name: 'Rainbow Magic', hindiName: 'इंद्रधनुष', emoji: '🌈', description: 'Rainbow wonder explorer!', hindiDescription: 'सतरंगी इंद्रधनुषी मुस्कान!', isUnlocked: false }
+  ];
+
+  get unlockedStickersCount(): number {
+    return this.stickersList.filter(s => s.isUnlocked).length;
+  }
+
+  // 🎁 Daily Surprise Gift State & 24h Cooldown
+  isDailyGiftOpen = false;
+  isGiftShaking = true;
+  isGiftClaimedToday = false;
+  giftCountdownFormatted = '';
+  showGiftClaimedNotice = false;
+  giftCooldownTimerId: any = null;
+  currentGift: DailyGift | null = null;
+  readonly surpriseGifts: DailyGift[] = [
+    { name: 'Magical Unicorn', hindiName: 'जादुई यूनिकॉर्न 🦄', emoji: '🦄', bonusStars: 5 },
+    { name: 'Space Rocket', hindiName: 'अंतरिक्ष रॉकेट 🚀', emoji: '🚀', bonusStars: 5 },
+    { name: 'Golden Crown', hindiName: 'शाही मुकुट 👑', emoji: '👑', bonusStars: 5 },
+    { name: 'Little Lion', hindiName: 'बहादुर शेर 🦁', emoji: '🦁', bonusStars: 5 },
+    { name: 'Rainbow Butterfly', hindiName: 'रंगीन तितली 🦋', emoji: '🦋', bonusStars: 5 },
+    { name: 'Baby Dino', hindiName: 'छोटा डायनासोर 🦖', emoji: '🦖', bonusStars: 5 },
+    { name: 'Sweet Lollipop', hindiName: 'मीठी लॉलीपॉप 🍭', emoji: '🍭', bonusStars: 5 },
+    { name: 'Speedy Car', hindiName: 'तेज़ कार 🚗', emoji: '🚗', bonusStars: 5 },
+    { name: 'Friendly Teddy', hindiName: 'प्यारा टेडी 🧸', emoji: '🧸', bonusStars: 5 }
+  ];
+
+  // 🌸 7 Musical Melody Flowers (Xylophone Scale C4 to C5)
+  tappedFlowerNote: string | null = null;
+  readonly melodyFlowers: MelodyFlower[] = [
+    { emoji: '🌸', note: 'C4', name: 'Lily', solfege: 'सा' },
+    { emoji: '🌼', note: 'D4', name: 'Daisy', solfege: 'रे' },
+    { emoji: '🌷', note: 'E4', name: 'Tulip', solfege: 'ग' },
+    { emoji: '🌻', note: 'F4', name: 'Sunflower', solfege: 'म' },
+    { emoji: '🍀', note: 'G4', name: 'Clover', solfege: 'प' },
+    { emoji: '🍄', note: 'A4', name: 'Mushroom', solfege: 'ध' },
+    { emoji: '🌺', note: 'C5', name: 'Hibiscus', solfege: 'सां' }
+  ];
 
   // 🌈 Musical Rainbow Piano Stars (7 notes for toddlers)
   readonly rainbowStars: RainbowStar[] = [
@@ -1698,7 +2870,8 @@ export class StartPortalComponent implements OnInit {
     public sound: SoundService,
     public themeService: ThemeService,
     private speech: SpeechService,
-    private confetti: ConfettiService
+    private confetti: ConfettiService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   openThemeModal(): void {
@@ -1711,6 +2884,248 @@ export class StartPortalComponent implements OnInit {
     if (savedStars) {
       this.totalStars = parseInt(savedStars, 10) || 28;
     }
+
+    // Load child profile
+    const savedName = localStorage.getItem('toddler_child_name');
+    if (savedName) this.childProfile.name = savedName;
+    const savedAvatar = localStorage.getItem('toddler_child_avatar');
+    if (savedAvatar) this.childProfile.avatar = savedAvatar;
+
+    // Load stickers
+    const savedStickers = localStorage.getItem('toddler_unlocked_stickers');
+    if (savedStickers) {
+      try {
+        const unlockedIds: string[] = JSON.parse(savedStickers);
+        this.stickersList.forEach(stk => {
+          if (unlockedIds.includes(stk.id)) stk.isUnlocked = true;
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    } else {
+      this.saveStickers();
+    }
+
+    // Check daily gift status and start 1-sec countdown ticker
+    this.checkDailyGiftStatus();
+    this.startGiftCooldownTicker();
+  }
+
+  ngOnDestroy(): void {
+    if (this.giftCooldownTimerId) {
+      clearInterval(this.giftCooldownTimerId);
+    }
+  }
+
+  /* 🎁 Daily Surprise Gift Logic with 24-Hour Cooldown */
+  checkDailyGiftStatus(): void {
+    const lastClaimStr = localStorage.getItem('toddler_daily_gift_last_claimed');
+    if (!lastClaimStr) {
+      this.isGiftClaimedToday = false;
+      this.giftCountdownFormatted = '';
+      this.cdr.detectChanges();
+      return;
+    }
+
+    const lastClaimTime = parseInt(lastClaimStr, 10);
+    if (isNaN(lastClaimTime)) {
+      this.isGiftClaimedToday = false;
+      this.cdr.detectChanges();
+      return;
+    }
+
+    const cooldownMs = 24 * 60 * 60 * 1000;
+    const now = Date.now();
+    const elapsed = now - lastClaimTime;
+
+    if (elapsed < cooldownMs) {
+      this.isGiftClaimedToday = true;
+      this.updateGiftCountdown(cooldownMs - elapsed);
+    } else {
+      this.isGiftClaimedToday = false;
+      this.giftCountdownFormatted = '';
+    }
+    this.cdr.detectChanges();
+  }
+
+  startGiftCooldownTicker(): void {
+    if (this.giftCooldownTimerId) {
+      clearInterval(this.giftCooldownTimerId);
+    }
+    this.giftCooldownTimerId = setInterval(() => {
+      this.checkDailyGiftStatus();
+    }, 1000);
+  }
+
+  updateGiftCountdown(remainingMs: number): void {
+    const totalSeconds = Math.max(0, Math.floor(remainingMs / 1000));
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    this.giftCountdownFormatted = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+  }
+
+  handleDailyGiftTap(): void {
+    if (this.isGiftClaimedToday) {
+      this.sound.playHint();
+      if (this.voiceEnabled) {
+        this.speech.speakHindi(`आज का जादुई तोहफ़ा आप ले चुके हैं! अगला तोहफ़ा ${this.giftCountdownFormatted} बाद खुलेगा!`);
+      }
+      this.showGiftClaimedNotice = true;
+      this.cdr.detectChanges();
+      setTimeout(() => {
+        this.showGiftClaimedNotice = false;
+        this.cdr.detectChanges();
+      }, 3500);
+      return;
+    }
+
+    this.openDailyGift();
+  }
+
+  openDailyGift(): void {
+    this.sound.playFanfare();
+    this.confetti.fire();
+    this.isGiftShaking = false;
+
+    // Pick random gift from gifts array
+    const giftIndex = Math.floor(Math.random() * this.surpriseGifts.length);
+    this.currentGift = this.surpriseGifts[giftIndex];
+
+    this.totalStars += this.currentGift.bonusStars;
+    localStorage.setItem('toddler_total_stars', this.totalStars.toString());
+
+    // Record claim time in localStorage (enforces 1 per day!)
+    localStorage.setItem('toddler_daily_gift_last_claimed', Date.now().toString());
+    this.isGiftClaimedToday = true;
+    this.updateGiftCountdown(24 * 60 * 60 * 1000);
+
+    // Also unlock a bonus surprise sticker!
+    this.recentlyUnlockedSticker = this.unlockRandomSticker();
+
+    if (this.voiceEnabled) {
+      this.speech.speakHindi(`वाह! आपको मिला ${this.currentGift.hindiName}! 5 नए सितारे मिले!`);
+    }
+
+    this.isDailyGiftOpen = true;
+    this.cdr.detectChanges();
+  }
+
+  closeDailyGift(): void {
+    this.sound.playSuccess();
+    this.confetti.fire();
+    this.isDailyGiftOpen = false;
+    this.recentlyUnlockedSticker = null;
+    this.cdr.detectChanges();
+  }
+
+  /* 🧒 Child Profile & Sticker Album Methods */
+  openChildProfile(): void {
+    this.sound.playTap();
+    this.confetti.fire();
+    if (this.voiceEnabled) {
+      this.speech.speakHindi(`नमस्ते ${this.childProfile.name}! ये रहे तुम्हारे जादुई स्टिकर्स!`);
+    }
+    this.isChildProfileOpen = true;
+    this.cdr.detectChanges();
+  }
+
+  closeChildProfile(): void {
+    this.sound.playTap();
+    this.isChildProfileOpen = false;
+    this.cdr.detectChanges();
+  }
+
+  onChildNameChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input) {
+      this.setChildName(input.value);
+    }
+  }
+
+  setChildName(name: string): void {
+    const trimmed = name.trim() || 'Little Champ';
+    this.childProfile.name = trimmed;
+    localStorage.setItem('toddler_child_name', trimmed);
+    this.sound.playPop();
+    this.cdr.detectChanges();
+  }
+
+  setChildAvatar(avatar: string): void {
+    this.childProfile.avatar = avatar;
+    localStorage.setItem('toddler_child_avatar', avatar);
+    this.sound.playChime();
+    this.confetti.fire();
+    this.cdr.detectChanges();
+  }
+
+  onStickerTap(stk: StickerItem): void {
+    if (stk.isUnlocked) {
+      this.sound.playPop();
+      this.confetti.fire();
+      if (this.voiceEnabled) {
+        this.speech.speakHindi(`वाह! ${stk.hindiName}! ${stk.hindiDescription}`);
+      }
+    } else {
+      this.sound.playHint();
+      if (this.voiceEnabled) {
+        this.speech.speakHindi(`यह स्टिकर बंद है! रोज़ का तोहफ़ा खोलकर या गेम खेलकर इसे अनलॉक करो!`);
+      }
+    }
+  }
+
+  unlockRandomSticker(): StickerItem | null {
+    const locked = this.stickersList.filter(s => !s.isUnlocked);
+    if (locked.length === 0) return null;
+
+    const chosen = locked[Math.floor(Math.random() * locked.length)];
+    chosen.isUnlocked = true;
+    this.saveStickers();
+    return chosen;
+  }
+
+  saveStickers(): void {
+    const unlockedIds = this.stickersList.filter(s => s.isUnlocked).map(s => s.id);
+    localStorage.setItem('toddler_unlocked_stickers', JSON.stringify(unlockedIds));
+    this.cdr.detectChanges();
+  }
+
+  /* ☀️/🌙 Day & Night Celestial Toggle */
+  toggleDayNight(): void {
+    this.isNightMode = !this.isNightMode;
+    this.isSunSquishing = true;
+    this.sunSparkle = true;
+
+    if (this.isNightMode) {
+      this.sound.playChime();
+      this.confetti.fire();
+      if (this.voiceEnabled) {
+        this.speech.speakWord('Shubh Raatri! Good night starry sky! 🌙');
+      }
+    } else {
+      this.sound.playFanfare();
+      this.confetti.fire();
+      if (this.voiceEnabled) {
+        this.speech.speakWord('Good morning! Beautiful sunshine! ☀️');
+      }
+    }
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.isSunSquishing = false;
+      this.sunSparkle = false;
+      this.cdr.detectChanges();
+    }, 800);
+  }
+
+  onCelestialClick(event: MouseEvent): void {
+    this.toggleDayNight();
+  }
+
+  onSunClick(event: MouseEvent): void {
+    this.toggleDayNight();
   }
 
   isCloudRaining(index: number): boolean {
@@ -1721,17 +3136,39 @@ export class StartPortalComponent implements OnInit {
     this.selectBuddy(this.currentBuddy);
   }
 
-  onSunClick(event: MouseEvent): void {
-    this.sound.playBoing();
-    this.isSunSquishing = true;
-    this.sunSparkle = true;
+  quickLaunch(gameType: 'tracing' | 'coloring' | 'piano' | 'balloon'): void {
+    this.sound.playTap();
+    this.confetti.fire();
+    switch (gameType) {
+      case 'tracing':
+        if (this.voiceEnabled) this.speech.speakWord('Magic Tracing!');
+        this.appNav.goToLetterTracing();
+        break;
+      case 'coloring':
+        if (this.voiceEnabled) this.speech.speakWord('Magic Coloring!');
+        this.appNav.goToColoring();
+        break;
+      case 'piano':
+        if (this.voiceEnabled) this.speech.speakWord('Rainbow Piano!');
+        this.appNav.goToPiano();
+        break;
+      case 'balloon':
+        if (this.voiceEnabled) this.speech.speakWord('Balloon Pop!');
+        this.appNav.goToBalloonPop();
+        break;
+    }
+  }
+
+  onMelodyFlowerClick(flower: MelodyFlower, event: MouseEvent): void {
+    event.stopPropagation();
+    this.tappedFlowerNote = flower.note;
+    this.sound.playPianoNote(flower.note);
     if (this.voiceEnabled) {
-      this.speech.speakWord('Hello bright sunshine!');
+      this.speech.speakWord(flower.solfege);
     }
     setTimeout(() => {
-      this.isSunSquishing = false;
-      this.sunSparkle = false;
-    }, 800);
+      this.tappedFlowerNote = null;
+    }, 500);
   }
 
   onCloudClick(cloudIndex: number): void {

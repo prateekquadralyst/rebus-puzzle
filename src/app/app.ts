@@ -27,6 +27,12 @@ import { MagicColoringComponent } from './components/games/magic-coloring.compon
 import { AnimalPianoComponent } from './components/games/animal-piano.component';
 import { LetterTracingComponent } from './components/games/letter-tracing.component';
 import { TicTacToeComponent } from './components/games/tic-tac-toe.component';
+import { OddOneOutComponent } from './components/games/odd-one-out.component';
+import { ShadowMatchComponent } from './components/games/shadow-match.component';
+import { FeedAnimalsComponent } from './components/games/feed-animals.component';
+import { SizeSorterComponent } from './components/games/size-sorter.component';
+import { PeekabooComponent } from './components/games/peekaboo.component';
+import { ColorMixingComponent } from './components/games/color-mixing.component';
 import { GameStateService } from './core/services/game-state.service';
 import { SoundService } from './core/services/sound.service';
 import { AppNavService } from './core/services/app-nav.service';
@@ -50,6 +56,12 @@ import { AppNavService } from './core/services/app-nav.service';
     AnimalPianoComponent,
     LetterTracingComponent,
     TicTacToeComponent,
+    OddOneOutComponent,
+    ShadowMatchComponent,
+    FeedAnimalsComponent,
+    SizeSorterComponent,
+    PeekabooComponent,
+    ColorMixingComponent,
     HeaderComponent,
     PuzzleStageComponent,
     AnswerSlotsComponent,
